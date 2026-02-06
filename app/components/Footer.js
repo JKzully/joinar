@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   return (
@@ -7,11 +8,8 @@ export default function Footer() {
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="text-xl" aria-hidden="true">🏀</span>
-              <span className="text-lg font-bold tracking-tight text-text-primary">
-                PICKED
-              </span>
+            <Link href="/" className="flex items-center">
+              <Image src="/logo.svg" alt="Picked" width={70} height={32} />
             </Link>
             <p className="mt-3 text-sm text-text-muted">
               Get Picked.

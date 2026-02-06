@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -10,11 +11,8 @@ export default function Navbar() {
     <nav className="fixed top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-2xl" aria-hidden="true">🏀</span>
-          <span className="text-lg font-bold tracking-tight text-text-primary">
-            PICKED
-          </span>
+        <Link href="/" className="flex items-center">
+          <Image src="/logo.svg" alt="Picked" width={80} height={36} priority />
         </Link>
 
         {/* Desktop nav */}

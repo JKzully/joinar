@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { signOut } from "./actions";
 
@@ -125,12 +126,9 @@ export default function DashboardSidebar({ profile }) {
   const sidebarContent = (
     <>
       {/* Logo */}
-      <div className="flex h-16 items-center gap-2 border-b border-border px-5">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-xl" aria-hidden="true">🏀</span>
-          <span className="text-base font-bold tracking-tight text-text-primary">
-            PICKED
-          </span>
+      <div className="flex h-16 items-center border-b border-border px-5">
+        <Link href="/" className="flex items-center">
+          <Image src="/logo.svg" alt="Picked" width={70} height={32} />
         </Link>
       </div>
 

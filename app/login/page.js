@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -38,11 +39,8 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <Link href="/" className="mb-8 flex items-center justify-center gap-2">
-          <span className="text-2xl" aria-hidden="true">🏀</span>
-          <span className="text-lg font-bold tracking-tight text-text-primary">
-            PICKED
-          </span>
+        <Link href="/" className="mb-8 flex items-center justify-center">
+          <Image src="/logo.svg" alt="Picked" width={88} height={40} />
         </Link>
 
         <h1 className="text-center text-2xl font-bold text-text-primary">

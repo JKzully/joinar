@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -80,11 +81,8 @@ function SignUpForm() {
   return (
     <div className="w-full max-w-md">
       {/* Logo */}
-      <Link href="/" className="mb-8 flex items-center justify-center gap-2">
-        <span className="text-2xl" aria-hidden="true">🏀</span>
-        <span className="text-lg font-bold tracking-tight text-text-primary">
-          PICKED
-        </span>
+      <Link href="/" className="mb-8 flex items-center justify-center">
+        <Image src="/logo.svg" alt="Picked" width={88} height={40} />
       </Link>
 
       {/* Step 1: Role selection */}
