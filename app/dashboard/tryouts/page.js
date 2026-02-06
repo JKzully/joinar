@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import TryoutActions from "./TryoutActions";
 
 export const metadata = {
-  title: "Tryout Invitations - Joinar",
+  title: "Tryout Invitations - Picked",
 };
 
 export default async function TryoutsPage() {

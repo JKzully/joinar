@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import MessageButton from "../../MessageButton";
 
 export const metadata = {
-  title: "Team Profile - Joinar",
+  title: "Team Profile - Picked",
 };
 
 const POSITION_LABELS = {

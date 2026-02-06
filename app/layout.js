@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Joinar — Where Basketball Talent Meets Opportunity",
+  title: "Picked — Where Basketball Talent Meets Opportunity",
   description:
     "The marketplace connecting semi-pro basketball players and teams across Europe. Create your profile, get discovered, and find your next opportunity. Free.",
 };

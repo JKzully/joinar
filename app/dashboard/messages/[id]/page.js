@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import ChatThread from "./ChatThread";
 
 export const metadata = {
-  title: "Conversation - Joinar",
+  title: "Conversation - Picked",
 };
 
 export default async function ConversationPage({ params }) {

@@ -83,7 +83,7 @@ function SignUpForm() {
       <Link href="/" className="mb-8 flex items-center justify-center gap-2">
         <span className="text-2xl" aria-hidden="true">🏀</span>
         <span className="text-lg font-bold tracking-tight text-text-primary">
-          JOINAR
+          PICKED
         </span>
       </Link>
 

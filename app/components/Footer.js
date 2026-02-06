@@ -10,11 +10,11 @@ export default function Footer() {
             <Link href="/" className="flex items-center gap-2">
               <span className="text-xl" aria-hidden="true">🏀</span>
               <span className="text-lg font-bold tracking-tight text-text-primary">
-                JOINAR
+                PICKED
               </span>
             </Link>
             <p className="mt-3 text-sm text-text-muted">
-              Where talent meets opportunity.
+              Get Picked.
             </p>
           </div>
 
@@ -93,7 +93,7 @@ export default function Footer() {
 
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 sm:flex-row">
           <p className="text-xs text-text-muted">
-            &copy; {new Date().getFullYear()} Joinar. All rights reserved.
+            &copy; {new Date().getFullYear()} Picked. All rights reserved.
           </p>
           <div className="flex gap-4">
             <a

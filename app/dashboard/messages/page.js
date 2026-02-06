@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = {
-  title: "Messages - Joinar",
+  title: "Messages - Picked",
 };
 
 export default async function MessagesPage() {

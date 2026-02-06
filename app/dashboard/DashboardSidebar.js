@@ -129,7 +129,7 @@ export default function DashboardSidebar({ profile }) {
         <Link href="/" className="flex items-center gap-2">
           <span className="text-xl" aria-hidden="true">🏀</span>
           <span className="text-base font-bold tracking-tight text-text-primary">
-            JOINAR
+            PICKED
           </span>
         </Link>
       </div>

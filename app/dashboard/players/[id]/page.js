@@ -5,7 +5,7 @@ import MessageButton from "../../MessageButton";
 import InviteToTryoutButton from "../../tryouts/InviteToTryoutButton";
 
 export const metadata = {
-  title: "Player Profile - Joinar",
+  title: "Player Profile - Picked",
 };
 
 const POSITION_LABELS = {

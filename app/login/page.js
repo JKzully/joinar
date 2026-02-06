@@ -41,7 +41,7 @@ export default function LoginPage() {
         <Link href="/" className="mb-8 flex items-center justify-center gap-2">
           <span className="text-2xl" aria-hidden="true">🏀</span>
           <span className="text-lg font-bold tracking-tight text-text-primary">
-            JOINAR
+            PICKED
           </span>
         </Link>
 
@@ -49,7 +49,7 @@ export default function LoginPage() {
           Welcome back
         </h1>
         <p className="mt-2 text-center text-sm text-text-secondary">
-          Log in to your Joinar account
+          Log in to your Picked account
         </p>
 
         <form onSubmit={handleLogin} className="mt-8 space-y-4">

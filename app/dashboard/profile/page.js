@@ -3,7 +3,7 @@ import PlayerProfileForm from "./PlayerProfileForm";
 import TeamProfileForm from "./TeamProfileForm";
 
 export const metadata = {
-  title: "Edit Profile - Joinar",
+  title: "Edit Profile - Picked",
 };
 
 export default async function ProfilePage() {

@@ -5,7 +5,7 @@ import { signOut } from "./actions";
 import DashboardSidebar from "./DashboardSidebar";
 
 export const metadata = {
-  title: "Dashboard - Joinar",
+  title: "Dashboard - Picked",
 };
 
 export default async function DashboardLayout({ children }) {
