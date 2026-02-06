@@ -13,9 +13,9 @@ const POSITION_LABELS = {
 
 const FEATURES = [
   {
-    title: "Player Profiles",
+    title: "Your Basketball Resume",
     description:
-      "Showcase your stats, highlight reels, experience, and physical attributes to stand out.",
+      "Stats. Highlights. Experience. Everything a coach needs to see — in one place. Make it count.",
     icon: (
       <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
         <path d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
@@ -23,9 +23,9 @@ const FEATURES = [
     ),
   },
   {
-    title: "Team Listings",
+    title: "Post Your Openings",
     description:
-      "Post open positions with details on league level, compensation, and what you're looking for.",
+      "Post open positions. Tell us what you need. We'll show you every player that matches — with stats, highlights, and experience.",
     icon: (
       <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
         <path d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
@@ -33,9 +33,9 @@ const FEATURES = [
     ),
   },
   {
-    title: "Smart Filters",
+    title: "Get Discovered",
     description:
-      "Search by position, country, age, height, experience level, and league tier.",
+      "Teams across 28 countries are actively searching for players like you. Our filters match you with teams that fit your position, level, and ambitions.",
     icon: (
       <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
         <path d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
@@ -45,7 +45,7 @@ const FEATURES = [
   {
     title: "Direct Messaging",
     description:
-      "Connect instantly. Message players or teams directly to discuss opportunities.",
+      "Direct messages. Real opportunities from real teams. No agents, no middlemen, no politics. Just basketball.",
     icon: (
       <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
         <path d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
@@ -55,7 +55,7 @@ const FEATURES = [
   {
     title: "Tryout Invitations",
     description:
-      "Teams can send official tryout invites with dates, locations, and details.",
+      "Get the call. Tryout invitations with dates, locations, and details. Real chances from real teams.",
     icon: (
       <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
         <path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
@@ -63,9 +63,9 @@ const FEATURES = [
     ),
   },
   {
-    title: "Boost Visibility",
+    title: "Be Seen First",
     description:
-      "Stand out from the crowd. Boost your profile to appear first in search results.",
+      "Boosted profiles appear at the top of every search. In a pool of talented players, being seen first makes all the difference.",
     icon: (
       <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
         <path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
@@ -77,21 +77,21 @@ const FEATURES = [
 const STEPS = [
   {
     step: "01",
-    title: "Create Your Profile",
+    title: "Build Your Profile",
     description:
-      "Sign up as a player or team. Add your details, stats, highlight videos, and what you're looking for.",
+      "Stats. Highlights. Experience. Everything a coach needs to see — in one place. This is your basketball resume. Make it count.",
   },
   {
     step: "02",
-    title: "Browse & Filter",
+    title: "Get Discovered",
     description:
-      "Use smart filters to find the perfect match. Search by position, country, league level, and more.",
+      "Teams across 28 countries are actively searching for players like you. Our filters match you with teams that fit your position, level, and ambitions.",
   },
   {
     step: "03",
-    title: "Connect & Match",
+    title: "Get the Call",
     description:
-      "Send messages, schedule tryouts, and find your next opportunity. It's that simple.",
+      "Direct messages. Tryout invitations. Real opportunities from real teams. No agents, no middlemen, no politics. Just basketball.",
   },
 ];
 
@@ -179,27 +179,21 @@ export default async function Home() {
         <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-24 sm:px-6 sm:pt-32 lg:px-8 lg:pt-40">
           <div className="mx-auto max-w-3xl text-center">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-sm text-orange-400">
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-              </svg>
-              Now live across 25+ European countries
+              <span className="h-2 w-2 rounded-full bg-green-400" />
+              47 players got contacted this week
             </div>
 
             <h1 className="text-4xl font-bold leading-tight tracking-tight text-text-primary sm:text-5xl lg:text-6xl">
-              Where Basketball{" "}
+              Your Talent Deserves{" "}
               <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
-                Talent
-              </span>{" "}
-              Meets{" "}
-              <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
-                Opportunity
+                a Stage
               </span>
             </h1>
 
             <p className="mx-auto mt-6 max-w-2xl text-lg text-text-secondary">
-              The marketplace for semi-pro basketball in Europe. Players find
-              teams. Teams find talent. No agents, no middlemen &mdash; just
-              direct connections.
+              You&apos;ve been grinding in empty gyms, playing in leagues no
+              scout has ever heard of. That changes today. We connect overlooked
+              players with teams that actually need you.
             </p>
 
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -207,29 +201,33 @@ export default async function Home() {
                 href="/signup?role=player"
                 className="w-full rounded-xl bg-orange-500 px-8 py-3.5 text-center text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition-all hover:bg-orange-600 hover:shadow-orange-500/40 sm:w-auto"
               >
-                I&apos;m a Player
+                Show Me Teams &rarr;
               </Link>
               <Link
                 href="/signup?role=team"
                 className="w-full rounded-xl border border-border bg-surface px-8 py-3.5 text-center text-sm font-semibold text-text-primary transition-all hover:border-orange-500/50 hover:bg-surface-light sm:w-auto"
               >
-                I&apos;m a Team
+                I&apos;m a Team Looking for Players
               </Link>
             </div>
 
             {/* Stats bar */}
-            <div className="mx-auto mt-16 grid max-w-lg grid-cols-3 gap-8">
+            <div className="mx-auto mt-16 grid max-w-2xl grid-cols-4 gap-8">
               <div>
                 <p className="text-2xl font-bold text-orange-400 sm:text-3xl">2,400+</p>
-                <p className="mt-1 text-xs text-text-muted sm:text-sm">Active Players</p>
+                <p className="mt-1 text-xs text-text-muted sm:text-sm">Players Ready</p>
               </div>
               <div>
                 <p className="text-2xl font-bold text-orange-400 sm:text-3xl">380+</p>
-                <p className="mt-1 text-xs text-text-muted sm:text-sm">Teams Listed</p>
+                <p className="mt-1 text-xs text-text-muted sm:text-sm">Teams Searching</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-orange-400 sm:text-3xl">25+</p>
+                <p className="text-2xl font-bold text-orange-400 sm:text-3xl">28</p>
                 <p className="mt-1 text-xs text-text-muted sm:text-sm">Countries</p>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-orange-400 sm:text-3xl">650+</p>
+                <p className="mt-1 text-xs text-text-muted sm:text-sm">Connections Made</p>
               </div>
             </div>
           </div>
@@ -242,10 +240,10 @@ export default async function Home() {
           <div className="mb-12 flex items-end justify-between">
             <div>
               <h2 className="text-2xl font-bold text-text-primary sm:text-3xl">
-                Featured Players
+                They Took the Shot
               </h2>
               <p className="mt-2 text-text-secondary">
-                Discover talent from across Europe
+                These players were exactly where you are. Then they created a profile.
               </p>
             </div>
             <Link
@@ -369,10 +367,10 @@ export default async function Home() {
           <div className="mb-12 flex items-end justify-between">
             <div>
               <h2 className="text-2xl font-bold text-text-primary sm:text-3xl">
-                Teams Hiring Now
+                Teams Actively Searching
               </h2>
               <p className="mt-2 text-text-secondary">
-                Open positions across European leagues
+                Open roster spots, right now. Your next chapter could be one message away.
               </p>
             </div>
             <Link
@@ -497,10 +495,10 @@ export default async function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto mb-12 max-w-2xl text-center">
             <h2 className="text-2xl font-bold text-text-primary sm:text-3xl">
-              Everything You Need to Connect
+              The System Is Broken. We&apos;re Fixing It.
             </h2>
             <p className="mt-3 text-text-secondary">
-              Built specifically for the European semi-pro basketball market
+              If you&apos;re not in the right academy, in the right country, or in front of the right scout — you&apos;re invisible. We built this to fix that.
             </p>
           </div>
 
@@ -533,10 +531,10 @@ export default async function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto mb-12 max-w-2xl text-center">
             <h2 className="text-2xl font-bold text-text-primary sm:text-3xl">
-              How It Works
+              Three Steps to Being Seen
             </h2>
             <p className="mt-3 text-text-secondary">
-              Get started in three simple steps
+              Your next opportunity starts here
             </p>
           </div>
 
@@ -565,27 +563,26 @@ export default async function Home() {
             <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-orange-500/10 blur-[80px]" />
             <div className="relative mx-auto max-w-2xl text-center">
               <h2 className="text-2xl font-bold text-text-primary sm:text-3xl lg:text-4xl">
-                Ready to Find Your Next Match?
+                Every Pro Started{" "}
+                <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
+                  as an Unknown
+                </span>
               </h2>
               <p className="mt-4 text-text-secondary">
-                Join thousands of players and hundreds of teams already
-                connecting on Joinar. Your next opportunity is one click
-                away.
+                You&apos;ve put in the hours. The early mornings. The extra reps
+                when nobody was watching. Now it&apos;s time to be seen.
               </p>
-              <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Link
                   href="/signup"
                   className="w-full rounded-xl bg-orange-500 px-8 py-3.5 text-center text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition-all hover:bg-orange-600 hover:shadow-orange-500/40 sm:w-auto"
                 >
-                  Get Started Free
-                </Link>
-                <Link
-                  href="#how-it-works"
-                  className="w-full rounded-xl border border-border bg-surface px-8 py-3.5 text-center text-sm font-semibold text-text-primary transition-all hover:border-orange-500/50 sm:w-auto"
-                >
-                  Learn More
+                  Create Your Free Profile &rarr;
                 </Link>
               </div>
+              <p className="mt-4 text-xs text-text-muted">
+                Free forever. No credit card needed. Takes 3 minutes.
+              </p>
             </div>
           </div>
         </div>

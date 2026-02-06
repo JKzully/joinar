@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { startConversation } from "./actions";
 
-export default function MessageButton({ profileId, className }) {
+export default function MessageButton({ profileId, className, label }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -31,7 +31,7 @@ export default function MessageButton({ profileId, className }) {
         "w-full rounded-lg border border-border bg-surface-light py-2 text-center text-sm font-medium text-text-primary transition-colors hover:border-orange-500/50 hover:text-orange-400 disabled:opacity-50 disabled:cursor-not-allowed"
       }
     >
-      {loading ? "Opening..." : "Message"}
+      {loading ? "Opening..." : label || "Message"}
     </button>
   );
 }

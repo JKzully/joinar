@@ -211,7 +211,7 @@ function EmptyInbox() {
       </svg>
       <p className="mt-3 text-sm text-text-muted">No conversations yet</p>
       <p className="mt-1 text-xs text-text-muted">
-        Browse players or teams and send a message to get started
+        This could be the conversation that changes your career. Browse players or teams to get started.
       </p>
     </div>
   );

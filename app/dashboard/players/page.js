@@ -5,7 +5,7 @@ import PlayerFilters from "./PlayerFilters";
 import MessageButton from "../MessageButton";
 
 export const metadata = {
-  title: "Browse Players - Joinar",
+  title: "Find Basketball Players — Semi-Pro Talent Across Europe",
 };
 
 const POSITION_LABELS = {
@@ -84,9 +84,9 @@ export default async function BrowsePlayersPage({ searchParams }) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-text-primary">Browse Players</h1>
+        <h1 className="text-2xl font-bold text-text-primary">Find Your Next Player</h1>
         <p className="mt-1 text-sm text-text-secondary">
-          Discover talent across European leagues
+          Every player here is hungry, available, and ready to prove themselves. Use the filters to find your perfect match.
         </p>
       </div>
 
@@ -115,8 +115,8 @@ export default async function BrowsePlayersPage({ searchParams }) {
           <svg className="mx-auto h-10 w-10 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
             <path d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
           </svg>
-          <p className="mt-3 text-sm text-text-muted">No players match your filters</p>
-          <p className="mt-1 text-xs text-text-muted">Try adjusting your search criteria</p>
+          <p className="mt-3 text-sm text-text-muted">No players match those filters</p>
+          <p className="mt-1 text-xs text-text-muted">New players sign up every day. Try adjusting your search or check back soon.</p>
         </div>
       )}
     </div>

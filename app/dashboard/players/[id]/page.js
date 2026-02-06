@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import MessageButton from "../../MessageButton";
+import InviteToTryoutButton from "../../tryouts/InviteToTryoutButton";
 
 export const metadata = {
   title: "Player Profile - Joinar",
@@ -37,6 +38,17 @@ export default async function PlayerProfilePage({ params }) {
     .eq("profile_id", id)
     .eq("is_active", true)
     .maybeSingle();
+
+  // Fetch current user's role to conditionally show team actions
+  const {
+    data: { user: currentUser },
+  } = await supabase.auth.getUser();
+  const { data: currentProfile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", currentUser.id)
+    .single();
+  const isTeam = currentProfile?.role === "team";
 
   const isBoosted = !!boost;
   const profile = player.profile;
@@ -130,7 +142,7 @@ export default async function PlayerProfilePage({ params }) {
       {/* Details */}
       <div className="rounded-2xl border border-border bg-surface p-6">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-text-muted">
-          Details
+          My Game
         </h2>
         <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
           <DetailItem
@@ -157,7 +169,7 @@ export default async function PlayerProfilePage({ params }) {
       {player.bio && (
         <div className="rounded-2xl border border-border bg-surface p-6">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-text-muted">
-            Bio
+            Where I&apos;ve Been
           </h2>
           <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-text-secondary">
             {player.bio}
@@ -169,7 +181,7 @@ export default async function PlayerProfilePage({ params }) {
       {player.highlights_url && (
         <div className="rounded-2xl border border-border bg-surface p-6">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-text-muted">
-            Highlights
+            See Me Play
           </h2>
           <a
             href={player.highlights_url}
@@ -192,6 +204,7 @@ export default async function PlayerProfilePage({ params }) {
           profileId={player.id}
           className="flex-1 rounded-xl bg-orange-500 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
         />
+        {isTeam && <InviteToTryoutButton playerId={player.id} />}
         <Link
           href="/dashboard/players"
           className="flex-1 rounded-xl border border-border bg-surface py-3 text-center text-sm font-medium text-text-primary transition-colors hover:border-orange-500/50 hover:text-orange-400"

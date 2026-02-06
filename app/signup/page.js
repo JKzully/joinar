@@ -91,7 +91,7 @@ function SignUpForm() {
       {step === 1 && (
         <div>
           <h1 className="text-center text-2xl font-bold text-text-primary">
-            Join Joinar
+            Let&apos;s Get You Seen
           </h1>
           <p className="mt-2 text-center text-sm text-text-secondary">
             Choose how you want to use the platform
@@ -109,7 +109,7 @@ function SignUpForm() {
               </div>
               <h3 className="text-base font-semibold text-text-primary">Player</h3>
               <p className="mt-1 text-xs text-text-muted">
-                Find teams &amp; showcase your talent
+                Get your talent in front of teams that need you
               </p>
             </button>
 
@@ -124,7 +124,7 @@ function SignUpForm() {
               </div>
               <h3 className="text-base font-semibold text-text-primary">Team</h3>
               <p className="mt-1 text-xs text-text-muted">
-                Discover players &amp; fill positions
+                Tell us what you need and find the right player
               </p>
             </button>
           </div>
@@ -142,7 +142,7 @@ function SignUpForm() {
       {step === 2 && (
         <div>
           <h1 className="text-center text-2xl font-bold text-text-primary">
-            Create your account
+            Let&apos;s Get You Seen
           </h1>
           <p className="mt-2 text-center text-sm text-text-secondary">
             Signing up as{" "}

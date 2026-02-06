@@ -12,9 +12,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Joinar - Find Your Team. Get Found.",
+  title: "Joinar — Where Basketball Talent Meets Opportunity",
   description:
-    "The marketplace for semi-pro basketball. Find your next team or discover elite talent across Europe.",
+    "The marketplace connecting semi-pro basketball players and teams across Europe. Create your profile, get discovered, and find your next opportunity. Free.",
 };
 
 export default function RootLayout({ children }) {

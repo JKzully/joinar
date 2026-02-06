@@ -14,7 +14,7 @@ export default function Footer() {
               </span>
             </Link>
             <p className="mt-3 text-sm text-text-muted">
-              Find your team. Get found.
+              Where talent meets opportunity.
             </p>
           </div>
 

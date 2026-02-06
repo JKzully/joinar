@@ -127,7 +127,7 @@ export default async function TeamProfilePage({ params }) {
       {openPositions.length > 0 && (
         <div className="rounded-2xl border border-border bg-surface p-6">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-text-muted">
-            Open Positions ({openPositions.length})
+            We&apos;re Looking For ({openPositions.length})
           </h2>
           <div className="mt-4 space-y-3">
             {openPositions.map((pos) => (
@@ -232,6 +232,7 @@ export default async function TeamProfilePage({ params }) {
       <div className="flex gap-3">
         <MessageButton
           profileId={team.id}
+          label="I'm Interested — Let's Talk"
           className="flex-1 rounded-xl bg-orange-500 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
         />
         <Link
