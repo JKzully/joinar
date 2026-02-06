@@ -3,6 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  sendNewMessageEmail,
+  sendTryoutInvitationEmail,
+} from "@/lib/email";
 
 export async function signOut() {
   const supabase = await createClient();
@@ -177,6 +182,53 @@ export async function sendMessage(conversationId, content) {
 
   if (error) return { error: error.message };
 
+  // Send email notification to recipient (fire-and-forget)
+  try {
+    // Find the other participant
+    const { data: otherParticipant } = await supabase
+      .from("conversation_participants")
+      .select("profile_id")
+      .eq("conversation_id", conversationId)
+      .neq("profile_id", user.id)
+      .single();
+
+    if (otherParticipant) {
+      // Check if recipient has been active recently (read a message in last 5 min)
+      const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+      const { data: recentReads } = await supabase
+        .from("messages")
+        .select("id")
+        .eq("conversation_id", conversationId)
+        .eq("sender_id", user.id)
+        .gte("read_at", fiveMinAgo)
+        .limit(1);
+
+      // Only email if recipient appears inactive
+      if (!recentReads || recentReads.length === 0) {
+        const admin = createAdminClient();
+        const { data: recipientAuth } = await admin.auth.admin.getUserById(
+          otherParticipant.profile_id
+        );
+        const { data: senderProfile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", user.id)
+          .single();
+
+        if (recipientAuth?.user?.email) {
+          await sendNewMessageEmail(
+            recipientAuth.user.email,
+            senderProfile?.full_name || "Someone",
+            trimmed,
+            conversationId
+          );
+        }
+      }
+    }
+  } catch (emailErr) {
+    console.error("[sendMessage] Email notification failed:", emailErr);
+  }
+
   revalidatePath("/dashboard/messages");
   return { message };
 }
@@ -196,4 +248,116 @@ export async function markMessagesRead(conversationId) {
     .eq("conversation_id", conversationId)
     .neq("sender_id", user.id)
     .is("read_at", null);
+}
+
+export async function createTryoutInvitation(formData) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Not authenticated" };
+
+  const playerId = formData.get("player_id");
+  const tryoutDate = formData.get("tryout_date") || null;
+  const location = formData.get("location") || null;
+  const message = formData.get("message") || null;
+
+  // Verify caller is a team
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.role !== "team") return { error: "Only teams can send invitations" };
+
+  // Check for existing pending invitation to same player
+  const { data: existing } = await supabase
+    .from("tryout_invitations")
+    .select("id")
+    .eq("team_id", user.id)
+    .eq("player_id", playerId)
+    .eq("status", "pending")
+    .maybeSingle();
+
+  if (existing) return { error: "You already have a pending invitation for this player" };
+
+  // Insert invitation
+  const { data: invitation, error } = await supabase
+    .from("tryout_invitations")
+    .insert({
+      team_id: user.id,
+      player_id: playerId,
+      tryout_date: tryoutDate,
+      location,
+      message,
+      status: "pending",
+    })
+    .select("*")
+    .single();
+
+  if (error) return { error: error.message };
+
+  // Send email notification to player (fire-and-forget)
+  try {
+    const admin = createAdminClient();
+    const { data: playerAuth } = await admin.auth.admin.getUserById(playerId);
+    const { data: teamProfile } = await supabase
+      .from("team_profiles")
+      .select("team_name")
+      .eq("id", user.id)
+      .single();
+
+    if (playerAuth?.user?.email) {
+      await sendTryoutInvitationEmail(
+        playerAuth.user.email,
+        teamProfile?.team_name || "A team",
+        tryoutDate,
+        location,
+        message
+      );
+    }
+  } catch (emailErr) {
+    console.error("[createTryoutInvitation] Email notification failed:", emailErr);
+  }
+
+  revalidatePath("/dashboard/tryouts");
+  return { success: true, invitation };
+}
+
+export async function respondToTryoutInvitation(invitationId, status) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Not authenticated" };
+
+  if (!["accepted", "declined"].includes(status)) {
+    return { error: "Invalid status" };
+  }
+
+  // Verify this invitation belongs to the player
+  const { data: invitation } = await supabase
+    .from("tryout_invitations")
+    .select("id, status, player_id")
+    .eq("id", invitationId)
+    .single();
+
+  if (!invitation) return { error: "Invitation not found" };
+  if (invitation.player_id !== user.id) return { error: "Not authorized" };
+  if (invitation.status !== "pending") return { error: "Invitation already responded to" };
+
+  const { error } = await supabase
+    .from("tryout_invitations")
+    .update({ status })
+    .eq("id", invitationId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/dashboard/tryouts");
+  return { success: true };
 }
