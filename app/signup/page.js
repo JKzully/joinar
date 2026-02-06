@@ -38,6 +38,7 @@ function SignUpForm() {
           role,
           full_name: fullName,
         },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 
