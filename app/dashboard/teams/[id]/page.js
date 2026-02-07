@@ -37,6 +37,14 @@ export default async function TeamProfilePage({ params }) {
     .eq("is_active", true)
     .maybeSingle();
 
+  // Check if seed profile
+  const { data: profileRow } = await supabase
+    .from("profiles")
+    .select("is_seed")
+    .eq("id", id)
+    .single();
+  const isSeed = !!profileRow?.is_seed;
+
   const isBoosted = !!boost;
   const profile = team.profile;
   const positions = team.positions_needed || [];
@@ -65,6 +73,11 @@ export default async function TeamProfilePage({ params }) {
               <h1 className="text-2xl font-bold text-text-primary">
                 {team.team_name || "Unnamed Team"}
               </h1>
+              {isSeed && (
+                <span className="rounded-full bg-text-muted/15 px-2.5 py-1 text-xs font-medium text-text-muted">
+                  Sample Profile
+                </span>
+              )}
               {isBoosted && (
                 <span className="flex items-center gap-1 rounded-full bg-orange-500/15 px-2.5 py-1 text-xs font-medium text-orange-400">
                   <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
@@ -199,6 +212,7 @@ export default async function TeamProfilePage({ params }) {
       <div className="flex gap-3">
         <MessageButton
           profileId={team.profile_id}
+          isSeed={isSeed}
           label="I'm Interested — Let's Talk"
           className="flex-1 rounded-xl bg-orange-500 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
         />

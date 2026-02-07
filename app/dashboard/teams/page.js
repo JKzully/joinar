@@ -103,6 +103,7 @@ export default async function BrowseTeamsPage({ searchParams }) {
               key={team.id}
               team={team}
               boosted={boostedIds.has(team.profile_id)}
+              isSeed={!!team.is_seed}
             />
           ))}
         </div>
@@ -119,12 +120,17 @@ export default async function BrowseTeamsPage({ searchParams }) {
   );
 }
 
-function TeamCard({ team, boosted }) {
+function TeamCard({ team, boosted, isSeed }) {
   const profile = team.profile;
   const positions = team.positions_needed || [];
 
   return (
     <div className="group relative rounded-2xl border border-border bg-surface p-5 transition-all hover:border-orange-500/30 hover:shadow-lg hover:shadow-orange-500/5">
+      {isSeed && (
+        <div className="absolute left-4 top-4 rounded-full bg-text-muted/15 px-2.5 py-1 text-xs font-medium text-text-muted">
+          Sample
+        </div>
+      )}
       {boosted && (
         <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-orange-500/15 px-2.5 py-1 text-xs font-medium text-orange-400">
           <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
@@ -198,7 +204,7 @@ function TeamCard({ team, boosted }) {
       )}
 
       <div className="mt-4 grid grid-cols-2 gap-2">
-        <MessageButton profileId={team.profile_id} />
+        <MessageButton profileId={team.profile_id} isSeed={isSeed} />
         <Link
           href={`/dashboard/teams/${team.profile_id}`}
           className="rounded-lg bg-orange-500 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-orange-600"

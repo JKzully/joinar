@@ -251,6 +251,11 @@ export default async function Home() {
                     key={player.id}
                     className="group relative rounded-2xl border border-border bg-surface p-6 transition-all hover:border-orange-500/30 hover:shadow-lg hover:shadow-orange-500/5"
                   >
+                    {!!player.is_seed && (
+                      <div className="absolute left-4 top-4 rounded-full bg-text-muted/15 px-2.5 py-1 text-xs font-medium text-text-muted">
+                        Sample
+                      </div>
+                    )}
                     {boosted && (
                       <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-orange-500/15 px-2.5 py-1 text-xs font-medium text-orange-400">
                         <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
@@ -381,6 +386,11 @@ export default async function Home() {
                     key={team.id}
                     className="group relative rounded-2xl border border-border bg-background p-6 transition-all hover:border-orange-500/30 hover:shadow-lg hover:shadow-orange-500/5"
                   >
+                    {!!team.is_seed && (
+                      <div className="absolute left-4 top-4 rounded-full bg-text-muted/15 px-2.5 py-1 text-xs font-medium text-text-muted">
+                        Sample
+                      </div>
+                    )}
                     {boosted && (
                       <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-orange-500/15 px-2.5 py-1 text-xs font-medium text-orange-400">
                         <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">

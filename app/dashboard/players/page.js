@@ -100,6 +100,7 @@ export default async function BrowsePlayersPage({ searchParams }) {
               key={player.id}
               player={player}
               boosted={boostedIds.has(player.profile_id)}
+              isSeed={!!player.is_seed}
             />
           ))}
         </div>
@@ -116,7 +117,7 @@ export default async function BrowsePlayersPage({ searchParams }) {
   );
 }
 
-function PlayerCard({ player, boosted }) {
+function PlayerCard({ player, boosted, isSeed }) {
   const profile = player.profile;
   const age = player.date_of_birth
     ? Math.floor(
@@ -129,6 +130,11 @@ function PlayerCard({ player, boosted }) {
 
   return (
     <div className="group relative rounded-2xl border border-border bg-surface p-5 transition-all hover:border-orange-500/30 hover:shadow-lg hover:shadow-orange-500/5">
+      {isSeed && (
+        <div className="absolute left-4 top-4 rounded-full bg-text-muted/15 px-2.5 py-1 text-xs font-medium text-text-muted">
+          Sample
+        </div>
+      )}
       {boosted && (
         <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-orange-500/15 px-2.5 py-1 text-xs font-medium text-orange-400">
           <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
@@ -194,7 +200,7 @@ function PlayerCard({ player, boosted }) {
       )}
 
       <div className="mt-4 grid grid-cols-2 gap-2">
-        <MessageButton profileId={player.profile_id} />
+        <MessageButton profileId={player.profile_id} isSeed={isSeed} />
         <Link
           href={`/dashboard/players/${player.profile_id}`}
           className="rounded-lg border border-border bg-surface-light py-2 text-center text-sm font-medium text-text-primary transition-colors hover:border-orange-500/50 hover:text-orange-400"

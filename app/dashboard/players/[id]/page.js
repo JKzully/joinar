@@ -46,6 +46,14 @@ export default async function PlayerProfilePage({ params }) {
     .eq("is_active", true)
     .maybeSingle();
 
+  // Check if seed profile
+  const { data: profileRow } = await supabase
+    .from("profiles")
+    .select("is_seed")
+    .eq("id", id)
+    .single();
+  const isSeed = !!profileRow?.is_seed;
+
   // Fetch current user's role to conditionally show team actions
   const {
     data: { user: currentUser },
@@ -101,6 +109,11 @@ export default async function PlayerProfilePage({ params }) {
               <h1 className="text-2xl font-bold text-text-primary">
                 {profile?.full_name || "Unnamed Player"}
               </h1>
+              {isSeed && (
+                <span className="rounded-full bg-text-muted/15 px-2.5 py-1 text-xs font-medium text-text-muted">
+                  Sample Profile
+                </span>
+              )}
               {isBoosted && (
                 <span className="flex items-center gap-1 rounded-full bg-orange-500/15 px-2.5 py-1 text-xs font-medium text-orange-400">
                   <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
@@ -231,9 +244,10 @@ export default async function PlayerProfilePage({ params }) {
       <div className="flex gap-3">
         <MessageButton
           profileId={player.profile_id}
+          isSeed={isSeed}
           className="flex-1 rounded-xl bg-orange-500 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
         />
-        {isTeam && <InviteToTryoutButton playerId={player.profile_id} />}
+        {isTeam && !isSeed && <InviteToTryoutButton playerId={player.profile_id} />}
         <Link
           href="/dashboard/players"
           className="flex-1 rounded-xl border border-border bg-surface py-3 text-center text-sm font-medium text-text-primary transition-colors hover:border-orange-500/50 hover:text-orange-400"
