@@ -15,7 +15,7 @@ export async function signOut() {
   redirect("/");
 }
 
-export async function updatePlayerProfile(formData) {
+export async function updateAccount(formData) {
   const supabase = await createClient();
 
   const {
@@ -24,47 +24,99 @@ export async function updatePlayerProfile(formData) {
 
   if (!user) return { error: "Not authenticated" };
 
-  // Update base profile
-  const { error: profileError } = await supabase
+  const { error } = await supabase
     .from("profiles")
     .update({
       full_name: formData.get("full_name") || null,
       country: formData.get("country") || null,
       city: formData.get("city") || null,
+      bio: formData.get("bio") || null,
     })
     .eq("id", user.id);
 
-  if (profileError) return { error: profileError.message };
+  if (error) return { error: error.message };
 
-  // Upsert player profile
-  const playerData = {
-    id: user.id,
-    position: formData.get("position") || null,
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
+export async function uploadAvatar(formData) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Not authenticated" };
+
+  const file = formData.get("avatar");
+  if (!file || !file.size) return { error: "No file provided" };
+
+  const ext = file.name.split(".").pop();
+  const filePath = `${user.id}/avatar.${ext}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("avatars")
+    .upload(filePath, file, { upsert: true });
+
+  if (uploadError) return { error: uploadError.message };
+
+  const { data: urlData } = supabase.storage
+    .from("avatars")
+    .getPublicUrl(filePath);
+
+  const { error: updateError } = await supabase
+    .from("profiles")
+    .update({ avatar_url: urlData.publicUrl })
+    .eq("id", user.id);
+
+  if (updateError) return { error: updateError.message };
+
+  revalidatePath("/dashboard");
+  return { success: true, avatar_url: urlData.publicUrl };
+}
+
+export async function updatePlayerAd(formData) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Not authenticated" };
+
+  const positions = formData.getAll("positions");
+
+  const adData = {
+    profile_id: user.id,
+    positions: positions.length > 0 ? positions : [],
     height_cm: parseInt(formData.get("height_cm")) || null,
     weight_kg: parseInt(formData.get("weight_kg")) || null,
     date_of_birth: formData.get("date_of_birth") || null,
+    experience_level: formData.get("experience_level") || null,
     experience_years: parseInt(formData.get("experience_years")) || 0,
-    bio: formData.get("bio") || null,
+    previous_teams: formData.get("previous_teams") || null,
     highlights_url: formData.get("highlights_url") || null,
     ppg: parseFloat(formData.get("ppg")) || 0,
     apg: parseFloat(formData.get("apg")) || 0,
     rpg: parseFloat(formData.get("rpg")) || 0,
     spg: parseFloat(formData.get("spg")) || 0,
     bpg: parseFloat(formData.get("bpg")) || 0,
+    three_pt_pct: parseFloat(formData.get("three_pt_pct")) || null,
     looking_for: formData.get("looking_for") || null,
   };
 
-  const { error: playerError } = await supabase
-    .from("player_profiles")
-    .upsert(playerData, { onConflict: "id" });
+  const { error } = await supabase
+    .from("player_ads")
+    .upsert(adData, { onConflict: "profile_id" });
 
-  if (playerError) return { error: playerError.message };
+  if (error) return { error: error.message };
 
   revalidatePath("/dashboard");
   return { success: true };
 }
 
-export async function updateTeamProfile(formData) {
+export async function updateTeamAd(formData) {
   const supabase = await createClient();
 
   const {
@@ -73,37 +125,70 @@ export async function updateTeamProfile(formData) {
 
   if (!user) return { error: "Not authenticated" };
 
-  // Update base profile
-  const { error: profileError } = await supabase
-    .from("profiles")
-    .update({
-      full_name: formData.get("full_name") || null,
-      country: formData.get("country") || null,
-      city: formData.get("city") || null,
-    })
-    .eq("id", user.id);
+  const positionsNeeded = formData.getAll("positions_needed");
 
-  if (profileError) return { error: profileError.message };
-
-  // Upsert team profile
-  const teamData = {
-    id: user.id,
-    team_name: formData.get("team_name") || "",
+  const adData = {
+    profile_id: user.id,
+    team_name: formData.get("team_name") || null,
+    positions_needed: positionsNeeded.length > 0 ? positionsNeeded : [],
     league: formData.get("league") || null,
     league_tier: parseInt(formData.get("league_tier")) || null,
+    division: formData.get("division") || null,
     description: formData.get("description") || null,
+    what_we_offer: formData.get("what_we_offer") || null,
     website: formData.get("website") || null,
     founded_year: parseInt(formData.get("founded_year")) || null,
+    season_record: formData.get("season_record") || null,
   };
 
-  const { error: teamError } = await supabase
-    .from("team_profiles")
-    .upsert(teamData, { onConflict: "id" });
+  const { error } = await supabase
+    .from("team_ads")
+    .upsert(adData, { onConflict: "profile_id" });
 
-  if (teamError) return { error: teamError.message };
+  if (error) return { error: error.message };
 
   revalidatePath("/dashboard");
   return { success: true };
+}
+
+export async function toggleAdActive() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Not authenticated" };
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile) return { error: "Profile not found" };
+
+  const table = profile.role === "player" ? "player_ads" : "team_ads";
+
+  const { data: ad } = await supabase
+    .from(table)
+    .select("id, is_active")
+    .eq("profile_id", user.id)
+    .single();
+
+  if (!ad) return { error: "No ad found" };
+
+  const newState = !ad.is_active;
+
+  const { error } = await supabase
+    .from(table)
+    .update({ is_active: newState })
+    .eq("id", ad.id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/dashboard");
+  return { success: true, is_active: newState };
 }
 
 export async function startConversation(otherProfileId) {
@@ -304,16 +389,16 @@ export async function createTryoutInvitation(formData) {
   try {
     const admin = createAdminClient();
     const { data: playerAuth } = await admin.auth.admin.getUserById(playerId);
-    const { data: teamProfile } = await supabase
-      .from("team_profiles")
+    const { data: teamAd } = await supabase
+      .from("team_ads")
       .select("team_name")
-      .eq("id", user.id)
+      .eq("profile_id", user.id)
       .single();
 
     if (playerAuth?.user?.email) {
       await sendTryoutInvitationEmail(
         playerAuth.user.email,
-        teamProfile?.team_name || "A team",
+        teamAd?.team_name || "A team",
         tryoutDate,
         location,
         message

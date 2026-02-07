@@ -3,14 +3,6 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { createClient } from "@/lib/supabase/server";
 
-const POSITION_LABELS = {
-  point_guard: "Point Guard",
-  shooting_guard: "Shooting Guard",
-  small_forward: "Small Forward",
-  power_forward: "Power Forward",
-  center: "Center",
-};
-
 const FEATURES = [
   {
     title: "Your Basketball Resume",
@@ -100,70 +92,57 @@ export default async function Home() {
 
   // Fetch featured players (boosted first, then most recently updated, limit 3)
   const { data: allPlayers } = await supabase
-    .from("player_profiles")
-    .select("*, profile:id(full_name, avatar_url, country, city)")
+    .from("player_ads")
+    .select("*, profile:profile_id(full_name, avatar_url, country, city)")
+    .eq("is_active", true)
     .order("updated_at", { ascending: false })
     .limit(12);
 
-  const playerIds = allPlayers?.map((p) => p.id) || [];
+  const playerProfileIds = allPlayers?.map((p) => p.profile_id) || [];
   const boostedPlayerIds = new Set();
-  if (playerIds.length > 0) {
+  if (playerProfileIds.length > 0) {
     const { data: pBoosts } = await supabase
       .from("boosts")
       .select("profile_id")
       .eq("is_active", true)
-      .in("profile_id", playerIds);
+      .in("profile_id", playerProfileIds);
     pBoosts?.forEach((b) => boostedPlayerIds.add(b.profile_id));
   }
 
   const featuredPlayers = (allPlayers || [])
     .sort((a, b) => {
-      const aB = boostedPlayerIds.has(a.id) ? 1 : 0;
-      const bB = boostedPlayerIds.has(b.id) ? 1 : 0;
+      const aB = boostedPlayerIds.has(a.profile_id) ? 1 : 0;
+      const bB = boostedPlayerIds.has(b.profile_id) ? 1 : 0;
       return bB - aB;
     })
     .slice(0, 3);
 
   // Fetch featured teams (boosted first, then most recently updated, limit 3)
   const { data: allTeams } = await supabase
-    .from("team_profiles")
-    .select("*, profile:id(full_name, avatar_url, country, city)")
+    .from("team_ads")
+    .select("*, profile:profile_id(full_name, avatar_url, country, city)")
+    .eq("is_active", true)
     .order("updated_at", { ascending: false })
     .limit(12);
 
-  const teamIds = allTeams?.map((t) => t.id) || [];
+  const teamProfileIds = allTeams?.map((t) => t.profile_id) || [];
   const boostedTeamIds = new Set();
-  if (teamIds.length > 0) {
+  if (teamProfileIds.length > 0) {
     const { data: tBoosts } = await supabase
       .from("boosts")
       .select("profile_id")
       .eq("is_active", true)
-      .in("profile_id", teamIds);
+      .in("profile_id", teamProfileIds);
     tBoosts?.forEach((b) => boostedTeamIds.add(b.profile_id));
   }
 
   const featuredTeams = (allTeams || [])
     .sort((a, b) => {
-      const aB = boostedTeamIds.has(a.id) ? 1 : 0;
-      const bB = boostedTeamIds.has(b.id) ? 1 : 0;
+      const aB = boostedTeamIds.has(a.profile_id) ? 1 : 0;
+      const bB = boostedTeamIds.has(b.profile_id) ? 1 : 0;
       return bB - aB;
     })
     .slice(0, 3);
-
-  // Fetch open positions for featured teams
-  const featuredTeamIds = featuredTeams.map((t) => t.id);
-  let positionsMap = {};
-  if (featuredTeamIds.length > 0) {
-    const { data: positions } = await supabase
-      .from("team_positions")
-      .select("*")
-      .eq("is_open", true)
-      .in("team_id", featuredTeamIds);
-    positions?.forEach((p) => {
-      if (!positionsMap[p.team_id]) positionsMap[p.team_id] = [];
-      positionsMap[p.team_id].push(p);
-    });
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -258,7 +237,8 @@ export default async function Home() {
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {featuredPlayers.map((player) => {
                 const profile = player.profile;
-                const boosted = boostedPlayerIds.has(player.id);
+                const boosted = boostedPlayerIds.has(player.profile_id);
+                const positions = player.positions || [];
                 const age = player.date_of_birth
                   ? Math.floor(
                       (Date.now() - new Date(player.date_of_birth).getTime()) /
@@ -287,9 +267,17 @@ export default async function Home() {
                     <h3 className="text-lg font-semibold text-text-primary">
                       {profile?.full_name || "Unnamed Player"}
                     </h3>
-                    <p className="text-sm text-orange-400">
-                      {POSITION_LABELS[player.position] || "Position TBD"}
-                    </p>
+                    {positions.length > 0 ? (
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {positions.map((pos) => (
+                          <span key={pos} className="rounded-full bg-orange-500/10 px-2 py-0.5 text-xs font-medium text-orange-400">
+                            {pos}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-orange-400">Position TBD</p>
+                    )}
 
                     <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
                       <div>
@@ -327,7 +315,7 @@ export default async function Home() {
                     </div>
 
                     <Link
-                      href={`/dashboard/players/${player.id}`}
+                      href={`/dashboard/players/${player.profile_id}`}
                       className="mt-5 block w-full rounded-lg border border-border bg-surface-light py-2.5 text-center text-sm font-medium text-text-primary transition-colors hover:border-orange-500/50 hover:text-orange-400"
                     >
                       View Profile
@@ -385,12 +373,8 @@ export default async function Home() {
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {featuredTeams.map((team) => {
                 const profile = team.profile;
-                const boosted = boostedTeamIds.has(team.id);
-                const teamPositions = positionsMap[team.id] || [];
-                const salaryMins = teamPositions.map((p) => p.salary_min).filter(Boolean);
-                const salaryMaxs = teamPositions.map((p) => p.salary_max).filter(Boolean);
-                const lowestSalary = salaryMins.length > 0 ? Math.min(...salaryMins) : null;
-                const highestSalary = salaryMaxs.length > 0 ? Math.max(...salaryMaxs) : null;
+                const boosted = boostedTeamIds.has(team.profile_id);
+                const positions = team.positions_needed || [];
 
                 return (
                   <div
@@ -411,27 +395,27 @@ export default async function Home() {
                     </div>
 
                     <h3 className="text-lg font-semibold text-text-primary">
-                      {team.team_name}
+                      {team.team_name || "Unnamed Team"}
                     </h3>
                     <p className="text-sm text-text-secondary">
                       {team.league || "League TBD"}
                     </p>
 
-                    {teamPositions.length > 0 && (
+                    {positions.length > 0 && (
                       <div className="mt-4">
                         <span className="text-xs text-text-muted">Open positions</span>
                         <div className="mt-1.5 flex flex-wrap gap-2">
-                          {teamPositions.slice(0, 3).map((pos) => (
+                          {positions.slice(0, 3).map((pos) => (
                             <span
-                              key={pos.id}
+                              key={pos}
                               className="rounded-full bg-orange-500/10 px-3 py-1 text-xs font-medium text-orange-400"
                             >
-                              {POSITION_LABELS[pos.position] || pos.position}
+                              {pos}
                             </span>
                           ))}
-                          {teamPositions.length > 3 && (
+                          {positions.length > 3 && (
                             <span className="rounded-full bg-surface-light px-3 py-1 text-xs text-text-muted">
-                              +{teamPositions.length - 3} more
+                              +{positions.length - 3} more
                             </span>
                           )}
                         </div>
@@ -439,24 +423,14 @@ export default async function Home() {
                     )}
 
                     <div className="mt-4 flex items-center justify-between">
-                      {lowestSalary && highestSalary ? (
-                        <div>
-                          <span className="text-xs text-text-muted">Salary range</span>
-                          <p className="text-sm font-medium text-text-primary">
-                            {teamPositions[0]?.currency || "EUR"}{" "}
-                            {lowestSalary.toLocaleString()}&ndash;{highestSalary.toLocaleString()}/mo
-                          </p>
-                        </div>
-                      ) : (
-                        <div />
-                      )}
+                      <div />
                       {profile?.country && (
                         <span className="text-xs text-text-muted">{profile.country}</span>
                       )}
                     </div>
 
                     <Link
-                      href={`/dashboard/teams/${team.id}`}
+                      href={`/dashboard/teams/${team.profile_id}`}
                       className="mt-5 block w-full rounded-lg bg-orange-500 py-2.5 text-center text-sm font-medium text-white transition-colors hover:bg-orange-600"
                     >
                       View Details

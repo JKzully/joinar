@@ -25,7 +25,7 @@ export default async function TryoutsPage() {
     // Team view: invitations this team has sent
     const { data: invitations } = await supabase
       .from("tryout_invitations")
-      .select("*, player:player_id(id, profile:id(full_name))")
+      .select("*, player:player_id(full_name)")
       .eq("team_id", user.id)
       .order("created_at", { ascending: false });
 
@@ -61,7 +61,7 @@ export default async function TryoutsPage() {
                       href={`/dashboard/players/${inv.player_id}`}
                       className="text-sm font-semibold text-text-primary hover:text-orange-400 transition-colors"
                     >
-                      {inv.player?.profile?.full_name || "Unknown Player"}
+                      {inv.player?.full_name || "Unknown Player"}
                     </Link>
                     <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-text-muted">
                       {inv.tryout_date && (
@@ -101,9 +101,22 @@ export default async function TryoutsPage() {
   // Player view: invitations this player has received
   const { data: invitations } = await supabase
     .from("tryout_invitations")
-    .select("*, team:team_id(id, team_name)")
+    .select("*")
     .eq("player_id", user.id)
     .order("created_at", { ascending: false });
+
+  // Fetch team names from team_ads for each unique team_id
+  const teamIds = [...new Set(invitations?.map((inv) => inv.team_id).filter(Boolean))];
+  const teamNameMap = {};
+  if (teamIds.length > 0) {
+    const { data: teamAds } = await supabase
+      .from("team_ads")
+      .select("profile_id, team_name")
+      .in("profile_id", teamIds);
+    teamAds?.forEach((t) => {
+      teamNameMap[t.profile_id] = t.team_name;
+    });
+  }
 
   return (
     <div className="space-y-6">
@@ -129,7 +142,7 @@ export default async function TryoutsPage() {
                     href={`/dashboard/teams/${inv.team_id}`}
                     className="text-sm font-semibold text-text-primary hover:text-orange-400 transition-colors"
                   >
-                    {inv.team?.team_name || "Unknown Team"}
+                    {teamNameMap[inv.team_id] || "Unknown Team"}
                   </Link>
                   <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-text-muted">
                     {inv.tryout_date && (

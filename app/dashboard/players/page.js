@@ -8,14 +8,6 @@ export const metadata = {
   title: "Find Basketball Players — Semi-Pro Talent Across Europe",
 };
 
-const POSITION_LABELS = {
-  point_guard: "Point Guard",
-  shooting_guard: "Shooting Guard",
-  small_forward: "Small Forward",
-  power_forward: "Power Forward",
-  center: "Center",
-};
-
 export default async function BrowsePlayersPage({ searchParams }) {
   const params = await searchParams;
   const positionFilter = params?.position || "";
@@ -35,14 +27,15 @@ export default async function BrowsePlayersPage({ searchParams }) {
 
   const countries = [...new Set(countryRows?.map((r) => r.country).filter(Boolean))];
 
-  // Build query — join player_profiles with profiles
+  // Build query — join player_ads with profiles
   let query = supabase
-    .from("player_profiles")
-    .select("*, profile:id(full_name, avatar_url, country, city)")
+    .from("player_ads")
+    .select("*, profile:profile_id(full_name, avatar_url, country, city)")
+    .eq("is_active", true)
     .order("updated_at", { ascending: false });
 
   if (positionFilter) {
-    query = query.eq("position", positionFilter);
+    query = query.contains("positions", [positionFilter]);
   }
   if (minExp) {
     query = query.gte("experience_years", minExp);
@@ -67,7 +60,7 @@ export default async function BrowsePlayersPage({ searchParams }) {
       .eq("is_active", true)
       .in(
         "profile_id",
-        filtered.map((p) => p.id)
+        filtered.map((p) => p.profile_id)
       );
     boosts?.forEach((b) => boostedIds.add(b.profile_id));
   }
@@ -75,8 +68,8 @@ export default async function BrowsePlayersPage({ searchParams }) {
   // Sort boosted first
   const sorted = filtered
     ? [...filtered].sort((a, b) => {
-        const aBoost = boostedIds.has(a.id) ? 1 : 0;
-        const bBoost = boostedIds.has(b.id) ? 1 : 0;
+        const aBoost = boostedIds.has(a.profile_id) ? 1 : 0;
+        const bBoost = boostedIds.has(b.profile_id) ? 1 : 0;
         return bBoost - aBoost;
       })
     : [];
@@ -106,7 +99,7 @@ export default async function BrowsePlayersPage({ searchParams }) {
             <PlayerCard
               key={player.id}
               player={player}
-              boosted={boostedIds.has(player.id)}
+              boosted={boostedIds.has(player.profile_id)}
             />
           ))}
         </div>
@@ -132,6 +125,8 @@ function PlayerCard({ player, boosted }) {
       )
     : null;
 
+  const positions = player.positions || [];
+
   return (
     <div className="group relative rounded-2xl border border-border bg-surface p-5 transition-all hover:border-orange-500/30 hover:shadow-lg hover:shadow-orange-500/5">
       {boosted && (
@@ -152,9 +147,17 @@ function PlayerCard({ player, boosted }) {
           <h3 className="truncate text-base font-semibold text-text-primary">
             {profile?.full_name || "Unnamed Player"}
           </h3>
-          <p className="text-sm text-orange-400">
-            {POSITION_LABELS[player.position] || "Position TBD"}
-          </p>
+          {positions.length > 0 ? (
+            <div className="mt-1 flex flex-wrap gap-1">
+              {positions.map((pos) => (
+                <span key={pos} className="rounded-full bg-orange-500/10 px-2 py-0.5 text-xs font-medium text-orange-400">
+                  {pos}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-orange-400">Position TBD</p>
+          )}
         </div>
       </div>
 
@@ -183,17 +186,17 @@ function PlayerCard({ player, boosted }) {
         )}
       </div>
 
-      {/* Bio preview */}
-      {player.bio && (
+      {/* Looking for preview */}
+      {player.looking_for && (
         <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-text-secondary">
-          {player.bio}
+          {player.looking_for}
         </p>
       )}
 
       <div className="mt-4 grid grid-cols-2 gap-2">
-        <MessageButton profileId={player.id} />
+        <MessageButton profileId={player.profile_id} />
         <Link
-          href={`/dashboard/players/${player.id}`}
+          href={`/dashboard/players/${player.profile_id}`}
           className="rounded-lg border border-border bg-surface-light py-2 text-center text-sm font-medium text-text-primary transition-colors hover:border-orange-500/50 hover:text-orange-400"
         >
           View Profile

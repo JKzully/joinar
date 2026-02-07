@@ -26,6 +26,8 @@ create type public.invitation_status as enum (
 
 create type public.boost_type as enum ('basic', 'premium');
 
+create type public.experience_level as enum ('amateur', 'semi_pro', 'pro');
+
 -- ============================================================
 -- 2. PROFILES (base table, 1:1 with auth.users)
 -- ============================================================
@@ -37,6 +39,7 @@ create table public.profiles (
   avatar_url  text,
   country     text,
   city        text,
+  bio         text,
   created_at  timestamptz default now() not null,
   updated_at  timestamptz default now() not null
 );
@@ -45,7 +48,64 @@ create index idx_profiles_role on public.profiles(role);
 create index idx_profiles_country on public.profiles(country);
 
 -- ============================================================
--- 3. PLAYER PROFILES
+-- 3. PLAYER ADS (public listing for players)
+-- ============================================================
+
+create table public.player_ads (
+  id               uuid primary key default gen_random_uuid(),
+  profile_id       uuid not null unique references public.profiles(id) on delete cascade,
+  positions        text[] default '{}',
+  height_cm        integer,
+  weight_kg        integer,
+  date_of_birth    date,
+  experience_level public.experience_level,
+  experience_years integer default 0,
+  previous_teams   text,
+  highlights_url   text,
+  ppg              numeric(4,1) default 0,
+  apg              numeric(4,1) default 0,
+  rpg              numeric(4,1) default 0,
+  spg              numeric(4,1) default 0,
+  bpg              numeric(4,1) default 0,
+  three_pt_pct     numeric(4,1),
+  looking_for      text,
+  is_active        boolean default true,
+  created_at       timestamptz default now() not null,
+  updated_at       timestamptz default now() not null
+);
+
+create index idx_player_ads_profile on public.player_ads(profile_id);
+create index idx_player_ads_positions on public.player_ads using gin(positions);
+create index idx_player_ads_active on public.player_ads(is_active) where is_active = true;
+
+-- ============================================================
+-- 4. TEAM ADS (public listing for teams)
+-- ============================================================
+
+create table public.team_ads (
+  id               uuid primary key default gen_random_uuid(),
+  profile_id       uuid not null unique references public.profiles(id) on delete cascade,
+  team_name        text,
+  positions_needed text[] default '{}',
+  league           text,
+  league_tier      integer,
+  division         text,
+  description      text,
+  what_we_offer    text,
+  website          text,
+  founded_year     integer,
+  season_record    text,
+  is_active        boolean default true,
+  created_at       timestamptz default now() not null,
+  updated_at       timestamptz default now() not null
+);
+
+create index idx_team_ads_profile on public.team_ads(profile_id);
+create index idx_team_ads_positions on public.team_ads using gin(positions_needed);
+create index idx_team_ads_active on public.team_ads(is_active) where is_active = true;
+
+-- ============================================================
+-- 5. LEGACY TABLES (kept for migration period)
 -- ============================================================
 
 create table public.player_profiles (
@@ -67,12 +127,6 @@ create table public.player_profiles (
   updated_at       timestamptz default now() not null
 );
 
-create index idx_player_position on public.player_profiles(position);
-
--- ============================================================
--- 4. TEAM PROFILES
--- ============================================================
-
 create table public.team_profiles (
   id           uuid primary key references public.profiles(id) on delete cascade,
   team_name    text not null,
@@ -84,12 +138,6 @@ create table public.team_profiles (
   created_at   timestamptz default now() not null,
   updated_at   timestamptz default now() not null
 );
-
-create index idx_team_league on public.team_profiles(league);
-
--- ============================================================
--- 5. TEAM OPEN POSITIONS
--- ============================================================
 
 create table public.team_positions (
   id          uuid primary key default gen_random_uuid(),
@@ -104,10 +152,6 @@ create table public.team_positions (
   created_at  timestamptz default now() not null,
   updated_at  timestamptz default now() not null
 );
-
-create index idx_team_positions_team on public.team_positions(team_id);
-create index idx_team_positions_open on public.team_positions(position, is_open)
-  where is_open = true;
 
 -- ============================================================
 -- 6. CONVERSATIONS & MESSAGES
@@ -144,8 +188,8 @@ create index idx_messages_conversation on public.messages(conversation_id, creat
 
 create table public.tryout_invitations (
   id          uuid primary key default gen_random_uuid(),
-  team_id     uuid not null references public.team_profiles(id) on delete cascade,
-  player_id   uuid not null references public.player_profiles(id) on delete cascade,
+  team_id     uuid not null references public.profiles(id) on delete cascade,
+  player_id   uuid not null references public.profiles(id) on delete cascade,
   tryout_date date,
   location    text,
   message     text,
@@ -190,13 +234,10 @@ $$ language plpgsql;
 create trigger set_updated_at before update on public.profiles
   for each row execute function public.handle_updated_at();
 
-create trigger set_updated_at before update on public.player_profiles
+create trigger set_updated_at before update on public.player_ads
   for each row execute function public.handle_updated_at();
 
-create trigger set_updated_at before update on public.team_profiles
-  for each row execute function public.handle_updated_at();
-
-create trigger set_updated_at before update on public.team_positions
+create trigger set_updated_at before update on public.team_ads
   for each row execute function public.handle_updated_at();
 
 create trigger set_updated_at before update on public.tryout_invitations
@@ -234,9 +275,8 @@ create trigger on_auth_user_created
 
 -- Enable RLS on all tables
 alter table public.profiles enable row level security;
-alter table public.player_profiles enable row level security;
-alter table public.team_profiles enable row level security;
-alter table public.team_positions enable row level security;
+alter table public.player_ads enable row level security;
+alter table public.team_ads enable row level security;
 alter table public.conversations enable row level security;
 alter table public.conversation_participants enable row level security;
 alter table public.messages enable row level security;
@@ -256,64 +296,52 @@ create policy "Users can update their own profile"
   with check (auth.uid() = id);
 
 -- ----------------------------------------------------------
--- PLAYER PROFILES
+-- PLAYER ADS
 -- ----------------------------------------------------------
-create policy "Player profiles are viewable by everyone"
-  on public.player_profiles for select
-  using (true);
+create policy "Active player ads are viewable by everyone"
+  on public.player_ads for select
+  using (is_active = true);
 
-create policy "Players can insert their own profile"
-  on public.player_profiles for insert
-  with check (auth.uid() = id);
+create policy "Owners can view their own player ad"
+  on public.player_ads for select
+  using (auth.uid() = profile_id);
 
-create policy "Players can update their own profile"
-  on public.player_profiles for update
-  using (auth.uid() = id)
-  with check (auth.uid() = id);
+create policy "Players can insert their own ad"
+  on public.player_ads for insert
+  with check (auth.uid() = profile_id);
 
-create policy "Players can delete their own profile"
-  on public.player_profiles for delete
-  using (auth.uid() = id);
+create policy "Players can update their own ad"
+  on public.player_ads for update
+  using (auth.uid() = profile_id)
+  with check (auth.uid() = profile_id);
 
--- ----------------------------------------------------------
--- TEAM PROFILES
--- ----------------------------------------------------------
-create policy "Team profiles are viewable by everyone"
-  on public.team_profiles for select
-  using (true);
-
-create policy "Teams can insert their own profile"
-  on public.team_profiles for insert
-  with check (auth.uid() = id);
-
-create policy "Teams can update their own profile"
-  on public.team_profiles for update
-  using (auth.uid() = id)
-  with check (auth.uid() = id);
-
-create policy "Teams can delete their own profile"
-  on public.team_profiles for delete
-  using (auth.uid() = id);
+create policy "Players can delete their own ad"
+  on public.player_ads for delete
+  using (auth.uid() = profile_id);
 
 -- ----------------------------------------------------------
--- TEAM POSITIONS
+-- TEAM ADS
 -- ----------------------------------------------------------
-create policy "Team positions are viewable by everyone"
-  on public.team_positions for select
-  using (true);
+create policy "Active team ads are viewable by everyone"
+  on public.team_ads for select
+  using (is_active = true);
 
-create policy "Teams can manage their own positions"
-  on public.team_positions for insert
-  with check (auth.uid() = team_id);
+create policy "Owners can view their own team ad"
+  on public.team_ads for select
+  using (auth.uid() = profile_id);
 
-create policy "Teams can update their own positions"
-  on public.team_positions for update
-  using (auth.uid() = team_id)
-  with check (auth.uid() = team_id);
+create policy "Teams can insert their own ad"
+  on public.team_ads for insert
+  with check (auth.uid() = profile_id);
 
-create policy "Teams can delete their own positions"
-  on public.team_positions for delete
-  using (auth.uid() = team_id);
+create policy "Teams can update their own ad"
+  on public.team_ads for update
+  using (auth.uid() = profile_id)
+  with check (auth.uid() = profile_id);
+
+create policy "Teams can delete their own ad"
+  on public.team_ads for delete
+  using (auth.uid() = profile_id);
 
 -- ----------------------------------------------------------
 -- CONVERSATIONS

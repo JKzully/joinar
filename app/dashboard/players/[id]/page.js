@@ -8,23 +8,30 @@ export const metadata = {
   title: "Player Profile - Picked",
 };
 
-const POSITION_LABELS = {
-  point_guard: "Point Guard",
-  shooting_guard: "Shooting Guard",
-  small_forward: "Small Forward",
-  power_forward: "Power Forward",
-  center: "Center",
+const STAT_TOOLTIPS = {
+  PPG: "Points Per Game",
+  APG: "Assists Per Game",
+  RPG: "Rebounds Per Game",
+  SPG: "Steals Per Game",
+  BPG: "Blocks Per Game",
+  "3PT%": "Three-Point Percentage",
+};
+
+const EXP_LABELS = {
+  amateur: "Amateur",
+  semi_pro: "Semi-Pro",
+  pro: "Pro",
 };
 
 export default async function PlayerProfilePage({ params }) {
   const { id } = await params;
   const supabase = await createClient();
 
-  // Fetch player profile joined with base profile
+  // Fetch player ad joined with base profile
   const { data: player, error } = await supabase
-    .from("player_profiles")
-    .select("*, profile:id(full_name, avatar_url, country, city)")
-    .eq("id", id)
+    .from("player_ads")
+    .select("*, profile:profile_id(full_name, avatar_url, country, city)")
+    .eq("profile_id", id)
     .single();
 
   if (error || !player) {
@@ -52,6 +59,7 @@ export default async function PlayerProfilePage({ params }) {
 
   const isBoosted = !!boost;
   const profile = player.profile;
+  const positions = player.positions || [];
 
   const age = player.date_of_birth
     ? Math.floor(
@@ -66,6 +74,7 @@ export default async function PlayerProfilePage({ params }) {
     { label: "RPG", value: player.rpg },
     { label: "SPG", value: player.spg },
     { label: "BPG", value: player.bpg },
+    { label: "3PT%", value: player.three_pt_pct },
   ];
 
   return (
@@ -100,10 +109,23 @@ export default async function PlayerProfilePage({ params }) {
                   Boosted
                 </span>
               )}
+              {player.experience_level && (
+                <span className="rounded-full bg-surface-light px-2.5 py-1 text-xs font-medium text-text-secondary">
+                  {EXP_LABELS[player.experience_level] || player.experience_level}
+                </span>
+              )}
             </div>
-            <p className="mt-1 text-sm font-medium text-orange-400">
-              {POSITION_LABELS[player.position] || "Position TBD"}
-            </p>
+            {positions.length > 0 ? (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {positions.map((pos) => (
+                  <span key={pos} className="rounded-full bg-orange-500/10 px-2.5 py-1 text-xs font-medium text-orange-400">
+                    {pos}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-1 text-sm font-medium text-orange-400">Position TBD</p>
+            )}
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-text-muted">
               {profile?.country && (
                 <span>
@@ -123,13 +145,20 @@ export default async function PlayerProfilePage({ params }) {
       </div>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-5 gap-3">
+      <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
         {stats.map((stat) => (
           <div
             key={stat.label}
             className="rounded-2xl border border-border bg-surface p-4 text-center"
           >
-            <p className="text-xs text-text-muted">{stat.label}</p>
+            <p className="flex items-center justify-center gap-1 text-xs text-text-muted">
+              {stat.label}
+              {STAT_TOOLTIPS[stat.label] && (
+                <span title={STAT_TOOLTIPS[stat.label]} className="inline-flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full bg-surface-light text-[9px] text-text-muted">
+                  ?
+                </span>
+              )}
+            </p>
             <p className="mt-1 text-xl font-bold text-text-primary">
               {stat.value !== null && stat.value !== undefined && stat.value !== 0
                 ? Number(stat.value).toFixed(1)
@@ -165,14 +194,14 @@ export default async function PlayerProfilePage({ params }) {
         </div>
       </div>
 
-      {/* Bio */}
-      {player.bio && (
+      {/* Previous Teams */}
+      {player.previous_teams && (
         <div className="rounded-2xl border border-border bg-surface p-6">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-text-muted">
-            Where I&apos;ve Been
+            Previous Teams
           </h2>
           <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-text-secondary">
-            {player.bio}
+            {player.previous_teams}
           </p>
         </div>
       )}
@@ -201,10 +230,10 @@ export default async function PlayerProfilePage({ params }) {
       {/* Actions */}
       <div className="flex gap-3">
         <MessageButton
-          profileId={player.id}
+          profileId={player.profile_id}
           className="flex-1 rounded-xl bg-orange-500 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
         />
-        {isTeam && <InviteToTryoutButton playerId={player.id} />}
+        {isTeam && <InviteToTryoutButton playerId={player.profile_id} />}
         <Link
           href="/dashboard/players"
           className="flex-1 rounded-xl border border-border bg-surface py-3 text-center text-sm font-medium text-text-primary transition-colors hover:border-orange-500/50 hover:text-orange-400"

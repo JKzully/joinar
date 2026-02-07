@@ -7,43 +7,27 @@ export const metadata = {
   title: "Team Profile - Picked",
 };
 
-const POSITION_LABELS = {
-  point_guard: "Point Guard",
-  shooting_guard: "Shooting Guard",
-  small_forward: "Small Forward",
-  power_forward: "Power Forward",
-  center: "Center",
-};
-
 const TIER_LABELS = {
-  1: "Tier 1",
+  1: "Tier 1 (Top Division)",
   2: "Tier 2",
   3: "Tier 3",
-  4: "Tier 4",
+  4: "Tier 4 (Regional)",
 };
 
 export default async function TeamProfilePage({ params }) {
   const { id } = await params;
   const supabase = await createClient();
 
-  // Fetch team profile joined with base profile
+  // Fetch team ad joined with base profile
   const { data: team, error } = await supabase
-    .from("team_profiles")
-    .select("*, profile:id(full_name, avatar_url, country, city)")
-    .eq("id", id)
+    .from("team_ads")
+    .select("*, profile:profile_id(full_name, avatar_url, country, city)")
+    .eq("profile_id", id)
     .single();
 
   if (error || !team) {
     redirect("/dashboard/teams");
   }
-
-  // Fetch open positions
-  const { data: positions } = await supabase
-    .from("team_positions")
-    .select("*")
-    .eq("team_id", id)
-    .eq("is_open", true)
-    .order("created_at", { ascending: false });
 
   // Check boost status
   const { data: boost } = await supabase
@@ -55,13 +39,7 @@ export default async function TeamProfilePage({ params }) {
 
   const isBoosted = !!boost;
   const profile = team.profile;
-  const openPositions = positions || [];
-
-  // Compute salary range across all open positions
-  const salaryMins = openPositions.map((p) => p.salary_min).filter(Boolean);
-  const salaryMaxs = openPositions.map((p) => p.salary_max).filter(Boolean);
-  const lowestSalary = salaryMins.length > 0 ? Math.min(...salaryMins) : null;
-  const highestSalary = salaryMaxs.length > 0 ? Math.max(...salaryMaxs) : null;
+  const positions = team.positions_needed || [];
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -85,7 +63,7 @@ export default async function TeamProfilePage({ params }) {
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-2xl font-bold text-text-primary">
-                {team.team_name}
+                {team.team_name || "Unnamed Team"}
               </h1>
               {isBoosted && (
                 <span className="flex items-center gap-1 rounded-full bg-orange-500/15 px-2.5 py-1 text-xs font-medium text-orange-400">
@@ -112,6 +90,12 @@ export default async function TeamProfilePage({ params }) {
                   <span>{TIER_LABELS[team.league_tier]}</span>
                 </>
               )}
+              {team.division && (
+                <>
+                  <span>&middot;</span>
+                  <span>{team.division}</span>
+                </>
+              )}
               {team.founded_year && (
                 <>
                   <span>&middot;</span>
@@ -123,53 +107,22 @@ export default async function TeamProfilePage({ params }) {
         </div>
       </div>
 
-      {/* Open positions */}
-      {openPositions.length > 0 && (
+      {/* Positions needed */}
+      {positions.length > 0 && (
         <div className="rounded-2xl border border-border bg-surface p-6">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-text-muted">
-            We&apos;re Looking For ({openPositions.length})
+            We&apos;re Looking For ({positions.length})
           </h2>
-          <div className="mt-4 space-y-3">
-            {openPositions.map((pos) => (
-              <div
-                key={pos.id}
-                className="rounded-xl border border-border bg-surface-light p-4"
+          <div className="mt-3 flex flex-wrap gap-2">
+            {positions.map((pos) => (
+              <span
+                key={pos}
+                className="rounded-full bg-orange-500/10 px-3 py-1.5 text-sm font-medium text-orange-400"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <span className="inline-block rounded-full bg-orange-500/10 px-2.5 py-1 text-xs font-medium text-orange-400">
-                      {POSITION_LABELS[pos.position] || pos.position}
-                    </span>
-                    {pos.title && (
-                      <p className="mt-2 text-sm font-medium text-text-primary">
-                        {pos.title}
-                      </p>
-                    )}
-                    {pos.description && (
-                      <p className="mt-1 text-xs leading-relaxed text-text-secondary">
-                        {pos.description}
-                      </p>
-                    )}
-                  </div>
-                  {pos.salary_min && pos.salary_max && (
-                    <p className="shrink-0 text-sm font-medium text-text-secondary">
-                      {pos.currency || "EUR"}{" "}
-                      {pos.salary_min.toLocaleString()}&ndash;{pos.salary_max.toLocaleString()}/mo
-                    </p>
-                  )}
-                </div>
-              </div>
+                {pos}
+              </span>
             ))}
           </div>
-          {lowestSalary && highestSalary && (
-            <p className="mt-4 text-xs text-text-muted">
-              Salary range:{" "}
-              <span className="font-medium text-text-secondary">
-                {openPositions[0]?.currency || "EUR"}{" "}
-                {lowestSalary.toLocaleString()}&ndash;{highestSalary.toLocaleString()}/mo
-              </span>
-            </p>
-          )}
         </div>
       )}
 
@@ -184,13 +137,15 @@ export default async function TeamProfilePage({ params }) {
             label="Tier"
             value={team.league_tier ? TIER_LABELS[team.league_tier] : null}
           />
+          <DetailItem label="Division" value={team.division} />
           <DetailItem
             label="Founded"
             value={team.founded_year ? String(team.founded_year) : null}
           />
+          <DetailItem label="Season Record" value={team.season_record} />
           <DetailItem
             label="Open Roles"
-            value={openPositions.length > 0 ? String(openPositions.length) : "0"}
+            value={positions.length > 0 ? String(positions.length) : "0"}
           />
         </div>
       </div>
@@ -203,6 +158,18 @@ export default async function TeamProfilePage({ params }) {
           </h2>
           <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-text-secondary">
             {team.description}
+          </p>
+        </div>
+      )}
+
+      {/* What we offer */}
+      {team.what_we_offer && (
+        <div className="rounded-2xl border border-border bg-surface p-6">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-text-muted">
+            What We Offer
+          </h2>
+          <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-text-secondary">
+            {team.what_we_offer}
           </p>
         </div>
       )}
@@ -231,7 +198,7 @@ export default async function TeamProfilePage({ params }) {
       {/* Actions */}
       <div className="flex gap-3">
         <MessageButton
-          profileId={team.id}
+          profileId={team.profile_id}
           label="I'm Interested — Let's Talk"
           className="flex-1 rounded-xl bg-orange-500 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
         />

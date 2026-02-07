@@ -8,12 +8,11 @@ export const metadata = {
   title: "Find Basketball Teams — Open Roster Spots in Europe",
 };
 
-const POSITION_LABELS = {
-  point_guard: "Point Guard",
-  shooting_guard: "Shooting Guard",
-  small_forward: "Small Forward",
-  power_forward: "Power Forward",
-  center: "Center",
+const TIER_LABELS = {
+  1: "Tier 1",
+  2: "Tier 2",
+  3: "Tier 3",
+  4: "Tier 4",
 };
 
 export default async function BrowseTeamsPage({ searchParams }) {
@@ -34,47 +33,26 @@ export default async function BrowseTeamsPage({ searchParams }) {
 
   const countries = [...new Set(countryRows?.map((r) => r.country).filter(Boolean))];
 
-  // Build query — join team_profiles with profiles
+  // Build query — join team_ads with profiles
   let query = supabase
-    .from("team_profiles")
-    .select("*, profile:id(full_name, avatar_url, country, city)")
+    .from("team_ads")
+    .select("*, profile:profile_id(full_name, avatar_url, country, city)")
+    .eq("is_active", true)
     .order("updated_at", { ascending: false });
 
   if (tierFilter) {
     query = query.eq("league_tier", tierFilter);
   }
+  if (positionFilter) {
+    query = query.contains("positions_needed", [positionFilter]);
+  }
 
   const { data: teams } = await query;
 
   // Client-side country filter (country is on the joined profile)
-  let filtered = countryFilter
+  const filtered = countryFilter
     ? teams?.filter((t) => t.profile?.country === countryFilter)
     : teams;
-
-  // Fetch all open positions for these teams to show on cards and for position filtering
-  const teamIds = filtered?.map((t) => t.id) || [];
-  let positionsMap = {};
-
-  if (teamIds.length > 0) {
-    const { data: positions } = await supabase
-      .from("team_positions")
-      .select("*")
-      .eq("is_open", true)
-      .in("team_id", teamIds)
-      .order("created_at", { ascending: false });
-
-    positions?.forEach((p) => {
-      if (!positionsMap[p.team_id]) positionsMap[p.team_id] = [];
-      positionsMap[p.team_id].push(p);
-    });
-  }
-
-  // Filter by position needed
-  if (positionFilter) {
-    filtered = filtered?.filter((t) =>
-      positionsMap[t.id]?.some((p) => p.position === positionFilter)
-    );
-  }
 
   // Fetch active boosts
   const boostedIds = new Set();
@@ -85,7 +63,7 @@ export default async function BrowseTeamsPage({ searchParams }) {
       .eq("is_active", true)
       .in(
         "profile_id",
-        filtered.map((t) => t.id)
+        filtered.map((t) => t.profile_id)
       );
     boosts?.forEach((b) => boostedIds.add(b.profile_id));
   }
@@ -93,8 +71,8 @@ export default async function BrowseTeamsPage({ searchParams }) {
   // Sort boosted first
   const sorted = filtered
     ? [...filtered].sort((a, b) => {
-        const aBoost = boostedIds.has(a.id) ? 1 : 0;
-        const bBoost = boostedIds.has(b.id) ? 1 : 0;
+        const aBoost = boostedIds.has(a.profile_id) ? 1 : 0;
+        const bBoost = boostedIds.has(b.profile_id) ? 1 : 0;
         return bBoost - aBoost;
       })
     : [];
@@ -124,8 +102,7 @@ export default async function BrowseTeamsPage({ searchParams }) {
             <TeamCard
               key={team.id}
               team={team}
-              positions={positionsMap[team.id] || []}
-              boosted={boostedIds.has(team.id)}
+              boosted={boostedIds.has(team.profile_id)}
             />
           ))}
         </div>
@@ -142,22 +119,9 @@ export default async function BrowseTeamsPage({ searchParams }) {
   );
 }
 
-function TeamCard({ team, positions, boosted }) {
+function TeamCard({ team, boosted }) {
   const profile = team.profile;
-  const openCount = positions.length;
-
-  // Compute salary range across all open positions
-  const salaryMins = positions.map((p) => p.salary_min).filter(Boolean);
-  const salaryMaxs = positions.map((p) => p.salary_max).filter(Boolean);
-  const lowestSalary = salaryMins.length > 0 ? Math.min(...salaryMins) : null;
-  const highestSalary = salaryMaxs.length > 0 ? Math.max(...salaryMaxs) : null;
-
-  const TIER_LABELS = {
-    1: "Tier 1",
-    2: "Tier 2",
-    3: "Tier 3",
-    4: "Tier 4",
-  };
+  const positions = team.positions_needed || [];
 
   return (
     <div className="group relative rounded-2xl border border-border bg-surface p-5 transition-all hover:border-orange-500/30 hover:shadow-lg hover:shadow-orange-500/5">
@@ -177,7 +141,7 @@ function TeamCard({ team, positions, boosted }) {
         </div>
         <div className="min-w-0">
           <h3 className="truncate text-base font-semibold text-text-primary">
-            {team.team_name}
+            {team.team_name || "Unnamed Team"}
           </h3>
           <p className="truncate text-sm text-text-secondary">
             {team.league || "League TBD"}
@@ -202,37 +166,27 @@ function TeamCard({ team, positions, boosted }) {
         )}
       </div>
 
-      {/* Open positions tags */}
-      {openCount > 0 && (
+      {/* Positions needed tags */}
+      {positions.length > 0 && (
         <div className="mt-4">
           <p className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-text-muted">
-            Hiring ({openCount})
+            Hiring ({positions.length})
           </p>
           <div className="flex flex-wrap gap-1.5">
             {positions.slice(0, 4).map((pos) => (
               <span
-                key={pos.id}
+                key={pos}
                 className="rounded-full bg-orange-500/10 px-2.5 py-1 text-xs font-medium text-orange-400"
               >
-                {POSITION_LABELS[pos.position] || pos.position}
+                {pos}
               </span>
             ))}
-            {openCount > 4 && (
+            {positions.length > 4 && (
               <span className="rounded-full bg-surface-light px-2.5 py-1 text-xs text-text-muted">
-                +{openCount - 4} more
+                +{positions.length - 4} more
               </span>
             )}
           </div>
-        </div>
-      )}
-
-      {/* Salary range */}
-      {lowestSalary && highestSalary && (
-        <div className="mt-3 text-xs text-text-muted">
-          <span className="font-medium text-text-secondary">
-            {positions[0]?.currency || "EUR"}{" "}
-            {lowestSalary.toLocaleString()}&ndash;{highestSalary.toLocaleString()}/mo
-          </span>
         </div>
       )}
 
@@ -244,9 +198,9 @@ function TeamCard({ team, positions, boosted }) {
       )}
 
       <div className="mt-4 grid grid-cols-2 gap-2">
-        <MessageButton profileId={team.id} />
+        <MessageButton profileId={team.profile_id} />
         <Link
-          href={`/dashboard/teams/${team.id}`}
+          href={`/dashboard/teams/${team.profile_id}`}
           className="rounded-lg bg-orange-500 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-orange-600"
         >
           View Team

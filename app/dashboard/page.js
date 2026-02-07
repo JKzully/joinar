@@ -1,14 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 
-const POSITION_LABELS = {
-  point_guard: "Point Guard",
-  shooting_guard: "Shooting Guard",
-  small_forward: "Small Forward",
-  power_forward: "Power Forward",
-  center: "Center",
-};
-
 export default async function DashboardPage() {
   const supabase = await createClient();
 
@@ -32,11 +24,11 @@ export default async function DashboardPage() {
 // ─── Player Dashboard ────────────────────────────────────────
 
 async function PlayerDashboard({ supabase, profile }) {
-  const { data: playerProfile } = await supabase
-    .from("player_profiles")
+  const { data: playerAd } = await supabase
+    .from("player_ads")
     .select("*")
-    .eq("id", profile.id)
-    .single();
+    .eq("profile_id", profile.id)
+    .maybeSingle();
 
   const { count: messageCount } = await supabase
     .from("messages")
@@ -45,11 +37,27 @@ async function PlayerDashboard({ supabase, profile }) {
 
   const { data: invitations } = await supabase
     .from("tryout_invitations")
-    .select("*, team:team_id(id, team_name)")
+    .select("*")
     .eq("player_id", profile.id)
     .eq("status", "pending")
     .order("created_at", { ascending: false })
     .limit(5);
+
+  // Fetch team names for invitations from team_ads
+  let invitationsWithTeam = [];
+  if (invitations && invitations.length > 0) {
+    const teamIds = invitations.map((i) => i.team_id);
+    const { data: teamAds } = await supabase
+      .from("team_ads")
+      .select("profile_id, team_name")
+      .in("profile_id", teamIds);
+    const teamNameMap = {};
+    teamAds?.forEach((t) => { teamNameMap[t.profile_id] = t.team_name; });
+    invitationsWithTeam = invitations.map((inv) => ({
+      ...inv,
+      team_name: teamNameMap[inv.team_id] || "Unknown Team",
+    }));
+  }
 
   const { data: activeBoost } = await supabase
     .from("boosts")
@@ -57,24 +65,24 @@ async function PlayerDashboard({ supabase, profile }) {
     .eq("profile_id", profile.id)
     .eq("is_active", true)
     .limit(1)
-    .single();
+    .maybeSingle();
 
-  const hasProfile = !!playerProfile;
+  const hasAd = !!playerAd;
 
-  // Calculate profile completion
-  const completionFields = playerProfile
+  // Calculate ad completion
+  const completionFields = playerAd
     ? [
-        playerProfile.position,
-        playerProfile.height_cm,
-        playerProfile.date_of_birth,
-        playerProfile.experience_years,
-        playerProfile.bio,
+        playerAd.positions?.length > 0,
+        playerAd.height_cm,
+        playerAd.date_of_birth,
+        playerAd.experience_years,
+        playerAd.looking_for,
         profile.country,
         profile.avatar_url,
       ]
     : [];
   const filledFields = completionFields.filter(Boolean).length;
-  const completionPct = hasProfile
+  const completionPct = hasAd
     ? Math.round((filledFields / completionFields.length) * 100)
     : 0;
 
@@ -90,31 +98,31 @@ async function PlayerDashboard({ supabase, profile }) {
         </p>
       </div>
 
-      {/* Profile completion banner */}
+      {/* Ad completion banner */}
       {completionPct < 100 && (
         <div className="rounded-2xl border border-orange-500/20 bg-gradient-to-r from-orange-500/10 to-surface p-5">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h3 className="font-semibold text-text-primary">
-                Complete your profile
+                Complete your ad
               </h3>
               <p className="mt-1 text-sm text-text-secondary">
-                {hasProfile
+                {hasAd
                   ? "Add more details to get noticed by teams."
-                  : "Set up your player profile to start getting discovered."}
+                  : "Set up your player ad to start getting discovered."}
               </p>
             </div>
             <Link
-              href="/dashboard/profile"
+              href="/dashboard/ad"
               className="shrink-0 rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
             >
-              {hasProfile ? "Edit Profile" : "Set Up Profile"}
+              {hasAd ? "Edit Ad" : "Create Ad"}
             </Link>
           </div>
-          {hasProfile && (
+          {hasAd && (
             <div className="mt-4">
               <div className="flex items-center justify-between text-xs text-text-muted">
-                <span>Profile completion</span>
+                <span>Ad completion</span>
                 <span>{completionPct}%</span>
               </div>
               <div className="mt-1.5 h-2 rounded-full bg-surface-light">
@@ -153,7 +161,7 @@ async function PlayerDashboard({ supabase, profile }) {
         />
         <StatCard
           label="Tryout Invites"
-          value={invitations?.length || 0}
+          value={invitationsWithTeam.length}
           note="Pending"
           icon={
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
@@ -187,16 +195,16 @@ async function PlayerDashboard({ supabase, profile }) {
             View all &rarr;
           </Link>
         </div>
-        {invitations && invitations.length > 0 ? (
+        {invitationsWithTeam.length > 0 ? (
           <div className="space-y-3">
-            {invitations.map((inv) => (
+            {invitationsWithTeam.map((inv) => (
               <div
                 key={inv.id}
                 className="flex items-center justify-between rounded-xl border border-border bg-background p-4"
               >
                 <div>
                   <p className="text-sm font-medium text-text-primary">
-                    {inv.team?.team_name || "Unknown Team"}
+                    {inv.team_name}
                   </p>
                   <p className="mt-0.5 text-xs text-text-muted">
                     {inv.tryout_date
@@ -263,25 +271,34 @@ async function PlayerDashboard({ supabase, profile }) {
 // ─── Team Dashboard ──────────────────────────────────────────
 
 async function TeamDashboard({ supabase, profile }) {
-  const { data: teamProfile } = await supabase
-    .from("team_profiles")
+  const { data: teamAd } = await supabase
+    .from("team_ads")
     .select("*")
-    .eq("id", profile.id)
-    .single();
-
-  const { data: openPositions } = await supabase
-    .from("team_positions")
-    .select("*")
-    .eq("team_id", profile.id)
-    .eq("is_open", true)
-    .order("created_at", { ascending: false });
+    .eq("profile_id", profile.id)
+    .maybeSingle();
 
   const { data: invitations } = await supabase
     .from("tryout_invitations")
-    .select("*, player:player_id(id, position, experience_years)")
+    .select("*")
     .eq("team_id", profile.id)
     .order("created_at", { ascending: false })
     .limit(5);
+
+  // Fetch player names for invitations
+  let invitationsWithPlayer = [];
+  if (invitations && invitations.length > 0) {
+    const playerIds = invitations.map((i) => i.player_id);
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", playerIds);
+    const nameMap = {};
+    profiles?.forEach((p) => { nameMap[p.id] = p.full_name; });
+    invitationsWithPlayer = invitations.map((inv) => ({
+      ...inv,
+      player_name: nameMap[inv.player_id] || "Unknown Player",
+    }));
+  }
 
   const { data: activeBoost } = await supabase
     .from("boosts")
@@ -289,16 +306,17 @@ async function TeamDashboard({ supabase, profile }) {
     .eq("profile_id", profile.id)
     .eq("is_active", true)
     .limit(1)
-    .single();
+    .maybeSingle();
 
-  const hasProfile = !!teamProfile;
+  const hasAd = !!teamAd;
+  const openPositions = teamAd?.positions_needed || [];
 
   return (
     <div className="space-y-6">
       {/* Welcome */}
       <div>
         <h1 className="text-2xl font-bold text-text-primary">
-          Welcome back, {teamProfile?.team_name || profile.full_name || "Team"}
+          Welcome back, {teamAd?.team_name || profile.full_name || "Team"}
         </h1>
         <p className="mt-1 text-sm text-text-secondary">
           Manage your team and find the right talent
@@ -306,23 +324,23 @@ async function TeamDashboard({ supabase, profile }) {
       </div>
 
       {/* Setup banner */}
-      {!hasProfile && (
+      {!hasAd && (
         <div className="rounded-2xl border border-orange-500/20 bg-gradient-to-r from-orange-500/10 to-surface p-5">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h3 className="font-semibold text-text-primary">
-                Set up your team profile
+                Set up your team ad
               </h3>
               <p className="mt-1 text-sm text-text-secondary">
-                Add your team details, league info, and start listing open
-                positions to attract players.
+                Add your team details, league info, and list positions needed
+                to attract players.
               </p>
             </div>
             <Link
-              href="/dashboard/profile"
+              href="/dashboard/ad"
               className="shrink-0 rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
             >
-              Set Up Profile
+              Create Ad
             </Link>
           </div>
         </div>
@@ -331,9 +349,9 @@ async function TeamDashboard({ supabase, profile }) {
       {/* Stats cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Open Positions"
-          value={openPositions?.length || 0}
-          note="Active listings"
+          label="Positions Needed"
+          value={openPositions.length}
+          note="Listed in your ad"
           icon={
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
               <path d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z" />
@@ -342,8 +360,8 @@ async function TeamDashboard({ supabase, profile }) {
         />
         <StatCard
           label="Invites Sent"
-          value={invitations?.length || 0}
-          note="Total tryout invites"
+          value={invitationsWithPlayer.length}
+          note="Recent tryout invites"
           icon={
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
               <path d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
@@ -374,47 +392,34 @@ async function TeamDashboard({ supabase, profile }) {
         />
       </div>
 
-      {/* Open positions */}
+      {/* Positions needed */}
       <div className="rounded-2xl border border-border bg-surface p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-text-primary">
-            Open Positions
+            Positions Needed
           </h2>
           <Link
-            href="/dashboard/positions"
+            href="/dashboard/ad"
             className="text-sm font-medium text-orange-400 hover:text-orange-500"
           >
-            Manage &rarr;
+            Edit Ad &rarr;
           </Link>
         </div>
-        {openPositions && openPositions.length > 0 ? (
-          <div className="space-y-3">
+        {openPositions.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
             {openPositions.map((pos) => (
-              <div
-                key={pos.id}
-                className="flex items-center justify-between rounded-xl border border-border bg-background p-4"
+              <span
+                key={pos}
+                className="rounded-full bg-orange-500/10 px-3 py-1.5 text-sm font-medium text-orange-400"
               >
-                <div>
-                  <p className="text-sm font-medium text-text-primary">
-                    {pos.title || POSITION_LABELS[pos.position] || pos.position}
-                  </p>
-                  <p className="mt-0.5 text-xs text-text-muted">
-                    {POSITION_LABELS[pos.position]}
-                    {pos.salary_min &&
-                      pos.salary_max &&
-                      ` \u00B7 ${pos.currency || "EUR"} ${pos.salary_min.toLocaleString()}\u2013${pos.salary_max.toLocaleString()}/mo`}
-                  </p>
-                </div>
-                <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
-                  Open
-                </span>
-              </div>
+                {pos}
+              </span>
             ))}
           </div>
         ) : (
           <EmptyState
-            message="No open positions"
-            sub="List positions to start attracting players."
+            message="No positions listed"
+            sub="Edit your ad to list positions you need."
           />
         )}
       </div>
@@ -432,18 +437,16 @@ async function TeamDashboard({ supabase, profile }) {
             View all &rarr;
           </Link>
         </div>
-        {invitations && invitations.length > 0 ? (
+        {invitationsWithPlayer.length > 0 ? (
           <div className="space-y-3">
-            {invitations.map((inv) => (
+            {invitationsWithPlayer.map((inv) => (
               <div
                 key={inv.id}
                 className="flex items-center justify-between rounded-xl border border-border bg-background p-4"
               >
                 <div>
                   <p className="text-sm font-medium text-text-primary">
-                    {inv.player
-                      ? POSITION_LABELS[inv.player.position] || "Player"
-                      : "Player"}
+                    {inv.player_name}
                   </p>
                   <p className="mt-0.5 text-xs text-text-muted">
                     {inv.tryout_date
@@ -481,9 +484,9 @@ async function TeamDashboard({ supabase, profile }) {
       {/* Quick actions */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <QuickAction
-          href="/dashboard/positions"
-          title="Add Position"
-          description="List a new open roster spot for players to see"
+          href="/dashboard/ad"
+          title="Edit Ad"
+          description="Update your team listing and positions needed"
           icon={
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
               <path d="M12 4.5v15m7.5-7.5h-15" />

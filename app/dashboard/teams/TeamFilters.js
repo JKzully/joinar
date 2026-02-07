@@ -5,11 +5,11 @@ import { useCallback } from "react";
 
 const POSITIONS = [
   { value: "", label: "Any Position" },
-  { value: "point_guard", label: "Point Guard" },
-  { value: "shooting_guard", label: "Shooting Guard" },
-  { value: "small_forward", label: "Small Forward" },
-  { value: "power_forward", label: "Power Forward" },
-  { value: "center", label: "Center" },
+  { value: "PG", label: "Point Guard" },
+  { value: "SG", label: "Shooting Guard" },
+  { value: "SF", label: "Small Forward" },
+  { value: "PF", label: "Power Forward" },
+  { value: "C", label: "Center" },
 ];
 
 export default function TeamFilters({ countries }) {
