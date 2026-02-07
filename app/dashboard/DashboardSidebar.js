@@ -152,8 +152,25 @@ export default function DashboardSidebar({ profile }) {
         ))}
       </nav>
 
-      {/* Sign out */}
+      {/* User + Sign out */}
       <div className="border-t border-border px-3 py-4">
+        <Link
+          href="/dashboard/account"
+          onClick={() => setMobileOpen(false)}
+          className="mb-2 flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-surface-light"
+        >
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-light text-sm font-semibold text-orange-400">
+            {profile.avatar_url ? (
+              <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+            ) : (
+              (profile.full_name || "?").charAt(0).toUpperCase()
+            )}
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium text-text-primary">{profile.full_name || "My Account"}</p>
+            <p className="truncate text-xs text-text-muted">{profile.role === "team" ? "Team" : "Player"}</p>
+          </div>
+        </Link>
         <form action={signOut}>
           <button
             type="submit"

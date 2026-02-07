@@ -52,8 +52,12 @@ export default async function DashboardLayout({ children }) {
                 {profile.role}
               </p>
             </div>
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-500/15 text-sm font-semibold text-orange-400">
-              {(profile.full_name || "U").charAt(0).toUpperCase()}
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-orange-500/15 text-sm font-semibold text-orange-400">
+              {profile.avatar_url ? (
+                <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+              ) : (
+                (profile.full_name || "U").charAt(0).toUpperCase()
+              )}
             </div>
           </div>
         </header>

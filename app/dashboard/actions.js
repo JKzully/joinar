@@ -62,6 +62,7 @@ export async function updateAccount(formData) {
 
 export async function uploadAvatar(formData) {
   const supabase = await createClient();
+  const admin = createAdminClient();
 
   const {
     data: { user },
@@ -75,14 +76,20 @@ export async function uploadAvatar(formData) {
   const ext = file.name.split(".").pop();
   const filePath = `${user.id}/avatar.${ext}`;
 
-  const { error: uploadError } = await supabase.storage
-    .from("avatars")
-    .upload(filePath, file, { upsert: true });
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  const { error: uploadError } = await admin.storage
+    .from("Avatars")
+    .upload(filePath, buffer, {
+      upsert: true,
+      contentType: file.type,
+    });
 
   if (uploadError) return { error: uploadError.message };
 
-  const { data: urlData } = supabase.storage
-    .from("avatars")
+  const { data: urlData } = admin.storage
+    .from("Avatars")
     .getPublicUrl(filePath);
 
   const { error: updateError } = await supabase
