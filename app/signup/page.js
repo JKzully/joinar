@@ -12,7 +12,6 @@ function SignUpForm() {
 
   const [step, setStep] = useState(preselectedRole ? 2 : 1);
   const [role, setRole] = useState(preselectedRole || "");
-  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -37,7 +36,6 @@ function SignUpForm() {
       options: {
         data: {
           role,
-          full_name: fullName,
         },
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
@@ -153,21 +151,6 @@ function SignUpForm() {
           </p>
 
           <form onSubmit={handleSignUp} className="mt-8 space-y-4">
-            <div>
-              <label htmlFor="fullName" className="mb-1.5 block text-sm font-medium text-text-secondary">
-                {role === "team" ? "Team name" : "Full name"}
-              </label>
-              <input
-                id="fullName"
-                type="text"
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder={role === "team" ? "e.g. BC Adriatic Split" : "e.g. Marco Rossi"}
-                className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-text-primary placeholder-text-muted outline-none transition-colors focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50"
-              />
-            </div>
-
             <div>
               <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-text-secondary">
                 Email address

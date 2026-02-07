@@ -40,6 +40,7 @@ create table public.profiles (
   country     text,
   city        text,
   bio         text,
+  onboarding_completed boolean not null default false,
   created_at  timestamptz default now() not null,
   updated_at  timestamptz default now() not null
 );
@@ -252,14 +253,13 @@ returns trigger
 security definer set search_path = ''
 as $$
 begin
-  insert into public.profiles (id, role, full_name)
+  insert into public.profiles (id, role)
   values (
     new.id,
     coalesce(
       (new.raw_user_meta_data ->> 'role')::public.user_role,
       'player'
-    ),
-    coalesce(new.raw_user_meta_data ->> 'full_name', '')
+    )
   );
   return new;
 end;

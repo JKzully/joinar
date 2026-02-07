@@ -75,10 +75,9 @@ async function PlayerDashboard({ supabase, profile }) {
         playerAd.positions?.length > 0,
         playerAd.height_cm,
         playerAd.date_of_birth,
-        playerAd.experience_years,
+        playerAd.experience_years != null,
         playerAd.looking_for,
         profile.country,
-        profile.avatar_url,
       ]
     : [];
   const filledFields = completionFields.filter(Boolean).length;

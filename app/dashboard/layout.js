@@ -29,6 +29,10 @@ export default async function DashboardLayout({ children }) {
     redirect("/login");
   }
 
+  if (!profile.onboarding_completed) {
+    redirect("/onboarding");
+  }
+
   return (
     <div className="flex min-h-screen bg-background">
       {/* Sidebar */}
