@@ -101,7 +101,7 @@ export default async function Home() {
       <section className="px-6 pb-24 pt-20 sm:px-12 sm:pt-28 lg:px-16 lg:pb-32 lg:pt-36">
         <div className="mx-auto max-w-[1340px]">
           <h1 className="display-xl max-w-[1100px]">
-            Off-season is when careers get <span className="text-terra">picked.</span>
+            Off-season is when careers get <span className="serif text-terra">picked.</span>
           </h1>
 
           <p className="mt-10 max-w-[640px] text-[19px] leading-[1.5] text-ink-2">
@@ -125,8 +125,8 @@ export default async function Home() {
           <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
             <div>
               <SectionLabel no="01" title="Open positions" />
-              <h2 className="section-heading mt-5 max-w-[680px]">
-                Forty-seven roster spots, posted this window.
+              <h2 className="display-md mt-5 max-w-[820px]">
+                Forty-seven roster spots, posted this <span className="serif text-terra">window.</span>
               </h2>
               <p className="mt-4 max-w-[520px] text-[14px] leading-[1.6] text-ink-2">
                 Live positions from clubs and academies. Your profile lands in the coach&apos;s inbox — not on an agent&apos;s desk.
@@ -269,8 +269,8 @@ export default async function Home() {
           <div className="mb-14 flex flex-wrap items-end justify-between gap-6">
             <div>
               <SectionLabel no="02" title="The roster" color="sage" />
-              <h2 className="section-heading mt-5 max-w-[680px]">
-                Players who joined this week.
+              <h2 className="display-md mt-5 max-w-[820px]">
+                Players who joined this <span className="serif text-sage-deep">week.</span>
               </h2>
               <p className="mt-4 max-w-[520px] text-[14px] leading-[1.6] text-ink-2">
                 What a coach sees when they search. Real stats, real measurements, a direct line.
@@ -316,7 +316,7 @@ export default async function Home() {
                       )}
                     </div>
 
-                    <h3 className="mt-10 text-[26px] font-extrabold leading-[1.05] tracking-[-0.025em]">
+                    <h3 className="mt-10 text-[26px] font-semibold leading-[1.1] tracking-[-0.015em]">
                       {name}
                     </h3>
                     <div className="mt-2 text-[11px] font-bold uppercase tracking-[0.12em] text-mute">
@@ -410,8 +410,8 @@ export default async function Home() {
           </div>
 
           <div>
-            <blockquote className="m-0 font-extrabold leading-[1.15] tracking-[-0.025em]" style={{ fontSize: "clamp(28px, 3.4vw, 52px)" }}>
-              &ldquo;I uploaded my profile on a Tuesday. By Thursday, two teams had me in their inbox. One flew me out the next week — I&apos;m now in my second season abroad, on a contract a coach found through one search filter.&rdquo;
+            <blockquote className="m-0 font-light leading-[1.18] tracking-[-0.025em]" style={{ fontSize: "clamp(28px, 3.4vw, 52px)" }}>
+              &ldquo;I uploaded my profile on a Tuesday. By Thursday, <span className="serif" style={{ color: "#B5C9A6" }}>two teams</span> had me in their inbox. One flew me out the next week — I&apos;m now in my second season abroad, on a contract a coach found through one search filter.&rdquo;
             </blockquote>
             <div className="mt-10 flex items-center gap-4 border-t border-sand/15 pt-8">
               <div className="h-12 w-12 rounded-full bg-sand/15" />
@@ -433,11 +433,11 @@ export default async function Home() {
 
           <div className="mt-10 grid grid-cols-1 gap-12 lg:grid-cols-[1.4fr_1fr] lg:gap-20">
             <div>
-              <div className="space-y-1 font-bold leading-[1.25] tracking-[-0.015em]" style={{ fontSize: "clamp(22px, 2.2vw, 32px)" }}>
+              <div className="space-y-2 font-light leading-[1.2] tracking-[-0.025em]" style={{ fontSize: "clamp(26px, 2.6vw, 40px)" }}>
                 <p>Rosters close quietly.</p>
                 <p className="text-ink-2/80">Coaches search before agents call.</p>
                 <p className="text-ink-2/60">Most contracts happen in silence.</p>
-                <p className="pt-4 text-ink">While you wait, teams are picking <span className="text-terra">someone else.</span></p>
+                <p className="pt-6 text-ink">While you wait, teams are picking <span className="serif text-terra">someone else.</span></p>
               </div>
             </div>
 
