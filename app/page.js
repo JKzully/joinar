@@ -14,14 +14,57 @@ const IconPin = () => (
     <circle cx="6" cy="4.5" r="1.2" stroke="currentColor" strokeWidth="1.3" />
   </svg>
 );
+const IconEye = () => (
+  <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+    <path d="M1 7c1.5-3 3.5-4.5 6-4.5S11.5 4 13 7c-1.5 3-3.5 4.5-6 4.5S2.5 10 1 7z" stroke="currentColor" strokeWidth="1.3" />
+    <circle cx="7" cy="7" r="1.5" stroke="currentColor" strokeWidth="1.3" />
+  </svg>
+);
 
-// ─── Open positions (sample data — will be live from team_ads) ──
+// ─── Section label (magazine-style consistent treatment) ─────
+function SectionLabel({ no, title, color = "terra" }) {
+  const colorClass = color === "sage" ? "text-sage-deep" : "text-terra";
+  return (
+    <div className={`flex items-center gap-3 ${colorClass}`}>
+      <span className="num label-meta">§ {no}</span>
+      <span className="h-px w-8 bg-current opacity-40" />
+      <span className="label-meta">{title}</span>
+    </div>
+  );
+}
+
+// ─── Open positions (sample — will be live from team_ads) ────
 const OPEN_POSITIONS = [
-  { team: "BC Mornar", league: "ABA Liga 2", cr: "M", role: "Power Forward", sub: "6'8\"+ · Stretch 4", loc: "Bar, Montenegro", pay: "€1,800–2,400", per: "/ month", closes: "May 30" },
-  { team: "Helsinki Seagulls", league: "Korisliiga", cr: "H", role: "Combo Guard", sub: "Score-first", loc: "Helsinki, Finland", pay: "€2,400–3,200", per: "/ month", closes: "Jun 4" },
-  { team: "Skyliners Academy", league: "NBBL", cr: "S", role: "Wing — Developmental", sub: "Age ≤ 19", loc: "Frankfurt, Germany", pay: "Tuition", per: "+ stipend", closes: "Jun 10" },
-  { team: "Real Betis B", league: "LEB Plata", cr: "R", role: "Shooting Guard", sub: "40%+ from 3 · 6'3\"", loc: "Sevilla, Spain", pay: "€1,600–2,200", per: "/ month", closes: "Jun 12" },
-  { team: "KK Tofaş U21", league: "TBL Dev.", cr: "T", role: "Point Guard", sub: "Pure pass-first", loc: "Bursa, Türkiye", pay: "€1,200 + housing", per: "/ month", closes: "Jun 14" },
+  {
+    team: "BC Mornar", league: "ABA Liga 2", cr: "M", flag: "🇲🇪",
+    role: "Power Forward", sub: "6'8\"+ · Stretch 4",
+    loc: "Bar, Montenegro", pay: "€1,800–2,400", per: "/ month",
+    closes: "12h", urgent: true, viewed: 47, updated: "3 min ago",
+  },
+  {
+    team: "Helsinki Seagulls", league: "Korisliiga", cr: "H", flag: "🇫🇮",
+    role: "Combo Guard", sub: "Score-first",
+    loc: "Helsinki, Finland", pay: "€2,400–3,200", per: "/ month",
+    closes: "Jun 4", viewed: 132, updated: "1h ago",
+  },
+  {
+    team: "Skyliners Academy", league: "NBBL", cr: "S", flag: "🇩🇪",
+    role: "Wing — Developmental", sub: "Age ≤ 19",
+    loc: "Frankfurt, Germany", pay: "Tuition", per: "+ stipend",
+    closes: "Jun 10", viewed: 23, updated: "yesterday",
+  },
+  {
+    team: "Real Betis B", league: "LEB Plata", cr: "R", flag: "🇪🇸",
+    role: "Shooting Guard", sub: "40%+ from 3 · 6'3\"",
+    loc: "Sevilla, Spain", pay: "€1,600–2,200", per: "/ month",
+    closes: "Jun 12", viewed: 88, updated: "2d ago",
+  },
+  {
+    team: "KK Tofaş U21", league: "TBL Dev.", cr: "T", flag: "🇹🇷",
+    role: "Point Guard", sub: "Pure pass-first",
+    loc: "Bursa, Türkiye", pay: "€1,200 + housing", per: "/ month",
+    closes: "Jun 14", viewed: 41, updated: "4d ago",
+  },
 ];
 
 // ─── Page ─────────────────────────────────────────────────────
@@ -48,13 +91,13 @@ export default async function Home() {
 
   const featuredPlayers = (allPlayers || [])
     .sort((a, b) => (boostedIds.has(b.profile_id) ? 1 : 0) - (boostedIds.has(a.profile_id) ? 1 : 0))
-    .slice(0, 3);
+    .slice(0, 4);
 
   return (
     <div className="min-h-screen bg-sand text-ink">
       <HomeNav />
 
-      {/* ─── 1. Hero ─────────────────────────────────────────── */}
+      {/* ─── 1. Hero (the only huge moment) ─────────────────── */}
       <section className="px-6 pb-24 pt-20 sm:px-12 sm:pt-28 lg:px-16 lg:pb-32 lg:pt-36">
         <div className="mx-auto max-w-[1340px]">
           <h1 className="display-xl max-w-[1100px]">
@@ -76,69 +119,76 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ─── 2. Open positions (the product) ─────────────────── */}
+      {/* ─── 2. Open positions ───────────────────────────────── */}
       <section id="positions" className="border-t border-line bg-paper">
         <div className="mx-auto max-w-[1340px] px-6 py-20 sm:px-12 sm:py-24 lg:px-16 lg:py-28">
           <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
             <div>
-              <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-terra">
-                The product
-              </div>
-              <h2 className="display-md mt-4 max-w-[820px]">
-                Open roster spots, posted this window.
+              <SectionLabel no="01" title="Open positions" />
+              <h2 className="section-heading mt-5 max-w-[680px]">
+                Forty-seven roster spots, posted this window.
               </h2>
-              <p className="mt-5 max-w-[560px] text-[16px] leading-[1.55] text-ink-2">
-                Live positions from clubs and academies across Europe. Apply directly to the coach — your profile lands in their inbox, not on an agent&apos;s desk.
+              <p className="mt-4 max-w-[520px] text-[14px] leading-[1.6] text-ink-2">
+                Live positions from clubs and academies. Your profile lands in the coach&apos;s inbox — not on an agent&apos;s desk.
               </p>
             </div>
-            <div className="flex flex-col items-end gap-3">
-              <div className="text-right">
-                <div className="num text-[44px] font-extrabold leading-none tracking-[-0.03em] text-ink">
-                  47
-                </div>
-                <div className="mt-1 text-[11px] font-bold uppercase tracking-[0.14em] text-mute">
-                  Open this window
-                </div>
-              </div>
-              <Link href="/dashboard/teams" className="inline-flex items-center gap-1.5 rounded-full bg-ink/[0.06] px-4 py-2 text-[12px] font-semibold text-ink hover:bg-ink/[0.10]">
-                Browse all <Arrow size={11} />
-              </Link>
-            </div>
+            <Link href="/dashboard/teams" className="inline-flex items-center gap-1.5 rounded-full bg-ink/[0.06] px-4 py-2 text-[12px] font-semibold text-ink hover:bg-ink/[0.10]">
+              Browse all <Arrow size={11} />
+            </Link>
           </div>
 
           {/* Desktop table */}
           <div className="hidden md:block">
-            <div className="grid grid-cols-[44px_1.5fr_1.4fr_1.1fr_1fr_120px] items-center border-y-2 border-ink py-4 text-[11px] font-bold uppercase tracking-[0.16em] text-mute">
+            <div className="grid grid-cols-[44px_1.5fr_1.4fr_1fr_1fr_120px] items-center border-y-2 border-ink py-4 label-meta text-mute">
               <div>#</div>
               <div>Team</div>
               <div>Position</div>
               <div>Location</div>
-              <div>Pay / closes</div>
+              <div>Pay · closes</div>
               <div />
             </div>
             {OPEN_POSITIONS.map((r, i) => (
-              <div key={i} className="grid cursor-pointer grid-cols-[44px_1.5fr_1.4fr_1.1fr_1fr_120px] items-center border-b border-line py-6 transition-colors hover:bg-paper-2">
+              <div key={i} className="group grid cursor-pointer grid-cols-[44px_1.5fr_1.4fr_1fr_1fr_120px] items-center border-b border-line py-6 transition-colors hover:bg-paper-2">
                 <div className="num text-[14px] font-bold text-mute">0{i + 1}</div>
                 <div className="flex items-center gap-3.5">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] text-[14px] font-bold text-paper-2" style={{ background: "linear-gradient(135deg,#2a241e,#4a3d31)" }}>
                     {r.cr}
                   </div>
                   <div>
-                    <div className="text-[16px] font-bold tracking-[-0.005em]">{r.team}</div>
-                    <div className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-mute">{r.league}</div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[16px] font-bold tracking-[-0.005em]">{r.team}</span>
+                      <span className="text-[14px]" aria-hidden>{r.flag}</span>
+                    </div>
+                    <div className="mt-0.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-mute">
+                      <span>{r.league}</span>
+                      <span className="text-line-2">·</span>
+                      <span className="normal-case font-normal tracking-normal">Updated {r.updated}</span>
+                    </div>
                   </div>
                 </div>
                 <div>
-                  <div className="text-[15px] font-bold">{r.role}</div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[15px] font-bold">{r.role}</span>
+                    {r.urgent && (
+                      <span className="rounded-full bg-terra/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-terra">
+                        Urgent
+                      </span>
+                    )}
+                  </div>
                   <div className="mt-0.5 text-[12px] text-mute">{r.sub}</div>
                 </div>
-                <div className="flex items-center gap-1.5 text-[13px] text-ink-2">
-                  <IconPin /> {r.loc}
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-1.5 text-[13px] text-ink-2">
+                    <IconPin /> {r.loc}
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[11px] text-mute">
+                    <IconEye /> <span className="num">{r.viewed}</span> coaches viewed
+                  </div>
                 </div>
                 <div>
                   <div className="num text-[14px] font-bold">{r.pay}</div>
                   <div className="mt-0.5 text-[11px] text-mute">
-                    {r.per} · closes {r.closes}
+                    {r.per} · closes <span className={r.urgent ? "font-bold text-terra" : ""}>{r.closes}</span>
                   </div>
                 </div>
                 <div className="text-right">
@@ -160,30 +210,47 @@ export default async function Home() {
                       {r.cr}
                     </div>
                     <div>
-                      <div className="text-[16px] font-bold tracking-[-0.005em]">{r.team}</div>
-                      <div className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-mute">{r.league}</div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[16px] font-bold tracking-[-0.005em]">{r.team}</span>
+                        <span className="text-[13px]" aria-hidden>{r.flag}</span>
+                      </div>
+                      <div className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-mute">{r.league}</div>
                     </div>
                   </div>
-                  <span className="num text-[14px] font-bold text-mute">0{i + 1}</span>
+                  {r.urgent ? (
+                    <span className="rounded-full bg-terra/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-terra">
+                      Urgent
+                    </span>
+                  ) : (
+                    <span className="num text-[13px] font-bold text-mute">0{i + 1}</span>
+                  )}
                 </div>
 
                 <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-4 border-t border-line pt-4">
                   <div>
-                    <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-mute">Position</div>
+                    <div className="label-meta text-mute">Position</div>
                     <div className="mt-1 text-[14px] font-bold">{r.role}</div>
                     <div className="text-[11px] text-mute">{r.sub}</div>
                   </div>
                   <div>
-                    <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-mute">Location</div>
+                    <div className="label-meta text-mute">Location</div>
                     <div className="mt-1 flex items-center gap-1.5 text-[13px] text-ink-2">
                       <IconPin /> {r.loc}
                     </div>
                   </div>
                   <div className="col-span-2">
-                    <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-mute">Pay</div>
+                    <div className="label-meta text-mute">Pay</div>
                     <div className="mt-1 num text-[14px] font-bold">
-                      {r.pay} <span className="text-[11px] font-normal text-mute">{r.per} · closes {r.closes}</span>
+                      {r.pay}{" "}
+                      <span className="text-[11px] font-normal text-mute">
+                        {r.per} · closes <span className={r.urgent ? "font-bold text-terra" : ""}>{r.closes}</span>
+                      </span>
                     </div>
+                  </div>
+                  <div className="col-span-2 flex items-center gap-3 text-[11px] text-mute">
+                    <span className="flex items-center gap-1.5"><IconEye /> <span className="num">{r.viewed}</span> viewed</span>
+                    <span className="text-line-2">·</span>
+                    <span>Updated {r.updated}</span>
                   </div>
                 </div>
 
@@ -196,27 +263,26 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ─── 3. Players (the supply side) ────────────────────── */}
+      {/* ─── 3. Players — asymmetric staircase ──────────────── */}
       <section id="players" className="border-t border-line">
         <div className="mx-auto max-w-[1340px] px-6 py-20 sm:px-12 sm:py-24 lg:px-16 lg:py-28">
-          <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
+          <div className="mb-14 flex flex-wrap items-end justify-between gap-6">
             <div>
-              <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-sage-deep">
-                The other side
-              </div>
-              <h2 className="display-md mt-4 max-w-[820px]">
+              <SectionLabel no="02" title="The roster" color="sage" />
+              <h2 className="section-heading mt-5 max-w-[680px]">
                 Players who joined this week.
               </h2>
-              <p className="mt-5 max-w-[560px] text-[16px] leading-[1.55] text-ink-2">
-                What teams browsing Picked actually see. Every profile is the player&apos;s real stats, real measurements, and a direct line — no agent stands between you.
+              <p className="mt-4 max-w-[520px] text-[14px] leading-[1.6] text-ink-2">
+                What a coach sees when they search. Real stats, real measurements, a direct line.
               </p>
             </div>
             <Link href="/dashboard/players" className="inline-flex items-center gap-1.5 rounded-full bg-ink/[0.06] px-4 py-2 text-[12px] font-semibold text-ink hover:bg-ink/[0.10]">
-              Browse all players <Arrow size={11} />
+              Browse all <Arrow size={11} />
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Staircase grid: each card vertically offset on lg */}
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-x-5">
             {featuredPlayers.length > 0 ? (
               featuredPlayers.map((p, i) => {
                 const profile = p.profile;
@@ -226,15 +292,17 @@ export default async function Home() {
                   ? Math.floor((Date.now() - new Date(p.date_of_birth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
                   : null;
                 const boosted = boostedIds.has(p.profile_id);
+                // Staircase: 0, 16, 32, 12 (lg only)
+                const offsetMt = ["", "lg:mt-16", "lg:mt-32", "lg:mt-12"][i % 4];
 
                 return (
                   <Link
                     key={p.id}
                     href={`/dashboard/players/${p.profile_id}`}
-                    className="group flex flex-col rounded-2xl border border-line bg-paper-2 p-7 transition-shadow hover:shadow-[0_6px_28px_rgba(19,17,14,0.06)]"
+                    className={`group flex flex-col rounded-2xl border border-line bg-paper-2 p-7 transition-shadow hover:shadow-[0_6px_28px_rgba(19,17,14,0.06)] ${offsetMt}`}
                   >
                     <div className="flex items-start justify-between">
-                      <div className="num text-[11px] font-bold uppercase tracking-[0.16em] text-mute">
+                      <div className="num label-meta text-mute">
                         No. {String(i + 1).padStart(2, "0")}
                       </div>
                       {boosted ? (
@@ -248,18 +316,12 @@ export default async function Home() {
                       )}
                     </div>
 
-                    <h3 className="mt-10 text-[28px] font-extrabold leading-[1.05] tracking-[-0.025em]">
+                    <h3 className="mt-10 text-[26px] font-extrabold leading-[1.05] tracking-[-0.025em]">
                       {name}
                     </h3>
-                    <div className="mt-2 text-[12px] font-bold uppercase tracking-[0.12em] text-mute">
+                    <div className="mt-2 text-[11px] font-bold uppercase tracking-[0.12em] text-mute">
                       {role} · {profile?.country || "—"}
                     </div>
-
-                    {p.looking_for && (
-                      <p className="mt-5 line-clamp-2 text-[13px] leading-[1.55] text-ink-2">
-                        {p.looking_for}
-                      </p>
-                    )}
 
                     <div className="mt-auto grid grid-cols-3 gap-2 border-t border-line pt-6">
                       <div>
@@ -282,7 +344,7 @@ export default async function Home() {
                       </div>
                     </div>
 
-                    <div className="mt-6 flex items-center justify-between text-[12px]">
+                    <div className="mt-5 flex items-center justify-between text-[12px]">
                       <span className="font-semibold text-mute">View profile</span>
                       <span className="text-ink transition-transform group-hover:translate-x-0.5">
                         <Arrow size={12} />
@@ -300,32 +362,36 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ─── 4. Editorial quote — magazine-style single feature ─── */}
+      {/* ─── 4. Case study — the emotional peak ─────────────── */}
       <section className="border-t border-line bg-ink text-sand">
         <div className="mx-auto grid max-w-[1340px] grid-cols-1 gap-12 px-6 py-24 sm:px-12 lg:grid-cols-[1fr_1.6fr] lg:gap-20 lg:px-16 lg:py-32">
           <div className="flex flex-col justify-between gap-12">
             <div>
-              <div className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: "#E0926F" }}>
-                Case · 047
+              <div className="flex items-center gap-3" style={{ color: "#E0926F" }}>
+                <span className="num label-meta">§ 03</span>
+                <span className="h-px w-8 bg-current opacity-40" />
+                <span className="label-meta">Case 047</span>
               </div>
               <div className="mt-6 text-[13px] font-semibold leading-[1.6] text-sand/70">
                 Belgrade → Athens
                 <br />
-                Two seasons, two contracts. No agent, no email chains.
+                Two seasons, two contracts.
+                <br />
+                No agent, no email chains.
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-6 border-t border-sand/15 pt-8">
               <div>
-                <div className="num text-[32px] font-extrabold leading-none tracking-[-0.03em]">
+                <div className="num text-[36px] font-extrabold leading-none tracking-[-0.03em]">
                   48h
                 </div>
                 <div className="mt-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-sand/55">
-                  From upload to inbox
+                  Upload to inbox
                 </div>
               </div>
               <div>
-                <div className="num text-[32px] font-extrabold leading-none tracking-[-0.03em]">
+                <div className="num text-[36px] font-extrabold leading-none tracking-[-0.03em]">
                   2
                 </div>
                 <div className="mt-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-sand/55">
@@ -333,7 +399,7 @@ export default async function Home() {
                 </div>
               </div>
               <div>
-                <div className="num text-[32px] font-extrabold leading-none tracking-[-0.03em]">
+                <div className="num text-[36px] font-extrabold leading-none tracking-[-0.03em]">
                   0
                 </div>
                 <div className="mt-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-sand/55">
@@ -360,55 +426,75 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ─── 5. Final CTA ────────────────────────────────────── */}
+      {/* ─── 5. Calm pressure + quiet close ─────────────────── */}
       <section className="border-t border-line">
-        <div className="mx-auto max-w-[1340px] px-6 py-24 sm:px-12 sm:py-28 lg:px-16 lg:py-32">
-          <h2 className="display-lg max-w-[1000px]">
-            While you wait, teams are picking <span className="text-terra">someone else.</span>
-          </h2>
-          <p className="mt-8 max-w-[600px] text-[18px] leading-[1.5] text-ink-2">
-            Every day a roster spot you would have fit goes to a player whose profile was already there. Twelve minutes today — and the next call could be yours.
-          </p>
-          <div className="mt-12 flex flex-wrap items-center gap-6">
-            <Link href="/signup" className="btn btn-terra btn-xl">
-              Create your profile <Arrow />
-            </Link>
-            <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-mute">
-              Free · No card · 12 min
-            </span>
+        <div className="mx-auto max-w-[1340px] px-6 py-20 sm:px-12 sm:py-24 lg:px-16 lg:py-28">
+          <SectionLabel no="04" title="Off-season" />
+
+          <div className="mt-10 grid grid-cols-1 gap-12 lg:grid-cols-[1.4fr_1fr] lg:gap-20">
+            <div>
+              <div className="space-y-1 font-bold leading-[1.25] tracking-[-0.015em]" style={{ fontSize: "clamp(22px, 2.2vw, 32px)" }}>
+                <p>Rosters close quietly.</p>
+                <p className="text-ink-2/80">Coaches search before agents call.</p>
+                <p className="text-ink-2/60">Most contracts happen in silence.</p>
+                <p className="pt-4 text-ink">While you wait, teams are picking <span className="text-terra">someone else.</span></p>
+              </div>
+            </div>
+
+            <div className="flex flex-col items-start justify-end gap-5">
+              <p className="max-w-[400px] text-[15px] leading-[1.55] text-ink-2">
+                Every day a roster spot you would have fit goes to a player whose profile was already there. Twelve minutes today.
+              </p>
+              <Link href="/signup" className="btn btn-terra btn-lg">
+                Create your profile <Arrow />
+              </Link>
+              <span className="label-meta text-mute">
+                Free · No card · 12 min
+              </span>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ─── Footer ─────────────────────────────────────────── */}
-      <footer className="grid grid-cols-1 gap-12 border-t border-line px-6 pb-9 pt-16 sm:grid-cols-2 sm:px-12 lg:grid-cols-[2fr_1fr_1fr_1fr] lg:px-16">
-        <div>
-          <div className="mb-3.5 flex items-center gap-2 text-[24px] font-extrabold">
-            <span className="h-2 w-2 rounded-full bg-terra" /> Picked
-          </div>
-          <div className="max-w-[320px] text-[14px] leading-[1.55] text-ink-2">
-            The basketball roster network for Europe. Built for players who don&apos;t want to wait, and teams who don&apos;t want to guess.
-          </div>
-        </div>
-        {[
-          { h: "Players", links: [["Create profile", "/signup?role=player"], ["Browse teams", "/dashboard/teams"], ["Boost profile", "/dashboard/boost"]] },
-          { h: "Teams", links: [["List a position", "/signup?role=team"], ["Browse players", "/dashboard/players"], ["Coach login", "/login"]] },
-          { h: "Company", links: [["Privacy", "/privacy"], ["Terms", "/terms"], ["Contact", "#"]] },
-        ].map((col) => (
-          <div key={col.h}>
-            <h4 className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-mute">{col.h}</h4>
-            {col.links.map(([label, href]) => (
-              <Link key={label} href={href} className="block py-1.5 text-[14px] text-ink hover:text-terra">
-                {label}
-              </Link>
+      {/* ─── Footer with manifesto ──────────────────────────── */}
+      <footer className="border-t border-line">
+        <div className="mx-auto max-w-[1340px] px-6 pb-9 pt-16 sm:px-12 lg:px-16">
+          <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
+            <div>
+              <div className="mb-5 flex items-center gap-2 text-[24px] font-extrabold">
+                <span className="h-2 w-2 rounded-full bg-terra" /> Picked
+              </div>
+              <p className="max-w-[340px] text-[14px] leading-[1.6] text-ink-2">
+                The basketball roster network for Europe. Built for players who don&apos;t want to wait, and coaches who don&apos;t want to guess.
+              </p>
+              <p className="mt-4 max-w-[340px] text-[13px] leading-[1.6] text-mute">
+                Reykjavík / Belgrade. Built for the off-season.
+              </p>
+            </div>
+            {[
+              { h: "Players", links: [["Create profile", "/signup?role=player"], ["Browse teams", "/dashboard/teams"], ["Boost profile", "/dashboard/boost"]] },
+              { h: "Teams", links: [["List a position", "/signup?role=team"], ["Browse players", "/dashboard/players"], ["Coach login", "/login"]] },
+              { h: "Company", links: [["Privacy", "/privacy"], ["Terms", "/terms"], ["Contact", "#"]] },
+            ].map((col) => (
+              <div key={col.h}>
+                <h4 className="mb-5 label-meta text-mute">{col.h}</h4>
+                {col.links.map(([label, href]) => (
+                  <Link key={label} href={href} className="block py-1.5 text-[14px] text-ink hover:text-terra">
+                    {label}
+                  </Link>
+                ))}
+              </div>
             ))}
           </div>
-        ))}
+
+          <div className="mt-16 flex flex-col gap-3 border-t border-line pt-6 text-[12px] text-mute sm:flex-row sm:items-center sm:justify-between">
+            <span>© 2026 Picked</span>
+            <span className="num label-meta">
+              28 countries · 0 agents required
+            </span>
+          </div>
+        </div>
       </footer>
-      <div className="flex flex-col gap-2 border-t border-line px-6 py-6 text-[12px] text-mute sm:flex-row sm:justify-between sm:px-12 lg:px-16">
-        <span>© 2026 Picked</span>
-        <span>Built for the off-season.</span>
-      </div>
     </div>
   );
 }
