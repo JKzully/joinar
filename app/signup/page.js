@@ -2,41 +2,62 @@
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+
+const Arrow = ({ size = 14 }) => (
+  <svg width={size} height={size} viewBox="0 0 14 14" fill="none" className="inline-block align-middle">
+    <path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const IconPlayer = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <circle cx="8" cy="5.5" r="2.5" stroke="currentColor" strokeWidth="1.5" />
+    <path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
+
+const IconTeam = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <circle cx="5.5" cy="6" r="2" stroke="currentColor" strokeWidth="1.5" />
+    <circle cx="10.5" cy="6" r="2" stroke="currentColor" strokeWidth="1.5" />
+    <path d="M2 13c0-1.5 1.5-3 3.5-3M14 13c0-1.5-1.5-3-3.5-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
 
 function SignUpForm() {
   const searchParams = useSearchParams();
   const preselectedRole = searchParams.get("role");
 
-  const [step, setStep] = useState(preselectedRole ? 2 : 1);
-  const [role, setRole] = useState(preselectedRole || "");
+  const [role, setRole] = useState(preselectedRole === "team" ? "team" : "player");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [agreed, setAgreed] = useState(true);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [confirmationSent, setConfirmationSent] = useState(false);
 
-  function selectRole(selectedRole) {
-    setRole(selectedRole);
-    setStep(2);
-  }
-
   async function handleSignUp(e) {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
+    if (!agreed) {
+      setError("Please agree to the terms to continue.");
+      return;
+    }
+
+    setLoading(true);
     const supabase = createClient();
+    const fullName = `${firstName} ${lastName}`.trim();
 
     const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: {
-          role,
-        },
+        data: { role, full_name: fullName },
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
@@ -51,181 +72,297 @@ function SignUpForm() {
     setConfirmationSent(true);
   }
 
-  // Confirmation sent screen
-  if (confirmationSent) {
-    return (
-      <div className="w-full max-w-md text-center">
-        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-orange-500/10">
-          <svg className="h-8 w-8 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-            <path d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-          </svg>
-        </div>
-        <h1 className="text-2xl font-bold text-text-primary">Check your email</h1>
-        <p className="mt-3 text-text-secondary">
-          We sent a confirmation link to{" "}
-          <span className="font-medium text-text-primary">{email}</span>.
-          Click the link to activate your account.
-        </p>
-        <Link
-          href="/login"
-          className="mt-8 inline-block text-sm font-medium text-orange-400 transition-colors hover:text-orange-500"
-        >
-          Go to login &rarr;
-        </Link>
-      </div>
-    );
-  }
-
   return (
-    <div className="w-full max-w-md">
-      {/* Logo */}
-      <Link href="/" className="mb-8 flex items-center justify-center">
-        <Image src="/logo.svg" alt="Picked" width={88} height={40} />
-      </Link>
+    <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
+      {/* ─── Left: brand pane (desktop only) ──────────────── */}
+      <div className="relative hidden overflow-hidden bg-ink px-14 py-14 text-sand lg:flex lg:flex-col lg:justify-between">
+        <div aria-hidden className="pointer-events-none absolute left-[30%] -top-[100px] h-[780px] w-[780px] rounded-full border border-sand/[0.05]" />
+        <div aria-hidden className="pointer-events-none absolute left-[50%] top-[120px] h-[480px] w-[480px] rounded-full border border-sand/[0.04]" />
 
-      {/* Step 1: Role selection */}
-      {step === 1 && (
-        <div>
-          <h1 className="text-center text-2xl font-bold text-text-primary">
-            Let&apos;s Get You Seen
+        <div className="relative z-10">
+          <Link href="/" className="mb-16 flex items-baseline gap-2 text-[22px] font-extrabold">
+            <span className="h-2 w-2 rounded-full bg-terra" />
+            <span>Picked</span>
+          </Link>
+
+          <h1 className="display-lg" style={{ color: "var(--color-sand)" }}>
+            Twelve minutes.
+            <br />
+            A coach-ready{" "}
+            <span className="serif" style={{ color: "#B5C9A6" }}>profile.</span>
+            <br />
+            The <span className="serif" style={{ color: "#E0926F" }}>call</span> follows.
           </h1>
-          <p className="mt-2 text-center text-sm text-text-secondary">
-            Choose how you want to use the platform
+
+          <p className="mt-8 max-w-[420px] text-[16px] leading-[1.55] text-sand/65">
+            Every season, 380+ teams across 28 countries post open roster spots on Picked. Your profile is the only thing standing between you and that call.
           </p>
 
-          <div className="mt-8 grid grid-cols-2 gap-4">
-            <button
-              onClick={() => selectRole("player")}
-              className="group rounded-2xl border border-border bg-surface p-6 text-center transition-all hover:border-orange-500/50 hover:shadow-lg hover:shadow-orange-500/5"
-            >
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-orange-500/10 text-orange-400 transition-colors group-hover:bg-orange-500/20">
-                <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                </svg>
+          <div className="mt-12 max-w-[480px] border-l-2 border-terra pl-8">
+            <p className="font-light leading-[1.35] tracking-[-0.015em]" style={{ fontSize: 24 }}>
+              &ldquo;I uploaded my profile on a Tuesday. By Thursday,{" "}
+              <span className="serif" style={{ color: "#B5C9A6" }}>two teams</span> had me in their inbox.&rdquo;
+            </p>
+            <div className="mt-6 flex items-center gap-3">
+              <div className="h-9 w-9 rounded-full bg-sand/15" />
+              <div>
+                <div className="text-[13px] font-bold">Stefan J.</div>
+                <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-sand/55">
+                  Point Guard · Belgrade → Athens
+                </div>
               </div>
-              <h3 className="text-base font-semibold text-text-primary">Player</h3>
-              <p className="mt-1 text-xs text-text-muted">
-                Get your talent in front of teams that need you
-              </p>
-            </button>
-
-            <button
-              onClick={() => selectRole("team")}
-              className="group rounded-2xl border border-border bg-surface p-6 text-center transition-all hover:border-orange-500/50 hover:shadow-lg hover:shadow-orange-500/5"
-            >
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-orange-500/10 text-orange-400 transition-colors group-hover:bg-orange-500/20">
-                <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-                </svg>
-              </div>
-              <h3 className="text-base font-semibold text-text-primary">Team</h3>
-              <p className="mt-1 text-xs text-text-muted">
-                Tell us what you need and find the right player
-              </p>
-            </button>
+            </div>
           </div>
-
-          <p className="mt-8 text-center text-sm text-text-muted">
-            Already have an account?{" "}
-            <Link href="/login" className="font-medium text-orange-400 hover:text-orange-500">
-              Log in
-            </Link>
-          </p>
         </div>
-      )}
 
-      {/* Step 2: Registration form */}
-      {step === 2 && (
-        <div>
-          <h1 className="text-center text-2xl font-bold text-text-primary">
-            Let&apos;s Get You Seen
-          </h1>
-          <p className="mt-2 text-center text-sm text-text-secondary">
-            Signing up as{" "}
-            <button
-              onClick={() => { setStep(1); setRole(""); }}
-              className="font-medium text-orange-400 capitalize hover:text-orange-500"
-            >
-              {role} &mdash; change
-            </button>
-          </p>
-
-          <form onSubmit={handleSignUp} className="mt-8 space-y-4">
-            <div>
-              <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-text-secondary">
-                Email address
-              </label>
-              <input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-text-primary placeholder-text-muted outline-none transition-colors focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50"
-              />
+        <div className="relative z-10 flex flex-wrap gap-9 border-t border-sand/10 pt-8">
+          <div>
+            <div className="num text-[24px] font-semibold tracking-[-0.02em]">127</div>
+            <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-sand/50">Players · this month</div>
+          </div>
+          <div>
+            <div className="num text-[24px] font-semibold tracking-[-0.02em]">23</div>
+            <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-sand/50">Teams · hiring now</div>
+          </div>
+          <div>
+            <div className="text-[24px] font-semibold tracking-[-0.02em]">
+              <span className="serif" style={{ color: "#B5C9A6" }}>14h</span>
             </div>
+            <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-sand/50">Avg coach reply</div>
+          </div>
+        </div>
+      </div>
 
-            <div>
-              <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-text-secondary">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="At least 6 characters"
-                className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-text-primary placeholder-text-muted outline-none transition-colors focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50"
-              />
-            </div>
+      {/* ─── Right: form pane ─────────────────────────────── */}
+      <div className="flex flex-col bg-sand px-6 py-8 sm:px-14 sm:py-12 lg:py-14">
+        <div className="flex items-center justify-between">
+          {/* Mobile brand */}
+          <Link href="/" className="flex items-baseline gap-2 text-[18px] font-extrabold lg:hidden">
+            <span className="h-1.5 w-1.5 rounded-full bg-terra" />
+            <span>Picked</span>
+          </Link>
+          <span className="ml-auto text-[13px] text-mute">
+            Already have a profile?{" "}
+            <Link href="/login" className="font-bold text-ink underline-offset-4 hover:underline">
+              Log in →
+            </Link>
+          </span>
+        </div>
 
-            {error && (
-              <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-                {error}
+        <div className="mx-auto my-auto w-full max-w-[480px] py-10">
+          {confirmationSent ? (
+            <ConfirmationView email={email} />
+          ) : (
+            <>
+              <h2 className="display-md">
+                Get <span className="serif text-terra">picked.</span>
+              </h2>
+              <p className="mt-3 text-[15px] leading-[1.55] text-ink-2">
+                Create your free profile in twelve minutes. No credit card. No agent. No politics.
+              </p>
+
+              {/* Role toggle */}
+              <div className="mt-9 grid grid-cols-2 gap-2 rounded-2xl border border-line bg-paper p-1.5">
+                <RoleOption
+                  active={role === "player"}
+                  onClick={() => setRole("player")}
+                  icon={<IconPlayer />}
+                  title="I'm a player"
+                  desc="Build a profile, get found"
+                />
+                <RoleOption
+                  active={role === "team"}
+                  onClick={() => setRole("team")}
+                  icon={<IconTeam />}
+                  title="I'm a team"
+                  desc="Find players, post spots"
+                />
               </div>
-            )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-lg bg-orange-500 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition-all hover:bg-orange-600 hover:shadow-orange-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "Creating account..." : "Create Account"}
-            </button>
-          </form>
+              <form onSubmit={handleSignUp} className="mt-7">
+                <div className="grid grid-cols-2 gap-3">
+                  <FieldInput
+                    label="First name"
+                    value={firstName}
+                    onChange={setFirstName}
+                    placeholder="Marko"
+                    required
+                  />
+                  <FieldInput
+                    label="Last name"
+                    value={lastName}
+                    onChange={setLastName}
+                    placeholder="Kovač"
+                    required
+                  />
+                </div>
+                <div className="mt-4">
+                  <FieldInput
+                    label="Email"
+                    type="email"
+                    value={email}
+                    onChange={setEmail}
+                    placeholder="you@email.com"
+                    required
+                  />
+                </div>
+                <div className="mt-4">
+                  <FieldInput
+                    label="Password"
+                    type="password"
+                    value={password}
+                    onChange={setPassword}
+                    placeholder="Min 8 characters"
+                    minLength={8}
+                    required
+                  />
+                </div>
 
-          <p className="mt-6 text-center text-xs text-text-muted">
-            By signing up, you agree to our{" "}
-            <Link href="/terms" className="text-text-secondary hover:text-orange-400">
-              Terms of Service
-            </Link>{" "}
-            and{" "}
-            <Link href="/privacy" className="text-text-secondary hover:text-orange-400">
-              Privacy Policy
-            </Link>
-          </p>
+                {/* Terms */}
+                <label className="mt-6 flex cursor-pointer items-start gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setAgreed(!agreed)}
+                    aria-pressed={agreed}
+                    className={`relative mt-0.5 h-[18px] w-[18px] flex-none rounded-[5px] border-[1.5px] transition-colors ${
+                      agreed ? "border-ink bg-ink" : "border-line-2 bg-paper-2"
+                    }`}
+                  >
+                    {agreed && (
+                      <span
+                        aria-hidden
+                        className="absolute left-[4px] top-[1px] h-[10px] w-[5px] rotate-45 border-b-[2px] border-r-[2px] border-sand"
+                      />
+                    )}
+                  </button>
+                  <span className="text-[13px] leading-[1.5] text-ink-2">
+                    I agree to Picked&apos;s{" "}
+                    <Link href="/terms" className="font-bold text-ink underline">Terms</Link>{" "}
+                    and{" "}
+                    <Link href="/privacy" className="font-bold text-ink underline">Privacy Policy</Link>
+                    , and to coaches contacting me through my profile.
+                  </span>
+                </label>
 
-          <p className="mt-4 text-center text-sm text-text-muted">
-            Already have an account?{" "}
-            <Link href="/login" className="font-medium text-orange-400 hover:text-orange-500">
-              Log in
-            </Link>
-          </p>
+                {error && (
+                  <div className="mt-5 rounded-xl border border-terra/30 bg-terra/10 px-4 py-3 text-[13px] text-terra-deep">
+                    {error}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="btn btn-terra mt-6 w-full justify-center disabled:opacity-50 disabled:hover:translate-y-0"
+                  style={{ padding: "16px 22px", fontSize: 15 }}
+                >
+                  {loading ? "Creating profile…" : (<>Create my profile <Arrow size={14} /></>)}
+                </button>
+
+                <div className="mt-7 border-t border-line pt-5 text-center text-[13px] text-mute">
+                  By signing up you join 127 players from 28 countries — free, forever.
+                </div>
+
+                <div className="mt-5 flex flex-wrap justify-center gap-x-5 gap-y-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-mute">
+                  <span>✓ Free forever</span>
+                  <span>✓ No agent</span>
+                  <span>✓ Profile in 12 min</span>
+                </div>
+              </form>
+            </>
+          )}
         </div>
-      )}
+      </div>
+    </div>
+  );
+}
+
+function RoleOption({ active, onClick, icon, title, desc }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-xl px-4 py-4 text-center transition-all ${
+        active
+          ? "bg-paper-2 shadow-[0_1px_0_rgba(19,17,14,0.05),0_4px_12px_rgba(19,17,14,0.04)]"
+          : "bg-transparent hover:bg-paper-2/50"
+      }`}
+    >
+      <div
+        className={`mx-auto mb-3 flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
+          active ? "bg-sage text-white" : "bg-[rgba(77,106,72,0.13)] text-sage-deep"
+        }`}
+      >
+        {icon}
+      </div>
+      <div className="text-[14px] font-bold tracking-[-0.005em]">{title}</div>
+      <div className={`mt-1 text-[12px] ${active ? "text-ink-2" : "text-mute"}`}>{desc}</div>
+    </button>
+  );
+}
+
+function FieldInput({ label, type = "text", value, onChange, placeholder, required, minLength }) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.1em] text-mute">
+        {label}
+      </span>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        required={required}
+        minLength={minLength}
+        className="block w-full rounded-xl border border-line-2 bg-paper-2 px-4 py-3.5 text-[15px] text-ink placeholder:text-mute focus:border-ink focus:outline-none"
+      />
+    </label>
+  );
+}
+
+function ConfirmationView({ email }) {
+  return (
+    <div>
+      <div className="mb-7 inline-flex items-center gap-3 text-terra">
+        <span className="num label-meta">§ 01</span>
+        <span className="h-px w-8 bg-current opacity-40" />
+        <span className="label-meta">Inbox check</span>
+      </div>
+      <h2 className="display-md">
+        Check your <span className="serif text-sage-deep">inbox.</span>
+      </h2>
+      <p className="mt-5 text-[15px] leading-[1.55] text-ink-2">
+        We sent a confirmation link to <span className="font-bold text-ink">{email}</span>.
+        Click the link to activate your profile and start building.
+      </p>
+      <div className="mt-8 rounded-2xl border border-line bg-paper-2 p-5">
+        <div className="label-meta text-mute">What&apos;s next</div>
+        <ol className="mt-3 space-y-2 text-[13px] leading-[1.55] text-ink-2">
+          <li>
+            <span className="num font-bold text-ink">01.</span> Click the link in your email
+          </li>
+          <li>
+            <span className="num font-bold text-ink">02.</span> Build your profile — measurements, stats, highlights
+          </li>
+          <li>
+            <span className="num font-bold text-ink">03.</span> Get matched to teams hiring this window
+          </li>
+        </ol>
+      </div>
+      <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+        <Link href="/login" className="text-[13px] font-bold text-ink underline-offset-4 hover:underline">
+          Go to log in →
+        </Link>
+        <span className="text-[12px] text-mute">Didn&apos;t arrive? Check spam.</span>
+      </div>
     </div>
   );
 }
 
 export default function SignUpPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <Suspense>
-        <SignUpForm />
-      </Suspense>
-    </div>
+    <Suspense>
+      <SignUpForm />
+    </Suspense>
   );
 }
