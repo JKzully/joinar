@@ -10,10 +10,9 @@ const Arrow = ({ size = 14 }) => (
 );
 
 const LINKS = [
-  { href: "#players", label: "Players" },
-  { href: "#teams", label: "Teams" },
   { href: "#positions", label: "Open spots" },
-  { href: "#how", label: "How it works" },
+  { href: "#players", label: "Players" },
+  { href: "/dashboard/teams", label: "For teams" },
 ];
 
 export default function HomeNav() {
