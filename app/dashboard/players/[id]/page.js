@@ -101,8 +101,12 @@ export default async function PlayerProfilePage({ params }) {
       {/* Header */}
       <div className="rounded-2xl border border-border bg-surface p-6">
         <div className="flex items-start gap-4">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-surface-light text-2xl font-semibold text-orange-400">
-            {(profile?.full_name || "?").charAt(0).toUpperCase()}
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-light text-2xl font-semibold text-orange-400">
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+            ) : (
+              (profile?.full_name || "?").charAt(0).toUpperCase()
+            )}
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-3">

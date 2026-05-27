@@ -142,8 +142,12 @@ function TeamCard({ team, boosted, isSeed }) {
 
       {/* Team header */}
       <div className="flex items-center gap-3">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-surface-light text-lg font-bold text-orange-400">
-          {(team.team_name || "?").charAt(0).toUpperCase()}
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-surface-light text-lg font-bold text-orange-400">
+          {team.profile?.avatar_url ? (
+            <img src={team.profile.avatar_url} alt="" className="h-full w-full object-cover" />
+          ) : (
+            (team.team_name || "?").charAt(0).toUpperCase()
+          )}
         </div>
         <div className="min-w-0">
           <h3 className="truncate text-base font-semibold text-text-primary">

@@ -146,8 +146,12 @@ function PlayerCard({ player, boosted, isSeed }) {
 
       {/* Avatar + name */}
       <div className="flex items-center gap-3">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-surface-light text-lg font-semibold text-orange-400">
-          {(profile?.full_name || "?").charAt(0).toUpperCase()}
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-light text-lg font-semibold text-orange-400">
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+          ) : (
+            (profile?.full_name || "?").charAt(0).toUpperCase()
+          )}
         </div>
         <div className="min-w-0">
           <h3 className="truncate text-base font-semibold text-text-primary">

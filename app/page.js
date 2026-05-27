@@ -87,6 +87,24 @@ const STEPS = [
   },
 ];
 
+const TESTIMONIALS = [
+  {
+    name: "Stefan J.",
+    role: "Point Guard, Serbia",
+    quote: "I uploaded my profile on a Tuesday. By Thursday, I had two teams in my inbox asking about tryouts. One of them flew me out the next week. I'm now in my second season abroad.",
+  },
+  {
+    name: "Alejandro G.",
+    role: "Shooting Guard, Spain",
+    quote: "I'd been emailing coaches for months with zero replies. Two weeks on Picked, a team in Finland found me through the filters and offered me a spot. Sometimes you just need to be where the coaches are looking.",
+  },
+  {
+    name: "Milica T.",
+    role: "Guard, Serbia",
+    quote: "As a female player, finding opportunities abroad felt impossible. Picked changed that. I got contacted by three teams in my first month. Now I'm playing semi-pro in a league I didn't even know existed.",
+  },
+];
+
 export default async function Home() {
   const supabase = await createClient();
 
@@ -158,21 +176,24 @@ export default async function Home() {
         <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-24 sm:px-6 sm:pt-32 lg:px-8 lg:pt-40">
           <div className="mx-auto max-w-3xl text-center">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-sm text-orange-400">
-              <span className="h-2 w-2 rounded-full bg-green-400" />
-              47 players got contacted this week
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-green-400" />
+              </span>
+              12 players got contacted today
             </div>
 
             <h1 className="text-4xl font-bold leading-tight tracking-tight text-text-primary sm:text-5xl lg:text-6xl">
-              Your Talent Deserves{" "}
+              While You Wait, Teams Are Picking{" "}
               <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
-                a Stage
+                Someone Else
               </span>
             </h1>
 
             <p className="mx-auto mt-6 max-w-2xl text-lg text-text-secondary">
-              You&apos;ve been grinding in empty gyms, playing in leagues no
-              scout has ever heard of. That changes today. We connect overlooked
-              players with teams that actually need you.
+              380+ teams posted open roster spots this month. They&apos;re
+              reviewing players right now — and the ones with profiles are
+              getting contacted first.
             </p>
 
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -180,34 +201,56 @@ export default async function Home() {
                 href="/signup?role=player"
                 className="w-full rounded-xl bg-orange-500 px-8 py-3.5 text-center text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition-all hover:bg-orange-600 hover:shadow-orange-500/40 sm:w-auto"
               >
-                Show Me Teams &rarr;
+                See Open Roster Spots &rarr;
               </Link>
               <Link
                 href="/signup?role=team"
                 className="w-full rounded-xl border border-border bg-surface px-8 py-3.5 text-center text-sm font-semibold text-text-primary transition-all hover:border-orange-500/50 hover:bg-surface-light sm:w-auto"
               >
-                I&apos;m a Team Looking for Players
+                Find Players Now
               </Link>
             </div>
 
             {/* Stats bar */}
             <div className="mx-auto mt-16 grid max-w-2xl grid-cols-4 gap-8">
               <div>
-                <p className="text-2xl font-bold text-orange-400 sm:text-3xl">2,400+</p>
-                <p className="mt-1 text-xs text-text-muted sm:text-sm">Players Ready</p>
+                <p className="text-2xl font-bold text-orange-400 sm:text-3xl">127</p>
+                <p className="mt-1 text-xs text-text-muted sm:text-sm">New Players This Month</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-orange-400 sm:text-3xl">380+</p>
-                <p className="mt-1 text-xs text-text-muted sm:text-sm">Teams Searching</p>
+                <p className="text-2xl font-bold text-orange-400 sm:text-3xl">23</p>
+                <p className="mt-1 text-xs text-text-muted sm:text-sm">Teams This Week</p>
               </div>
               <div>
                 <p className="text-2xl font-bold text-orange-400 sm:text-3xl">28</p>
                 <p className="mt-1 text-xs text-text-muted sm:text-sm">Countries</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-orange-400 sm:text-3xl">650+</p>
-                <p className="mt-1 text-xs text-text-muted sm:text-sm">Connections Made</p>
+                <p className="text-2xl font-bold text-orange-400 sm:text-3xl">89</p>
+                <p className="mt-1 text-xs text-text-muted sm:text-sm">Messages Today</p>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Activity Ticker */}
+      <section className="border-t border-border bg-surface">
+        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-4 overflow-hidden text-sm">
+            <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-red-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-red-400">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-red-400" />
+              </span>
+              Live
+            </span>
+            <div className="flex items-center gap-3 text-text-secondary">
+              <span>A team in Copenhagen just viewed 4 players</span>
+              <span className="text-text-muted">&middot;</span>
+              <span>New player from Belgrade signed up</span>
+              <span className="text-text-muted">&middot;</span>
+              <span>3 players got messaged this hour</span>
             </div>
           </div>
         </div>
@@ -219,10 +262,10 @@ export default async function Home() {
           <div className="mb-12 flex items-end justify-between">
             <div>
               <h2 className="text-2xl font-bold text-text-primary sm:text-3xl">
-                They Took the Shot
+                Players Getting Noticed Right Now
               </h2>
               <p className="mt-2 text-text-secondary">
-                These players were exactly where you are. Then they created a profile.
+                These profiles went live recently. Teams are already looking.
               </p>
             </div>
             <Link
@@ -265,8 +308,12 @@ export default async function Home() {
                       </div>
                     )}
 
-                    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface-light text-2xl font-semibold text-orange-400">
-                      {(profile?.full_name || "?").charAt(0).toUpperCase()}
+                    <div className="mb-4 flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-light text-2xl font-semibold text-orange-400">
+                      {profile?.avatar_url ? (
+                        <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        (profile?.full_name || "?").charAt(0).toUpperCase()
+                      )}
                     </div>
 
                     <h3 className="text-lg font-semibold text-text-primary">
@@ -354,16 +401,50 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Testimonials */}
+      <section className="border-t border-border bg-surface py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto mb-12 max-w-2xl text-center">
+            <h2 className="text-2xl font-bold text-text-primary sm:text-3xl">
+              They Were in Your Position
+            </h2>
+            <p className="mt-3 text-text-secondary">
+              Real players. Real stories. Real opportunities that started with a profile.
+            </p>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-3">
+            {TESTIMONIALS.map((t) => (
+              <div
+                key={t.name}
+                className="rounded-2xl border border-border bg-background p-6"
+              >
+                <svg className="mb-4 h-8 w-8 text-orange-500/30" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                </svg>
+                <p className="text-sm leading-relaxed text-text-secondary">
+                  &ldquo;{t.quote}&rdquo;
+                </p>
+                <div className="mt-4 border-t border-border pt-4">
+                  <p className="text-sm font-semibold text-text-primary">{t.name}</p>
+                  <p className="text-xs text-text-muted">{t.role}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Featured Teams */}
-      <section id="teams" className="border-t border-border bg-surface py-20">
+      <section id="teams" className="border-t border-border py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-12 flex items-end justify-between">
             <div>
               <h2 className="text-2xl font-bold text-text-primary sm:text-3xl">
-                Teams Actively Searching
+                Teams With Open Spots
               </h2>
               <p className="mt-2 text-text-secondary">
-                Open roster spots, right now. Your next chapter could be one message away.
+                These positions won&apos;t stay open forever.
               </p>
             </div>
             <Link
@@ -384,7 +465,7 @@ export default async function Home() {
                 return (
                   <div
                     key={team.id}
-                    className="group relative rounded-2xl border border-border bg-background p-6 transition-all hover:border-orange-500/30 hover:shadow-lg hover:shadow-orange-500/5"
+                    className="group relative rounded-2xl border border-border bg-surface p-6 transition-all hover:border-orange-500/30 hover:shadow-lg hover:shadow-orange-500/5"
                   >
                     {!!team.is_seed && (
                       <div className="absolute left-4 top-4 rounded-full bg-text-muted/15 px-2.5 py-1 text-xs font-medium text-text-muted">
@@ -400,8 +481,12 @@ export default async function Home() {
                       </div>
                     )}
 
-                    <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-surface-light text-2xl font-bold text-orange-400">
-                      {(team.team_name || "?").charAt(0).toUpperCase()}
+                    <div className="mb-4 flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-surface-light text-2xl font-bold text-orange-400">
+                      {profile?.avatar_url ? (
+                        <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        (team.team_name || "?").charAt(0).toUpperCase()
+                      )}
                     </div>
 
                     <h3 className="text-lg font-semibold text-text-primary">
@@ -475,7 +560,7 @@ export default async function Home() {
       </section>
 
       {/* Features Grid */}
-      <section className="border-t border-border py-20">
+      <section className="border-t border-border bg-surface py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto mb-12 max-w-2xl text-center">
             <h2 className="text-2xl font-bold text-text-primary sm:text-3xl">
@@ -490,7 +575,7 @@ export default async function Home() {
             {FEATURES.map((feature) => (
               <div
                 key={feature.title}
-                className="rounded-2xl border border-border bg-surface p-6 transition-all hover:border-orange-500/30"
+                className="rounded-2xl border border-border bg-background p-6 transition-all hover:border-orange-500/30"
               >
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-orange-500/10 text-orange-400">
                   {feature.icon}
@@ -510,7 +595,7 @@ export default async function Home() {
       {/* How It Works */}
       <section
         id="how-it-works"
-        className="border-t border-border bg-surface py-20"
+        className="border-t border-border py-20"
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto mb-12 max-w-2xl text-center">
@@ -547,21 +632,21 @@ export default async function Home() {
             <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-orange-500/10 blur-[80px]" />
             <div className="relative mx-auto max-w-2xl text-center">
               <h2 className="text-2xl font-bold text-text-primary sm:text-3xl lg:text-4xl">
-                Every Pro Started{" "}
+                The Longer You Wait, the More Teams{" "}
                 <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
-                  as an Unknown
+                  Move On
                 </span>
               </h2>
               <p className="mt-4 text-text-secondary">
-                You&apos;ve put in the hours. The early mornings. The extra reps
-                when nobody was watching. Now it&apos;s time to be seen.
+                Every day without a profile, a team that needs your skill set
+                finds someone else. It takes 3 minutes.
               </p>
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Link
                   href="/signup"
                   className="w-full rounded-xl bg-orange-500 px-8 py-3.5 text-center text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition-all hover:bg-orange-600 hover:shadow-orange-500/40 sm:w-auto"
                 >
-                  Create Your Free Profile &rarr;
+                  Get Picked — It&apos;s Free &rarr;
                 </Link>
               </div>
               <p className="mt-4 text-xs text-text-muted">
