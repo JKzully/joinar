@@ -1,28 +1,38 @@
-import { Barlow_Condensed, DM_Sans } from "next/font/google";
+import { Manrope, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import CookieConsent from "./components/CookieConsent";
 import "./globals.css";
 
-const barlowCondensed = Barlow_Condensed({
-  variable: "--font-barlow",
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
+  weight: ["200", "400", "500", "600", "700", "800"],
+  display: "swap",
 });
 
-const dmSans = DM_Sans({
-  variable: "--font-dm",
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400"],
+  style: ["italic"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains",
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  display: "swap",
 });
 
 export const metadata = {
-  title: "Picked — Where Basketball Talent Meets Opportunity",
+  title: "Picked — The basketball roster network",
   description:
-    "The marketplace connecting semi-pro basketball players and teams across Europe. Create your profile, get discovered, and find your next opportunity. Free.",
+    "Build a coach-ready profile, get seen by teams across 28 countries, take the call — without agents, politics, or the wait.",
   openGraph: {
-    title: "Picked — Where Basketball Talent Meets Opportunity",
+    title: "Picked — The basketball roster network",
     description:
-      "The marketplace connecting semi-pro basketball players and teams across Europe. Create your profile, get discovered, and find your next opportunity.",
+      "Build a coach-ready profile, get seen by teams across 28 countries, take the call.",
     images: [{ url: "/og-image.png", width: 1080, height: 1080 }],
   },
   twitter: {
@@ -33,9 +43,9 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body
-        className={`${barlowCondensed.variable} ${dmSans.variable} antialiased`}
+        className={`${manrope.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
       >
         {children}
         <CookieConsent />

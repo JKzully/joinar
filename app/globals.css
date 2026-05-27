@@ -1,81 +1,162 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* Backgrounds — hlýtt svart eins og parket á nóttu */
-  --color-background: #100f0d;
-  --color-surface: #1a1814;
-  --color-surface-light: #242018;
+  /* ─── Surfaces ─── */
+  --color-sand: #E8E5DC;
+  --color-sand-2: #DDD9CE;
+  --color-paper: #F0EEE6;
+  --color-paper-2: #F8F6F0;
 
-  /* Borders */
-  --color-border: #2d2820;
+  /* ─── Ink (text) ─── */
+  --color-ink: #13110E;
+  --color-ink-2: #3A332B;
+  --color-mute: #7E776D;
 
-  /* Orange — liflegari og skarpari */
-  --color-orange-400: #ff7a33;
-  --color-orange-500: #ff5500;
-  --color-orange-600: #e04a00;
+  /* ─── Lines ─── */
+  --color-line: rgba(19, 17, 14, 0.10);
+  --color-line-2: rgba(19, 17, 14, 0.22);
 
-  /* Court amber — secondary accent */
-  --color-amber-400: #d4a017;
-  --color-amber-500: #b8880f;
+  /* ─── Accents ─── */
+  --color-terra: #B85A3F;
+  --color-terra-deep: #8F4029;
+  --color-sage: #4D6A48;
+  --color-sage-deep: #33502E;
 
-  /* Text — hlýtt cream í stað kalda hvíts */
-  --color-text-primary: #f2ede4;
-  --color-text-secondary: #a09880;
-  --color-text-muted: #6b6050;
+  /* ─── Status ─── */
+  --color-status-live: #7BC76A;
+  --color-status-warm: #E0926F;
 
-  /* Fonts */
-  --font-display: var(--font-barlow);
-  --font-sans: var(--font-dm), system-ui, sans-serif;
-  --font-mono: ui-monospace, monospace;
+  /* ─── Fonts ─── */
+  --font-sans: var(--font-manrope), -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-serif: var(--font-instrument), Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 }
 
 body {
-  background: var(--color-background);
-  color: var(--color-text-primary);
+  background: var(--color-sand);
+  color: var(--color-ink);
   font-family: var(--font-sans);
-}
-
-/* Display font fyrir fyrirsagnir — condensed, athletic */
-h1, h2, h3, h4 {
-  font-family: var(--font-display), var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01", "cv11";
 }
 
 html {
   scroll-behavior: smooth;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* ─── Editorial italic serif — for accent words only ─── */
+.serif {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
 }
 
-.animate-fade-in-up {
-  animation: fadeInUp 0.4s ease-out;
+/* ─── Tabular numbers ─── */
+.num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
 
-/* Custom scrollbar */
+/* ─── Micro-caps label ─── */
+.micro {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-ink-2);
+}
+
+/* ─── Display typography ─── */
+.display-xl {
+  font-weight: 200;
+  font-size: clamp(56px, 7vw, 104px);
+  line-height: 0.94;
+  letter-spacing: -0.045em;
+}
+.display-lg {
+  font-weight: 200;
+  font-size: clamp(48px, 5.8vw, 84px);
+  line-height: 0.96;
+  letter-spacing: -0.045em;
+}
+.display-md {
+  font-weight: 200;
+  font-size: clamp(40px, 4.4vw, 64px);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+.display-sm {
+  font-weight: 200;
+  font-size: clamp(36px, 3.7vw, 54px);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+/* ─── Buttons (pill) ─── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.15s cubic-bezier(0.2, 0.7, 0.3, 1), background-color 0.15s, color 0.15s;
+  border: 0;
+  font-family: inherit;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: scale(0.97); }
+.btn-ink { background: var(--color-ink); color: var(--color-paper-2); }
+.btn-ink:hover { background: #1f1b16; }
+.btn-terra { background: var(--color-terra); color: #fff; }
+.btn-terra:hover { background: var(--color-terra-deep); }
+.btn-sage { background: var(--color-sage); color: #fff; }
+.btn-sage:hover { background: var(--color-sage-deep); }
+.btn-ghost { background: transparent; color: var(--color-ink); border: 1px solid var(--color-line-2); }
+.btn-ghost:hover { background: var(--color-paper); }
+.btn-lg { padding: 15px 24px; font-size: 14px; }
+.btn-xl { padding: 18px 30px; font-size: 15px; }
+
+/* ─── Pulse dot (status indicator) ─── */
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(77, 106, 72, 0.35); }
+  100% { box-shadow: 0 0 0 6px rgba(77, 106, 72, 0); }
+}
+.pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-sage);
+  animation: pulse-ring 1.8s ease-out infinite;
+}
+
+/* ─── Hairline divider ─── */
+.hair {
+  border: 0;
+  border-top: 1px solid var(--color-line);
+}
+
+/* ─── Focus styles ─── */
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+/* ─── Scrollbar ─── */
 ::-webkit-scrollbar {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-background);
+  background: var(--color-sand);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background: var(--color-line-2);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-muted);
-}
-
-/* Focus styles */
-:focus-visible {
-  outline: 2px solid var(--color-orange-500);
-  outline-offset: 2px;
+  background: var(--color-mute);
 }

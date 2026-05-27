@@ -1,663 +1,566 @@
 import Link from "next/link";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
 import { createClient } from "@/lib/supabase/server";
 
-const FEATURES = [
-  {
-    title: "Your Basketball Resume",
-    description:
-      "Stats. Highlights. Experience. Everything a coach needs to see — in one place. Make it count.",
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-        <path d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-      </svg>
-    ),
-  },
-  {
-    title: "Post Your Openings",
-    description:
-      "Post open positions. Tell us what you need. We'll show you every player that matches — with stats, highlights, and experience.",
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-        <path d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-      </svg>
-    ),
-  },
-  {
-    title: "Get Discovered",
-    description:
-      "Teams across 28 countries are actively searching for players like you. Our filters match you with teams that fit your position, level, and ambitions.",
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-        <path d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
-      </svg>
-    ),
-  },
-  {
-    title: "Direct Messaging",
-    description:
-      "Direct messages. Real opportunities from real teams. No agents, no middlemen, no politics. Just basketball.",
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-        <path d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
-      </svg>
-    ),
-  },
-  {
-    title: "Tryout Invitations",
-    description:
-      "Get the call. Tryout invitations with dates, locations, and details. Real chances from real teams.",
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-        <path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-      </svg>
-    ),
-  },
-  {
-    title: "Be Seen First",
-    description:
-      "Boosted profiles appear at the top of every search. In a pool of talented players, being seen first makes all the difference.",
-    icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-        <path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-      </svg>
-    ),
-  },
-];
+// ─── Icons ────────────────────────────────────────────────────
+const Arrow = ({ size = 14 }) => (
+  <svg width={size} height={size} viewBox="0 0 14 14" fill="none" className="inline-block align-middle">
+    <path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+const IconUser = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <circle cx="8" cy="5.5" r="2.5" stroke="currentColor" strokeWidth="1.4" />
+    <path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+  </svg>
+);
+const IconTeam = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <circle cx="5.5" cy="6" r="2" stroke="currentColor" strokeWidth="1.4" />
+    <circle cx="10.5" cy="6" r="2" stroke="currentColor" strokeWidth="1.4" />
+    <path d="M2 13c0-1.5 1.5-3 3.5-3M14 13c0-1.5-1.5-3-3.5-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+  </svg>
+);
+const IconGlobe = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.4" />
+    <path d="M2 8h12M8 2c2 2 2 10 0 12M8 2c-2 2-2 10 0 12" stroke="currentColor" strokeWidth="1.4" />
+  </svg>
+);
+const IconMail = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <rect x="2" y="3.5" width="12" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.4" />
+    <path d="M2.5 5l5.5 4 5.5-4" stroke="currentColor" strokeWidth="1.4" />
+  </svg>
+);
+const IconPin = () => (
+  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+    <path d="M6 11s4-3.5 4-6.5A4 4 0 002 4.5C2 7.5 6 11 6 11z" stroke="currentColor" strokeWidth="1.3" />
+    <circle cx="6" cy="4.5" r="1.2" stroke="currentColor" strokeWidth="1.3" />
+  </svg>
+);
 
-const STEPS = [
-  {
-    step: "01",
-    title: "Build Your Profile",
-    description:
-      "Stats. Highlights. Experience. Everything a coach needs to see — in one place. This is your basketball resume. Make it count.",
-  },
-  {
-    step: "02",
-    title: "Get Discovered",
-    description:
-      "Teams across 28 countries are actively searching for players like you. Our filters match you with teams that fit your position, level, and ambitions.",
-  },
-  {
-    step: "03",
-    title: "Get the Call",
-    description:
-      "Direct messages. Tryout invitations. Real opportunities from real teams. No agents, no middlemen, no politics. Just basketball.",
-  },
+// ─── Portrait (dark gradient with initials) ───────────────────
+function Portrait({ tone = "warm", initials = "" }) {
+  const grads = {
+    warm: "linear-gradient(180deg,#221c17,#3a2f25 60%,#4a3d31)",
+    cool: "linear-gradient(180deg,#1f262a,#2c373c 60%,#3a4a4f)",
+    sage: "linear-gradient(180deg,#1f2820,#2d3a2a 60%,#3a4a37)",
+    rust: "linear-gradient(180deg,#2a1a16,#4a2a22 60%,#5a3530)",
+  };
+  return (
+    <div className="absolute inset-0" style={{ background: grads[tone] || grads.warm }}>
+      <div
+        className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 font-serif italic"
+        style={{ fontSize: 220, color: "rgba(255,255,255,0.045)", fontWeight: 400, lineHeight: 1, letterSpacing: "-0.04em" }}
+      >
+        {initials}
+      </div>
+      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 45% at 50% 72%, rgba(0,0,0,0.45), transparent 70%)" }} />
+    </div>
+  );
+}
+
+// ─── Tone rotation for player portraits ───────────────────────
+const TONES = ["warm", "rust", "sage", "cool"];
+
+// ─── Open positions (sample data — replace when ad system is live) ──
+const OPEN_POSITIONS = [
+  { team: "BC Mornar", league: "ABA Liga 2", cr: "M", role: "Power Forward", sub: "6'8\"+ · Stretch 4", loc: "Bar, Montenegro", pay: "€1,800–2,400", per: "/ month" },
+  { team: "Helsinki Seagulls", league: "Korisliiga", cr: "H", role: "Combo Guard", sub: "Score-first", loc: "Helsinki, Finland", pay: "€2,400–3,200", per: "/ month" },
+  { team: "Skyliners Academy", league: "NBBL", cr: "S", role: "Wing — Developmental", sub: "Age ≤ 19", loc: "Frankfurt, Germany", pay: "Tuition", per: "+ stipend" },
+  { team: "Real Betis B", league: "LEB Plata", cr: "R", role: "Shooting Guard", sub: "40%+ from 3 · 6'3\"", loc: "Sevilla, Spain", pay: "€1,600–2,200", per: "/ month" },
+  { team: "KK Tofaş U21", league: "TBL Dev.", cr: "T", role: "Point Guard", sub: "Pure pass-first", loc: "Bursa, Türkiye", pay: "€1,200 + housing", per: "/ month" },
 ];
 
 const TESTIMONIALS = [
-  {
-    name: "Stefan J.",
-    role: "Point Guard, Serbia",
-    quote: "I uploaded my profile on a Tuesday. By Thursday, I had two teams in my inbox asking about tryouts. One of them flew me out the next week. I'm now in my second season abroad.",
-  },
-  {
-    name: "Alejandro G.",
-    role: "Shooting Guard, Spain",
-    quote: "I'd been emailing coaches for months with zero replies. Two weeks on Picked, a team in Finland found me through the filters and offered me a spot. Sometimes you just need to be where the coaches are looking.",
-  },
-  {
-    name: "Milica T.",
-    role: "Guard, Serbia",
-    quote: "As a female player, finding opportunities abroad felt impossible. Picked changed that. I got contacted by three teams in my first month. Now I'm playing semi-pro in a league I didn't even know existed.",
-  },
+  { q: "I'd been emailing coaches for months — zero replies. Two weeks on Picked, a team in Finland found me through the filters and offered me a spot.", n: "Alejandro G.", r: "SHOOTING GUARD · SPAIN → FINLAND" },
+  { q: "As a female player, finding opportunities abroad felt impossible. Picked changed that. I got contacted by three teams in my first month.", n: "Milica T.", r: "GUARD · SERBIA → POLAND" },
+  { q: "No agent. No politics. Just a profile, my film, and a coach in Lithuania who saw it. Best basketball year of my life followed.", n: "Tomás H.", r: "CENTER · ARGENTINA → LITHUANIA" },
 ];
 
+// ─── Page ─────────────────────────────────────────────────────
 export default async function Home() {
   const supabase = await createClient();
 
-  // Fetch featured players (boosted first, then most recently updated, limit 3)
   const { data: allPlayers } = await supabase
     .from("player_ads")
     .select("*, profile:profile_id(full_name, avatar_url, country, city)")
     .eq("is_active", true)
     .order("updated_at", { ascending: false })
-    .limit(12);
+    .limit(8);
 
-  const playerProfileIds = allPlayers?.map((p) => p.profile_id) || [];
-  const boostedPlayerIds = new Set();
-  if (playerProfileIds.length > 0) {
-    const { data: pBoosts } = await supabase
+  const playerIds = (allPlayers || []).map((p) => p.profile_id);
+  const boostedIds = new Set();
+  if (playerIds.length > 0) {
+    const { data: boosts } = await supabase
       .from("boosts")
       .select("profile_id")
       .eq("is_active", true)
-      .in("profile_id", playerProfileIds);
-    pBoosts?.forEach((b) => boostedPlayerIds.add(b.profile_id));
+      .in("profile_id", playerIds);
+    boosts?.forEach((b) => boostedIds.add(b.profile_id));
   }
 
   const featuredPlayers = (allPlayers || [])
-    .sort((a, b) => {
-      const aB = boostedPlayerIds.has(a.profile_id) ? 1 : 0;
-      const bB = boostedPlayerIds.has(b.profile_id) ? 1 : 0;
-      return bB - aB;
-    })
-    .slice(0, 3);
+    .sort((a, b) => (boostedIds.has(b.profile_id) ? 1 : 0) - (boostedIds.has(a.profile_id) ? 1 : 0))
+    .slice(0, 4);
 
-  // Fetch featured teams (boosted first, then most recently updated, limit 3)
-  const { data: allTeams } = await supabase
-    .from("team_ads")
-    .select("*, profile:profile_id(full_name, avatar_url, country, city)")
-    .eq("is_active", true)
-    .order("updated_at", { ascending: false })
-    .limit(12);
-
-  const teamProfileIds = allTeams?.map((t) => t.profile_id) || [];
-  const boostedTeamIds = new Set();
-  if (teamProfileIds.length > 0) {
-    const { data: tBoosts } = await supabase
-      .from("boosts")
-      .select("profile_id")
-      .eq("is_active", true)
-      .in("profile_id", teamProfileIds);
-    tBoosts?.forEach((b) => boostedTeamIds.add(b.profile_id));
-  }
-
-  const featuredTeams = (allTeams || [])
-    .sort((a, b) => {
-      const aB = boostedTeamIds.has(a.profile_id) ? 1 : 0;
-      const bB = boostedTeamIds.has(b.profile_id) ? 1 : 0;
-      return bB - aB;
-    })
-    .slice(0, 3);
+  // Hero feature card — first boosted/featured player or fallback
+  const heroPlayer = featuredPlayers[0];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-
-      {/* Hero Section */}
-      <section className="relative overflow-hidden pt-16">
-        {/* Background glow effect */}
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-0 h-[600px] w-[800px] -translate-x-1/2 rounded-full bg-orange-500/10 blur-[120px]" />
+    <div className="min-h-screen bg-sand text-ink">
+      {/* ─── Nav (pill) ─────────────────────────────────────── */}
+      <div className="px-6 pt-6 sm:px-12 sm:pt-8 lg:px-14">
+        <div className="mx-auto flex max-w-[1340px] items-center justify-between rounded-full border border-line bg-paper-2 py-3 pl-7 pr-3 shadow-[0_1px_0_rgba(22,19,16,0.04)]">
+          <div className="flex items-center gap-9">
+            <Link href="/" className="flex items-baseline gap-2 text-[17px] font-extrabold tracking-wide">
+              <span className="inline-block h-1.5 w-1.5 -translate-y-px rounded-full bg-terra" />
+              <span>Picked</span>
+            </Link>
+            <div className="hidden items-center gap-7 md:flex">
+              <Link href="#players" className="text-[13px] font-medium text-ink-2 hover:text-ink">Players</Link>
+              <Link href="#teams" className="text-[13px] font-medium text-ink-2 hover:text-ink">Teams</Link>
+              <Link href="#positions" className="text-[13px] font-medium text-ink-2 hover:text-ink">Open spots</Link>
+              <Link href="#how" className="text-[13px] font-medium text-ink-2 hover:text-ink">How it works</Link>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link href="/login" className="hidden px-3 text-[13px] font-medium text-ink-2 hover:text-ink sm:inline">Log in</Link>
+            <Link href="/signup" className="btn btn-ink">
+              Create profile <Arrow />
+            </Link>
+          </div>
         </div>
+      </div>
 
-        <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-24 sm:px-6 sm:pt-32 lg:px-8 lg:pt-40">
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-sm text-orange-400">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-green-400" />
-              </span>
-              12 players got contacted today
+      {/* ─── Hero ───────────────────────────────────────────── */}
+      <section className="relative overflow-hidden px-6 pb-16 pt-16 sm:px-12 sm:pt-20 lg:px-16 lg:pb-20">
+        {/* Faint concentric rings */}
+        <div aria-hidden className="pointer-events-none absolute left-[48%] top-[-80px] h-[920px] w-[920px] rounded-full border border-[rgba(19,17,14,0.06)]" />
+        <div aria-hidden className="pointer-events-none absolute left-[62%] top-[60px] h-[560px] w-[560px] rounded-full border border-[rgba(19,17,14,0.05)]" />
+
+        <div className="relative mx-auto grid max-w-[1340px] grid-cols-1 items-end gap-14 lg:grid-cols-[1.18fr_1fr]">
+          <div>
+            <div className="mb-10 inline-flex items-center gap-2.5 rounded-full bg-[rgba(77,106,72,0.13)] px-3.5 py-1.5 text-[12px] font-semibold text-sage-deep">
+              <span className="pulse-dot" />
+              <span>Live · 12 players got contacted today</span>
             </div>
 
-            <h1 className="text-4xl font-bold leading-tight tracking-tight text-text-primary sm:text-5xl lg:text-6xl">
-              While You Wait, Teams Are Picking{" "}
-              <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
-                Someone Else
-              </span>
+            <h1 className="display-xl">
+              Off-season<br />
+              is when <span className="serif text-sage-deep">careers</span><br />
+              get <span className="serif text-terra">picked.</span>
             </h1>
 
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-text-secondary">
-              380+ teams posted open roster spots this month. They&apos;re
-              reviewing players right now — and the ones with profiles are
-              getting contacted first.
+            <p className="mt-7 max-w-[460px] text-[17px] leading-[1.55] text-ink-2">
+              The basketball roster network. Build a coach-ready profile, get seen by teams across 28 countries, take the call — without the agents, the politics, or the wait.
             </p>
 
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link
-                href="/signup?role=player"
-                className="w-full rounded-xl bg-orange-500 px-8 py-3.5 text-center text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition-all hover:bg-orange-600 hover:shadow-orange-500/40 sm:w-auto"
-              >
-                See Open Roster Spots &rarr;
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Link href="/signup?role=player" className="btn btn-terra btn-xl">
+                Create your profile <Arrow />
               </Link>
-              <Link
-                href="/signup?role=team"
-                className="w-full rounded-xl border border-border bg-surface px-8 py-3.5 text-center text-sm font-semibold text-text-primary transition-all hover:border-orange-500/50 hover:bg-surface-light sm:w-auto"
-              >
-                Find Players Now
+              <Link href="/signup?role=team" className="btn btn-ghost btn-xl">
+                For teams
               </Link>
             </div>
 
-            {/* Stats bar */}
-            <div className="mx-auto mt-16 grid max-w-2xl grid-cols-4 gap-8">
-              <div>
-                <p className="text-2xl font-bold text-orange-400 sm:text-3xl">127</p>
-                <p className="mt-1 text-xs text-text-muted sm:text-sm">New Players This Month</p>
+            <div className="mt-12 flex flex-wrap items-center gap-9 border-t border-line pt-7">
+              <div className="flex flex-col gap-0.5">
+                <div className="num text-[18px] font-semibold tracking-[-0.01em]">127 players</div>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-mute">in early access</div>
               </div>
-              <div>
-                <p className="text-2xl font-bold text-orange-400 sm:text-3xl">23</p>
-                <p className="mt-1 text-xs text-text-muted sm:text-sm">Teams This Week</p>
+              <div className="h-8 w-px bg-line" />
+              <div className="flex flex-col gap-0.5">
+                <div className="num text-[18px] font-semibold tracking-[-0.01em]">28 countries</div>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-mute">scouting now</div>
               </div>
-              <div>
-                <p className="text-2xl font-bold text-orange-400 sm:text-3xl">28</p>
-                <p className="mt-1 text-xs text-text-muted sm:text-sm">Countries</p>
+              <div className="h-8 w-px bg-line" />
+              <div className="flex flex-col gap-0.5">
+                <div className="text-[18px] font-semibold tracking-[-0.01em]">
+                  <span className="serif text-sage-deep">Free</span> · forever
+                </div>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-mute">no agents, no card</div>
               </div>
-              <div>
-                <p className="text-2xl font-bold text-orange-400 sm:text-3xl">89</p>
-                <p className="mt-1 text-xs text-text-muted sm:text-sm">Messages Today</p>
+            </div>
+          </div>
+
+          {/* Hero feature card */}
+          <div className="overflow-hidden rounded-2xl border border-line bg-paper-2">
+            <div className="flex justify-between border-b border-line px-6 py-4">
+              <span className="micro text-mute">No. 047 · Featured</span>
+              <span className="micro text-mute">2026 / Summer</span>
+            </div>
+            <div className="relative aspect-[1.18/1]">
+              <Portrait
+                tone="warm"
+                initials={(heroPlayer?.profile?.full_name || "MK")
+                  .split(" ")
+                  .map((p) => p[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase()}
+              />
+              <div className="absolute bottom-3.5 left-6 font-extrabold text-white/10 num" style={{ fontSize: 120, lineHeight: 0.85, letterSpacing: "-0.06em" }}>
+                047
+              </div>
+              <div className="absolute right-6 top-5 inline-flex items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-sage-deep">
+                <span className="h-1.5 w-1.5 rounded-full bg-sage" /> Available
+              </div>
+            </div>
+            <div className="p-6">
+              <h3 className="text-[24px] font-semibold tracking-[-0.015em]">
+                {heroPlayer?.profile?.full_name || "Marko Kovač"}
+              </h3>
+              <div className="mt-1 mb-5 text-[13px] text-mute">
+                {(heroPlayer?.positions?.[0] || "Combo Guard")} ·{" "}
+                {heroPlayer?.height_cm ? `${Math.floor(heroPlayer.height_cm / 30.48)}'${Math.round((heroPlayer.height_cm / 30.48 - Math.floor(heroPlayer.height_cm / 30.48)) * 12)}"` : "6'4\""} ·{" "}
+                {heroPlayer?.profile?.country || "Belgrade"}
+              </div>
+              <div className="grid grid-cols-3 border-t border-line">
+                <div className="border-r border-line py-4">
+                  <div className="num text-[26px] font-semibold leading-none tracking-[-0.02em]">
+                    {heroPlayer?.ppg ? Number(heroPlayer.ppg).toFixed(1) : "18.4"}
+                  </div>
+                  <div className="mt-1.5 text-[10px] uppercase tracking-[0.16em] text-mute">PPG</div>
+                </div>
+                <div className="border-r border-line py-4">
+                  <div className="num text-[26px] font-semibold leading-none tracking-[-0.02em]">
+                    {heroPlayer?.apg ? Number(heroPlayer.apg).toFixed(1) : "5.1"}
+                  </div>
+                  <div className="mt-1.5 text-[10px] uppercase tracking-[0.16em] text-mute">APG</div>
+                </div>
+                <div className="py-4">
+                  <div className="num text-[26px] font-semibold leading-none tracking-[-0.02em]">
+                    {heroPlayer?.rpg ? Number(heroPlayer.rpg).toFixed(1) : "4.2"}
+                  </div>
+                  <div className="mt-1.5 text-[10px] uppercase tracking-[0.16em] text-mute">RPG</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Activity Ticker */}
-      <section className="border-t border-border bg-surface">
-        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4 overflow-hidden text-sm">
-            <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-red-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-red-400">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-red-400" />
-              </span>
-              Live
+      {/* ─── Pulse strip ────────────────────────────────────── */}
+      <div className="px-6 sm:px-12 lg:px-16">
+        <div className="mx-auto flex max-w-[1340px] flex-wrap items-center gap-x-8 gap-y-2 rounded-full border border-line bg-paper px-7 py-4">
+          <span className="inline-flex shrink-0 items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-sage-deep">
+            <span className="pulse-dot" /> Today
+          </span>
+          {[
+            "Helsinki Seagulls viewed 4 guards",
+            "New player from Belgrade signed up",
+            "BC Mornar posted PF spot",
+            "3 tryout invites this hour",
+          ].map((item, i) => (
+            <span key={i} className="inline-flex items-center gap-3.5 whitespace-nowrap text-[13px] text-ink-2 before:block before:h-[3px] before:w-[3px] before:rounded-full before:bg-line-2 first:before:hidden">
+              {item}
             </span>
-            <div className="flex items-center gap-3 text-text-secondary">
-              <span>A team in Copenhagen just viewed 4 players</span>
-              <span className="text-text-muted">&middot;</span>
-              <span>New player from Belgrade signed up</span>
-              <span className="text-text-muted">&middot;</span>
-              <span>3 players got messaged this hour</span>
-            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ─── Stats ──────────────────────────────────────────── */}
+      <section className="border-b border-line px-6 pb-20 pt-24 sm:px-12 lg:px-16">
+        <div className="mx-auto grid max-w-[1340px] grid-cols-1 items-start gap-14 lg:grid-cols-[1.3fr_3fr]">
+          <div>
+            <h2 className="display-sm">
+              A network built<br />for <span className="serif text-sage-deep">the call.</span>
+            </h2>
+            <p className="mt-6 max-w-[340px] text-[14px] leading-[1.55] text-mute">
+              Picked replaces the cold-email chain with a live, filterable, coach-facing roster. Built for the off-season window — the three months that decide your next year.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {[
+              { Icon: IconUser, v: "127", l: "Players this month", d: "↑ 18% vs last" },
+              { Icon: IconTeam, v: "23", l: "Teams hiring", d: "11 active today" },
+              { Icon: IconGlobe, v: "28", l: "Countries", d: "↑ 4 this season" },
+              { Icon: IconMail, v: "89", l: "Messages today", d: "14h avg reply" },
+            ].map(({ Icon, v, l, d }) => (
+              <div key={l} className="rounded-2xl border border-line bg-paper-2 p-5">
+                <div className="mb-6 flex h-[34px] w-[34px] items-center justify-center rounded-full bg-[rgba(77,106,72,0.13)] text-sage-deep">
+                  <Icon />
+                </div>
+                <div className="num font-medium leading-none tracking-[-0.045em]" style={{ fontSize: 62 }}>
+                  {v}
+                </div>
+                <div className="mt-2 text-[13px] text-mute">{l}</div>
+                <div className="mt-4 inline-flex items-center gap-1 rounded-full bg-[rgba(77,106,72,0.13)] px-2.5 py-0.5 text-[11px] font-semibold text-sage-deep">
+                  {d}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Featured Players */}
-      <section id="players" className="border-t border-border py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-12 flex items-end justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-text-primary sm:text-3xl">
-                Players Getting Noticed Right Now
-              </h2>
-              <p className="mt-2 text-text-secondary">
-                These profiles went live recently. Teams are already looking.
-              </p>
-            </div>
-            <Link
-              href="/dashboard/players"
-              className="hidden text-sm font-medium text-orange-400 transition-colors hover:text-orange-500 sm:block"
-            >
-              View all players &rarr;
-            </Link>
+      {/* ─── Players rail ───────────────────────────────────── */}
+      <div id="players" className="flex flex-wrap items-end justify-between gap-6 px-6 pb-8 pt-24 sm:px-12 lg:px-16">
+        <h2 className="display-md max-w-[780px]">
+          Players getting<br />noticed <span className="serif text-sage-deep">right now.</span>
+        </h2>
+        <div className="text-right">
+          <div className="max-w-[280px] text-[13px] leading-[1.55] text-mute">
+            Profiles updated within the last 48 hours, ranked by recent team views.
           </div>
+          <Link href="/dashboard/players" className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[rgba(22,19,16,0.06)] px-4 py-2 text-[12px] font-semibold text-ink hover:bg-[rgba(22,19,16,0.10)]">
+            View all players <Arrow size={11} />
+          </Link>
+        </div>
+      </div>
 
-          {featuredPlayers.length > 0 ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {featuredPlayers.map((player) => {
-                const profile = player.profile;
-                const boosted = boostedPlayerIds.has(player.profile_id);
-                const positions = player.positions || [];
-                const age = player.date_of_birth
-                  ? Math.floor(
-                      (Date.now() - new Date(player.date_of_birth).getTime()) /
-                        (365.25 * 24 * 60 * 60 * 1000)
-                    )
-                  : null;
+      <div className="grid grid-cols-1 gap-4 px-6 sm:grid-cols-2 sm:px-12 lg:grid-cols-4 lg:px-16">
+        {featuredPlayers.length > 0 ? (
+          featuredPlayers.map((p, i) => {
+            const profile = p.profile;
+            const name = profile?.full_name || "Unnamed";
+            const initials = name.split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase();
+            const role = p.positions?.[0] || "Combo Guard";
+            const age = p.date_of_birth
+              ? Math.floor((Date.now() - new Date(p.date_of_birth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+              : null;
+            const boosted = boostedIds.has(p.profile_id);
+            const badge = boosted ? "Boosted" : "Available";
+            const bcolor = boosted ? "#E0926F" : "#7BC76A";
 
-                return (
-                  <div
-                    key={player.id}
-                    className="group relative rounded-2xl border border-border bg-surface p-6 transition-all hover:border-orange-500/30 hover:shadow-lg hover:shadow-orange-500/5"
-                  >
-                    {!!player.is_seed && (
-                      <div className="absolute left-4 top-4 rounded-full bg-text-muted/15 px-2.5 py-1 text-xs font-medium text-text-muted">
-                        Sample
-                      </div>
-                    )}
-                    {boosted && (
-                      <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-orange-500/15 px-2.5 py-1 text-xs font-medium text-orange-400">
-                        <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-                        </svg>
-                        Boosted
-                      </div>
-                    )}
-
-                    <div className="mb-4 flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-light text-2xl font-semibold text-orange-400">
-                      {profile?.avatar_url ? (
-                        <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
-                      ) : (
-                        (profile?.full_name || "?").charAt(0).toUpperCase()
-                      )}
-                    </div>
-
-                    <h3 className="text-lg font-semibold text-text-primary">
-                      {profile?.full_name || "Unnamed Player"}
-                    </h3>
-                    {positions.length > 0 ? (
-                      <div className="mt-1 flex flex-wrap gap-1">
-                        {positions.map((pos) => (
-                          <span key={pos} className="rounded-full bg-orange-500/10 px-2 py-0.5 text-xs font-medium text-orange-400">
-                            {pos}
-                          </span>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-orange-400">Position TBD</p>
-                    )}
-
-                    <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                      <div>
-                        <span className="text-text-muted">Age</span>
-                        <p className="font-medium text-text-primary">{age || "--"}</p>
-                      </div>
-                      <div>
-                        <span className="text-text-muted">Height</span>
-                        <p className="font-medium text-text-primary">
-                          {player.height_cm ? `${player.height_cm} cm` : "--"}
-                        </p>
-                      </div>
-                      <div>
-                        <span className="text-text-muted">PPG</span>
-                        <p className="font-medium text-text-primary">
-                          {player.ppg ? Number(player.ppg).toFixed(1) : "--"}
-                        </p>
-                      </div>
-                      <div>
-                        <span className="text-text-muted">APG</span>
-                        <p className="font-medium text-text-primary">
-                          {player.apg ? Number(player.apg).toFixed(1) : "--"}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 flex items-center gap-2 text-xs text-text-muted">
-                      {profile?.country && <span>{profile.country}</span>}
-                      {player.experience_years > 0 && (
-                        <>
-                          {profile?.country && <span>&middot;</span>}
-                          <span>{player.experience_years}y exp</span>
-                        </>
-                      )}
-                    </div>
-
-                    <Link
-                      href={`/dashboard/players/${player.profile_id}`}
-                      className="mt-5 block w-full rounded-lg border border-border bg-surface-light py-2.5 text-center text-sm font-medium text-text-primary transition-colors hover:border-orange-500/50 hover:text-orange-400"
-                    >
-                      View Profile
-                    </Link>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="rounded-2xl border border-dashed border-border py-16 text-center">
-              <p className="text-sm text-text-muted">
-                Players will appear here once they sign up
-              </p>
+            return (
               <Link
-                href="/signup?role=player"
-                className="mt-3 inline-block text-sm font-medium text-orange-400 hover:text-orange-500"
+                key={p.id}
+                href={`/dashboard/players/${p.profile_id}`}
+                className="group block overflow-hidden rounded-2xl border border-line bg-paper-2 transition-shadow hover:shadow-[0_4px_24px_rgba(19,17,14,0.06)]"
               >
-                Be the first to join &rarr;
-              </Link>
-            </div>
-          )}
-
-          <div className="mt-8 text-center sm:hidden">
-            <Link
-              href="/dashboard/players"
-              className="text-sm font-medium text-orange-400 transition-colors hover:text-orange-500"
-            >
-              View all players &rarr;
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="border-t border-border bg-surface py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-12 max-w-2xl text-center">
-            <h2 className="text-2xl font-bold text-text-primary sm:text-3xl">
-              They Were in Your Position
-            </h2>
-            <p className="mt-3 text-text-secondary">
-              Real players. Real stories. Real opportunities that started with a profile.
-            </p>
-          </div>
-
-          <div className="grid gap-6 sm:grid-cols-3">
-            {TESTIMONIALS.map((t) => (
-              <div
-                key={t.name}
-                className="rounded-2xl border border-border bg-background p-6"
-              >
-                <svg className="mb-4 h-8 w-8 text-orange-500/30" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-                </svg>
-                <p className="text-sm leading-relaxed text-text-secondary">
-                  &ldquo;{t.quote}&rdquo;
-                </p>
-                <div className="mt-4 border-t border-border pt-4">
-                  <p className="text-sm font-semibold text-text-primary">{t.name}</p>
-                  <p className="text-xs text-text-muted">{t.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Teams */}
-      <section id="teams" className="border-t border-border py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-12 flex items-end justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-text-primary sm:text-3xl">
-                Teams With Open Spots
-              </h2>
-              <p className="mt-2 text-text-secondary">
-                These positions won&apos;t stay open forever.
-              </p>
-            </div>
-            <Link
-              href="/dashboard/teams"
-              className="hidden text-sm font-medium text-orange-400 transition-colors hover:text-orange-500 sm:block"
-            >
-              View all teams &rarr;
-            </Link>
-          </div>
-
-          {featuredTeams.length > 0 ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {featuredTeams.map((team) => {
-                const profile = team.profile;
-                const boosted = boostedTeamIds.has(team.profile_id);
-                const positions = team.positions_needed || [];
-
-                return (
-                  <div
-                    key={team.id}
-                    className="group relative rounded-2xl border border-border bg-surface p-6 transition-all hover:border-orange-500/30 hover:shadow-lg hover:shadow-orange-500/5"
-                  >
-                    {!!team.is_seed && (
-                      <div className="absolute left-4 top-4 rounded-full bg-text-muted/15 px-2.5 py-1 text-xs font-medium text-text-muted">
-                        Sample
-                      </div>
-                    )}
-                    {boosted && (
-                      <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-orange-500/15 px-2.5 py-1 text-xs font-medium text-orange-400">
-                        <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-                        </svg>
-                        Boosted
-                      </div>
-                    )}
-
-                    <div className="mb-4 flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-surface-light text-2xl font-bold text-orange-400">
-                      {profile?.avatar_url ? (
-                        <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
-                      ) : (
-                        (team.team_name || "?").charAt(0).toUpperCase()
-                      )}
-                    </div>
-
-                    <h3 className="text-lg font-semibold text-text-primary">
-                      {team.team_name || "Unnamed Team"}
-                    </h3>
-                    <p className="text-sm text-text-secondary">
-                      {team.league || "League TBD"}
-                    </p>
-
-                    {positions.length > 0 && (
-                      <div className="mt-4">
-                        <span className="text-xs text-text-muted">Open positions</span>
-                        <div className="mt-1.5 flex flex-wrap gap-2">
-                          {positions.slice(0, 3).map((pos) => (
-                            <span
-                              key={pos}
-                              className="rounded-full bg-orange-500/10 px-3 py-1 text-xs font-medium text-orange-400"
-                            >
-                              {pos}
-                            </span>
-                          ))}
-                          {positions.length > 3 && (
-                            <span className="rounded-full bg-surface-light px-3 py-1 text-xs text-text-muted">
-                              +{positions.length - 3} more
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="mt-4 flex items-center justify-between">
-                      <div />
-                      {profile?.country && (
-                        <span className="text-xs text-text-muted">{profile.country}</span>
-                      )}
-                    </div>
-
-                    <Link
-                      href={`/dashboard/teams/${team.profile_id}`}
-                      className="mt-5 block w-full rounded-lg bg-orange-500 py-2.5 text-center text-sm font-medium text-white transition-colors hover:bg-orange-600"
-                    >
-                      View Details
-                    </Link>
+                <div className="relative aspect-[0.86/1] overflow-hidden">
+                  <Portrait tone={TONES[i % TONES.length]} initials={initials} />
+                  <div className="absolute inset-0" style={{ background: "linear-gradient(180deg,transparent 50%,rgba(0,0,0,0.55) 100%)" }} />
+                  <div className="absolute left-3.5 top-3.5 inline-flex items-center gap-1.5 rounded-full bg-[rgba(252,248,236,0.95)] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-ink">
+                    <span className="h-1.5 w-1.5 rounded-full" style={{ background: bcolor }} /> {badge}
                   </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="rounded-2xl border border-dashed border-border py-16 text-center">
-              <p className="text-sm text-text-muted">
-                Teams will appear here once they sign up
-              </p>
-              <Link
-                href="/signup?role=team"
-                className="mt-3 inline-block text-sm font-medium text-orange-400 hover:text-orange-500"
-              >
-                List your team &rarr;
+                  <div className="num absolute right-4 top-3.5 font-extrabold leading-none tracking-[-0.03em] text-[rgba(252,248,236,0.85)]" style={{ fontSize: 34 }}>
+                    <span className="font-medium opacity-50" style={{ fontSize: "0.7em", verticalAlign: 8 }}>#</span>
+                    {String((i + 1) * 7).padStart(2, "0")}
+                  </div>
+                  <div className="absolute bottom-4 left-4 right-4 text-paper-2">
+                    <div className="text-[19px] font-semibold leading-[1.2] tracking-[-0.005em]">{name}</div>
+                    <div className="mt-1 text-[11px] font-medium uppercase tracking-[0.12em] opacity-75">
+                      {role} · {profile?.country || "—"}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between border-t border-line px-4.5 py-3.5">
+                  <span className="text-[12px] text-mute">
+                    <b className="num font-semibold text-ink">{p.ppg ? Number(p.ppg).toFixed(1) : "—"}</b> PPG{age ? ` · ${age} yrs` : ""}
+                  </span>
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-sand transition-transform group-hover:translate-x-0.5">
+                    <Arrow size={12} />
+                  </span>
+                </div>
               </Link>
+            );
+          })
+        ) : (
+          <div className="col-span-full rounded-2xl border border-dashed border-line py-16 text-center text-[14px] text-mute">
+            Players will appear here once they sign up.
+          </div>
+        )}
+      </div>
+
+      {/* ─── Pull quote ─────────────────────────────────────── */}
+      <section className="mt-24 grid grid-cols-1 gap-14 border-y border-line px-6 py-28 sm:px-12 lg:grid-cols-[0.55fr_2fr] lg:px-16">
+        <div className="serif italic text-terra" style={{ fontSize: 128, lineHeight: 1 }}>
+          01
+        </div>
+        <div>
+          <blockquote className="m-0 max-w-[880px] font-light leading-[1.18] tracking-[-0.025em]" style={{ fontSize: "clamp(28px, 3vw, 44px)" }}>
+            I uploaded my profile on a Tuesday. By Thursday, <span className="serif text-sage-deep">two teams</span> had me in their inbox. One flew me out the next week — I&apos;m now in my <span className="serif text-terra">second season abroad.</span>
+          </blockquote>
+          <div className="mt-9 flex items-center gap-3.5">
+            <div className="h-12 w-12 rounded-full" style={{ background: "linear-gradient(135deg,#2a241e,#3a3128)" }} />
+            <div>
+              <div className="text-[14px] font-semibold">Stefan J.</div>
+              <div className="mt-0.5 text-[11px] uppercase tracking-[0.1em] text-mute">Point Guard · Belgrade → Athens</div>
             </div>
-          )}
+          </div>
+        </div>
+      </section>
 
-          <div className="mt-8 text-center sm:hidden">
-            <Link
-              href="/dashboard/teams"
-              className="text-sm font-medium text-orange-400 transition-colors hover:text-orange-500"
+      {/* ─── Open positions ─────────────────────────────────── */}
+      <div id="positions" className="flex flex-wrap items-end justify-between gap-6 px-6 pb-8 pt-24 sm:px-12 lg:px-16">
+        <h2 className="display-md max-w-[780px]">
+          Open roster spots,<br />this <span className="serif text-terra">window.</span>
+        </h2>
+        <div className="text-right">
+          <div className="max-w-[280px] text-[13px] leading-[1.55] text-mute">
+            Live positions from clubs and academies. Apply directly to the coach — no middlemen.
+          </div>
+          <Link href="/dashboard/teams" className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[rgba(22,19,16,0.06)] px-4 py-2 text-[12px] font-semibold text-ink hover:bg-[rgba(22,19,16,0.10)]">
+            View all 47 <Arrow size={11} />
+          </Link>
+        </div>
+      </div>
+
+      <div className="px-6 sm:px-12 lg:px-16">
+        <div className="grid grid-cols-[40px_1.6fr_1.4fr_1fr_1fr_110px] items-center border-y border-ink px-0 py-3.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-mute">
+          <div>#</div>
+          <div>Team</div>
+          <div>Position</div>
+          <div>Location</div>
+          <div>Salary range</div>
+          <div />
+        </div>
+        {OPEN_POSITIONS.map((r, i) => (
+          <div key={i} className="grid cursor-pointer grid-cols-[40px_1.6fr_1.4fr_1fr_1fr_110px] items-center border-b border-line py-5 transition-colors hover:bg-paper">
+            <div className="serif italic text-mute" style={{ fontSize: 20 }}>0{i + 1}</div>
+            <div className="flex items-center gap-3.5">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] text-[13px] font-bold text-paper-2" style={{ background: "linear-gradient(135deg,#2a241e,#4a3d31)" }}>
+                {r.cr}
+              </div>
+              <div>
+                <div className="text-[16px] font-semibold tracking-[-0.005em]">{r.team}</div>
+                <div className="mt-0.5 text-[11px] uppercase tracking-[0.06em] text-mute">{r.league}</div>
+              </div>
+            </div>
+            <div className="text-[14px] font-medium">
+              {r.role}
+              <div className="mt-0.5 text-[11px] font-normal tracking-[0.04em] text-mute">{r.sub}</div>
+            </div>
+            <div className="flex items-center gap-1.5 text-[13px] text-ink-2">
+              <IconPin /> {r.loc}
+            </div>
+            <div className="num text-[13px]">
+              {r.pay}
+              <span className="mt-0.5 block text-[11px] text-mute">{r.per}</span>
+            </div>
+            <div className="text-right">
+              <span className="btn btn-ink" style={{ padding: "9px 14px", fontSize: 12 }}>
+                Apply <Arrow size={11} />
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ─── Testimonials ───────────────────────────────────── */}
+      <div className="flex flex-wrap items-end justify-between gap-6 px-6 pb-8 pt-24 sm:px-12 lg:px-16">
+        <h2 className="display-md max-w-[780px]">
+          They were<br /><span className="serif text-sage-deep">in your position.</span>
+        </h2>
+        <div className="max-w-[280px] text-right text-[13px] leading-[1.55] text-mute">
+          Real players. Real opportunities. All started with a profile.
+        </div>
+      </div>
+      <div className="grid grid-cols-1 gap-4 px-6 sm:px-12 lg:grid-cols-3 lg:px-16">
+        {TESTIMONIALS.map((t, i) => (
+          <div key={i} className="rounded-2xl border border-line bg-paper-2 p-8">
+            <div className="serif italic text-terra" style={{ fontSize: 54, lineHeight: 0.6 }}>&ldquo;</div>
+            <p className="mb-7 mt-4 text-[16px] leading-[1.55] text-ink-2">{t.q}</p>
+            <div className="flex items-center gap-3 border-t border-line pt-4.5">
+              <div className="h-9 w-9 rounded-full" style={{ background: "linear-gradient(135deg,#2a241e,#3a3128)" }} />
+              <div>
+                <div className="text-[13px] font-semibold">{t.n}</div>
+                <div className="text-[11px] uppercase tracking-[0.06em] text-mute">{t.r}</div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ─── Three steps ────────────────────────────────────── */}
+      <section id="how" className="px-6 py-24 sm:px-12 lg:px-16">
+        <h2 className="display-md max-w-[780px]">
+          Three steps<br />to <span className="serif text-sage-deep">being seen.</span>
+        </h2>
+        <div className="mt-2 text-[14px] text-mute">Free, twelve minutes, once. The window is open now.</div>
+
+        <div className="mt-14 grid grid-cols-1 border-t border-ink md:grid-cols-3">
+          {[
+            { n: "i.", h: "Build your résumé", p: "Stats, highlights, measurements, references. Everything a coach evaluates — in one coach-ready link, not a PDF that doesn't open.", t: "~ 12 min", on: 1 },
+            { n: "ii.", h: "Get matched", p: "Teams in 28 countries filter by exactly what they need. If you fit, you appear at the top of their search — not buried below 200 others.", t: "0 — 14 days", on: 2 },
+            { n: "iii.", h: "Get the call", p: "Direct messages and tryout invites from coaches, not agents. Dates, locations, terms — straight to you.", t: "Avg. 14h response", on: 3 },
+          ].map((s, i) => (
+            <div
+              key={s.n}
+              className={`relative px-0 py-8 ${i < 2 ? "md:border-r md:border-line" : ""} ${i > 0 ? "md:pl-8" : ""}`}
+              style={{ paddingRight: i < 2 ? 32 : 0 }}
             >
-              View all teams &rarr;
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Grid */}
-      <section className="border-t border-border bg-surface py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-12 max-w-2xl text-center">
-            <h2 className="text-2xl font-bold text-text-primary sm:text-3xl">
-              The System Is Broken. We&apos;re Fixing It.
-            </h2>
-            <p className="mt-3 text-text-secondary">
-              If you&apos;re not in the right academy, in the right country, or in front of the right scout — you&apos;re invisible. We built this to fix that.
-            </p>
-          </div>
-
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map((feature) => (
-              <div
-                key={feature.title}
-                className="rounded-2xl border border-border bg-background p-6 transition-all hover:border-orange-500/30"
-              >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-orange-500/10 text-orange-400">
-                  {feature.icon}
-                </div>
-                <h3 className="text-lg font-semibold text-text-primary">
-                  {feature.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-                  {feature.description}
-                </p>
+              <div className="serif italic text-terra" style={{ fontSize: 68, lineHeight: 1 }}>
+                {s.n}
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section
-        id="how-it-works"
-        className="border-t border-border py-20"
-      >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-12 max-w-2xl text-center">
-            <h2 className="text-2xl font-bold text-text-primary sm:text-3xl">
-              Three Steps to Being Seen
-            </h2>
-            <p className="mt-3 text-text-secondary">
-              Your next opportunity starts here
-            </p>
-          </div>
-
-          <div className="grid gap-8 sm:grid-cols-3">
-            {STEPS.map((item) => (
-              <div key={item.step} className="text-center">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-500/10 text-xl font-bold text-orange-400">
-                  {item.step}
-                </div>
-                <h3 className="text-lg font-semibold text-text-primary">
-                  {item.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-                  {item.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="border-t border-border py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-3xl border border-orange-500/20 bg-gradient-to-br from-orange-500/10 via-surface to-surface p-8 sm:p-12 lg:p-16">
-            <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-orange-500/10 blur-[80px]" />
-            <div className="relative mx-auto max-w-2xl text-center">
-              <h2 className="text-2xl font-bold text-text-primary sm:text-3xl lg:text-4xl">
-                The Longer You Wait, the More Teams{" "}
-                <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
-                  Move On
+              <h3 className="mt-3 text-[24px] font-semibold tracking-[-0.015em]">{s.h}</h3>
+              <p className="mt-3.5 max-w-[340px] text-[14px] leading-[1.55] text-ink-2">{s.p}</p>
+              <div className="mt-6 flex items-center justify-between border-t border-line pt-4.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-mute">
+                <span>{s.t}</span>
+                <span className="flex gap-1">
+                  {[1, 2, 3].map((d) => (
+                    <span key={d} className={`h-1.5 w-1.5 rounded-full ${d <= s.on ? "bg-sage" : "bg-line-2"}`} />
+                  ))}
                 </span>
-              </h2>
-              <p className="mt-4 text-text-secondary">
-                Every day without a profile, a team that needs your skill set
-                finds someone else. It takes 3 minutes.
-              </p>
-              <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <Link
-                  href="/signup"
-                  className="w-full rounded-xl bg-orange-500 px-8 py-3.5 text-center text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition-all hover:bg-orange-600 hover:shadow-orange-500/40 sm:w-auto"
-                >
-                  Get Picked — It&apos;s Free &rarr;
-                </Link>
               </div>
-              <p className="mt-4 text-xs text-text-muted">
-                Free forever. No credit card needed. Takes 3 minutes.
-              </p>
             </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ─── Final CTA ──────────────────────────────────────── */}
+      <section className="mx-6 mb-16 mt-4 sm:mx-12 lg:mx-16">
+        <div className="relative grid grid-cols-1 items-end gap-12 overflow-hidden rounded-3xl bg-ink p-12 text-sand sm:p-16 lg:grid-cols-[1.6fr_1fr] lg:p-24">
+          <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 h-[560px] w-[560px] rounded-full" style={{ background: "radial-gradient(circle,rgba(184,90,63,0.22) 0%,transparent 60%)" }} />
+          <div aria-hidden className="pointer-events-none absolute -bottom-48 left-1/2 h-[480px] w-[480px] rounded-full" style={{ background: "radial-gradient(circle,rgba(86,110,77,0.18) 0%,transparent 60%)" }} />
+
+          <div className="relative">
+            <h2 className="display-lg">
+              While you wait,<br />teams are <span className="serif" style={{ color: "#E0926F" }}>picking</span><br />
+              <span className="serif" style={{ color: "#B5C9A6" }}>someone else.</span>
+            </h2>
+            <p className="mt-5 max-w-[420px] text-[15px] leading-[1.55]" style={{ color: "rgba(236,227,208,0.62)" }}>
+              Every day a roster spot you would have fit goes to a player whose profile was already there. Twelve minutes today — and the next call could be yours.
+            </p>
+          </div>
+          <div className="relative flex flex-col items-start gap-4">
+            <Link
+              href="/signup"
+              className="inline-flex items-center gap-2.5 rounded-full px-7 py-4 text-[15px] font-bold text-ink"
+              style={{ background: "#B5C9A6" }}
+            >
+              Create your profile <Arrow size={16} />
+            </Link>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: "rgba(236,227,208,0.45)" }}>
+              Free · No card · 12 min
+            </span>
           </div>
         </div>
       </section>
 
-      <Footer />
+      {/* ─── Footer ─────────────────────────────────────────── */}
+      <footer className="grid grid-cols-1 gap-12 border-t border-line px-6 pb-9 pt-16 sm:grid-cols-2 sm:px-12 lg:grid-cols-[2fr_1fr_1fr_1fr] lg:px-16">
+        <div>
+          <div className="mb-3.5 flex items-center gap-2 text-[24px] font-extrabold">
+            <span className="h-2 w-2 rounded-full bg-terra" /> Picked
+          </div>
+          <div className="max-w-[320px] text-[14px] leading-[1.55] text-ink-2">
+            The basketball roster network. Built for players who don&apos;t want to wait, and teams who don&apos;t want to guess.
+          </div>
+        </div>
+        {[
+          { h: "Players", links: [["Create profile", "/signup?role=player"], ["Browse teams", "/dashboard/teams"], ["Boost profile", "/dashboard/boost"], ["Player guide", "#"]] },
+          { h: "Teams", links: [["List a position", "/signup?role=team"], ["Browse players", "/dashboard/players"], ["Schedule tryouts", "/dashboard/tryouts"], ["Coach login", "/login"]] },
+          { h: "Company", links: [["About", "#"], ["Journal", "#"], ["Contact", "#"], ["Privacy · Terms", "/privacy"]] },
+        ].map((col) => (
+          <div key={col.h}>
+            <h4 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.16em] text-mute">{col.h}</h4>
+            {col.links.map(([label, href]) => (
+              <Link key={label} href={href} className="block py-1.5 text-[14px] text-ink hover:text-terra">
+                {label}
+              </Link>
+            ))}
+          </div>
+        ))}
+      </footer>
+      <div className="flex flex-col gap-2 border-t border-line px-6 py-6 text-[12px] text-mute sm:flex-row sm:justify-between sm:px-12 lg:px-16">
+        <span>© 2026 Picked · Reykjavík / Belgrade</span>
+        <span>Built for the off-season.</span>
+      </div>
     </div>
   );
 }
