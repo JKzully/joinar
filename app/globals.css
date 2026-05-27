@@ -67,30 +67,30 @@ html {
   color: var(--color-ink-2);
 }
 
-/* ─── Display typography ─── */
+/* ─── Display typography — bold, confident (Ramp/Wise direction) ─── */
 .display-xl {
-  font-weight: 200;
-  font-size: clamp(56px, 7vw, 104px);
-  line-height: 0.94;
-  letter-spacing: -0.045em;
-}
-.display-lg {
-  font-weight: 200;
-  font-size: clamp(48px, 5.8vw, 84px);
+  font-weight: 700;
+  font-size: clamp(48px, 6.4vw, 96px);
   line-height: 0.96;
-  letter-spacing: -0.045em;
-}
-.display-md {
-  font-weight: 200;
-  font-size: clamp(40px, 4.4vw, 64px);
-  line-height: 1;
   letter-spacing: -0.04em;
 }
-.display-sm {
-  font-weight: 200;
-  font-size: clamp(36px, 3.7vw, 54px);
-  line-height: 1.02;
+.display-lg {
+  font-weight: 700;
+  font-size: clamp(42px, 5.4vw, 78px);
+  line-height: 0.98;
   letter-spacing: -0.035em;
+}
+.display-md {
+  font-weight: 700;
+  font-size: clamp(36px, 4.2vw, 58px);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+}
+.display-sm {
+  font-weight: 700;
+  font-size: clamp(32px, 3.4vw, 48px);
+  line-height: 1.04;
+  letter-spacing: -0.025em;
 }
 
 /* ─── Buttons (pill) ─── */
