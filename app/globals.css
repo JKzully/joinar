@@ -1,35 +1,49 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #0a0a0f;
-  --color-surface: #12121a;
-  --color-surface-light: #1a1a2e;
-  --color-border: #2a2a3e;
+  /* Backgrounds — hlýtt svart eins og parket á nóttu */
+  --color-background: #100f0d;
+  --color-surface: #1a1814;
+  --color-surface-light: #242018;
 
-  --color-orange-400: #fb923c;
-  --color-orange-500: #f97316;
-  --color-orange-600: #ea580c;
+  /* Borders */
+  --color-border: #2d2820;
 
-  --color-text-primary: #f1f1f4;
-  --color-text-secondary: #9ca3af;
-  --color-text-muted: #6b7280;
+  /* Orange — liflegari og skarpari */
+  --color-orange-400: #ff7a33;
+  --color-orange-500: #ff5500;
+  --color-orange-600: #e04a00;
 
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Court amber — secondary accent */
+  --color-amber-400: #d4a017;
+  --color-amber-500: #b8880f;
+
+  /* Text — hlýtt cream í stað kalda hvíts */
+  --color-text-primary: #f2ede4;
+  --color-text-secondary: #a09880;
+  --color-text-muted: #6b6050;
+
+  /* Fonts */
+  --font-display: var(--font-barlow);
+  --font-sans: var(--font-dm), system-ui, sans-serif;
+  --font-mono: ui-monospace, monospace;
 }
 
 body {
   background: var(--color-background);
   color: var(--color-text-primary);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-sans);
 }
 
-/* Smooth scrolling */
+/* Display font fyrir fyrirsagnir — condensed, athletic */
+h1, h2, h3, h4 {
+  font-family: var(--font-display), var(--font-sans);
+}
+
 html {
   scroll-behavior: smooth;
 }
 
-/* Step transition animation */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -45,7 +59,7 @@ html {
   animation: fadeInUp 0.4s ease-out;
 }
 
-/* Custom scrollbar for dark theme */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -58,4 +72,10 @@ html {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-muted);
+}
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid var(--color-orange-500);
+  outline-offset: 2px;
 }
