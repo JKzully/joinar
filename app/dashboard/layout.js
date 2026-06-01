@@ -1,11 +1,9 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { signOut } from "./actions";
-import DashboardSidebar from "./DashboardSidebar";
+import DashboardTopNav from "./DashboardTopNav";
 
 export const metadata = {
-  title: "Dashboard - Picked",
+  title: "Dashboard — Picked",
 };
 
 export default async function DashboardLayout({ children }) {
@@ -33,37 +31,29 @@ export default async function DashboardLayout({ children }) {
     redirect("/onboarding");
   }
 
+  // Unread message count — joined to conversations user is a participant in
+  let unreadCount = 0;
+  const { data: participantRows } = await supabase
+    .from("conversation_participants")
+    .select("conversation_id, last_read_at")
+    .eq("profile_id", profile.id);
+
+  if (participantRows && participantRows.length > 0) {
+    for (const row of participantRows) {
+      const { count } = await supabase
+        .from("messages")
+        .select("id", { count: "exact", head: true })
+        .eq("conversation_id", row.conversation_id)
+        .neq("sender_id", profile.id)
+        .gt("created_at", row.last_read_at || "1970-01-01");
+      unreadCount += count || 0;
+    }
+  }
+
   return (
-    <div className="flex min-h-screen bg-background">
-      {/* Sidebar */}
-      <DashboardSidebar profile={profile} />
-
-      {/* Main content */}
-      <main className="flex-1 lg:ml-64">
-        {/* Top bar */}
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md sm:px-6 lg:px-8">
-          <div />
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-sm font-medium text-text-primary">
-                {profile.full_name || "Unnamed"}
-              </p>
-              <p className="text-xs capitalize text-text-muted">
-                {profile.role}
-              </p>
-            </div>
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-orange-500/15 text-sm font-semibold text-orange-400">
-              {profile.avatar_url ? (
-                <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
-              ) : (
-                (profile.full_name || "U").charAt(0).toUpperCase()
-              )}
-            </div>
-          </div>
-        </header>
-
-        <div className="p-4 sm:p-6 lg:p-8">{children}</div>
-      </main>
+    <div className="min-h-screen bg-sand text-ink">
+      <DashboardTopNav profile={profile} unreadCount={unreadCount} />
+      <main>{children}</main>
     </div>
   );
 }
