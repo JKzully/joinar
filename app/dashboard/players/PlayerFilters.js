@@ -4,12 +4,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 
 const POSITIONS = [
-  { value: "", label: "All Positions" },
-  { value: "PG", label: "Point Guard" },
-  { value: "SG", label: "Shooting Guard" },
-  { value: "SF", label: "Small Forward" },
-  { value: "PF", label: "Power Forward" },
-  { value: "C", label: "Center" },
+  { value: "point_guard", label: "Point Guard", abbr: "PG" },
+  { value: "shooting_guard", label: "Shooting Guard", abbr: "SG" },
+  { value: "small_forward", label: "Small Forward", abbr: "SF" },
+  { value: "power_forward", label: "Power Forward", abbr: "PF" },
+  { value: "center", label: "Center", abbr: "C" },
 ];
 
 export default function PlayerFilters({ countries }) {
@@ -34,67 +33,76 @@ export default function PlayerFilters({ countries }) {
     router.push("/dashboard/players");
   }
 
-  const hasFilters =
-    searchParams.get("position") ||
-    searchParams.get("country") ||
-    searchParams.get("min_exp") ||
-    searchParams.get("min_height");
+  const activePosition = searchParams.get("position") || "";
+  const activeCountry = searchParams.get("country") || "";
+  const activeExp = searchParams.get("min_exp") || "";
+  const activeHeight = searchParams.get("min_height") || "";
+  const hasFilters = activePosition || activeCountry || activeExp || activeHeight;
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-4">
-      <div className="flex flex-wrap items-end gap-3">
-        {/* Position */}
-        <div className="min-w-[160px] flex-1">
-          <label className="mb-1 block text-xs font-medium text-text-muted">Position</label>
-          <select
-            value={searchParams.get("position") || ""}
-            onChange={(e) => updateFilter("position", e.target.value)}
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-orange-500/50"
-          >
-            {POSITIONS.map((p) => (
-              <option key={p.value} value={p.value}>{p.label}</option>
-            ))}
-          </select>
-        </div>
+    <div className="rounded-2xl border border-line bg-paper-2 p-6">
+      <div className="flex items-center justify-between border-b border-line pb-4 mb-5">
+        <h3 className="text-[14px] font-bold">Filter</h3>
+        {hasFilters && (
+          <button onClick={clearAll} className="text-[11px] font-semibold text-terra hover:underline">
+            Clear all
+          </button>
+        )}
+      </div>
 
-        {/* Country */}
-        <div className="min-w-[160px] flex-1">
-          <label className="mb-1 block text-xs font-medium text-text-muted">Country</label>
-          <select
-            value={searchParams.get("country") || ""}
-            onChange={(e) => updateFilter("country", e.target.value)}
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-orange-500/50"
+      {/* Position */}
+      <div className="mb-5">
+        <div className="label-meta mb-3 text-mute">Position</div>
+        <div className="flex flex-wrap gap-1.5">
+          <button
+            onClick={() => updateFilter("position", "")}
+            className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors ${
+              !activePosition
+                ? "border-ink bg-ink text-paper-2"
+                : "border-line-2 bg-paper text-ink hover:border-ink/40"
+            }`}
           >
-            <option value="">All Countries</option>
-            {countries.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
+            All
+          </button>
+          {POSITIONS.map((p) => (
+            <button
+              key={p.value}
+              onClick={() => updateFilter("position", activePosition === p.value ? "" : p.value)}
+              className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors ${
+                activePosition === p.value
+                  ? "border-ink bg-ink text-paper-2"
+                  : "border-line-2 bg-paper text-ink hover:border-ink/40"
+              }`}
+            >
+              {p.abbr}
+            </button>
+          ))}
         </div>
+      </div>
 
-        {/* Min Experience */}
-        <div className="w-[130px]">
-          <label className="mb-1 block text-xs font-medium text-text-muted">Min Experience</label>
-          <select
-            value={searchParams.get("min_exp") || ""}
-            onChange={(e) => updateFilter("min_exp", e.target.value)}
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-orange-500/50"
-          >
-            <option value="">Any</option>
-            <option value="1">1+ years</option>
-            <option value="3">3+ years</option>
-            <option value="5">5+ years</option>
-            <option value="8">8+ years</option>
-          </select>
-        </div>
+      {/* Country */}
+      <div className="mb-5">
+        <div className="label-meta mb-3 text-mute">Country</div>
+        <select
+          value={activeCountry}
+          onChange={(e) => updateFilter("country", e.target.value)}
+          className="w-full rounded-xl border border-line-2 bg-paper px-3.5 py-2.5 text-[13px] text-ink focus:border-ink focus:outline-none"
+        >
+          <option value="">All Countries</option>
+          {countries.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+      </div>
 
-        {/* Min Height */}
-        <div className="w-[130px]">
-          <label className="mb-1 block text-xs font-medium text-text-muted">Min Height</label>
+      {/* Min Height + Experience */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <div className="label-meta mb-3 text-mute">Height</div>
           <select
-            value={searchParams.get("min_height") || ""}
+            value={activeHeight}
             onChange={(e) => updateFilter("min_height", e.target.value)}
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-orange-500/50"
+            className="w-full rounded-xl border border-line-2 bg-paper px-3.5 py-2.5 text-[13px] text-ink focus:border-ink focus:outline-none"
           >
             <option value="">Any</option>
             <option value="175">175+ cm</option>
@@ -103,17 +111,51 @@ export default function PlayerFilters({ countries }) {
             <option value="205">205+ cm</option>
           </select>
         </div>
-
-        {/* Clear */}
-        {hasFilters && (
-          <button
-            onClick={clearAll}
-            className="rounded-lg border border-border px-3 py-2 text-sm text-text-muted transition-colors hover:bg-surface-light hover:text-text-primary"
+        <div>
+          <div className="label-meta mb-3 text-mute">Experience</div>
+          <select
+            value={activeExp}
+            onChange={(e) => updateFilter("min_exp", e.target.value)}
+            className="w-full rounded-xl border border-line-2 bg-paper px-3.5 py-2.5 text-[13px] text-ink focus:border-ink focus:outline-none"
           >
-            Clear
-          </button>
-        )}
+            <option value="">Any</option>
+            <option value="1">1+ years</option>
+            <option value="3">3+ years</option>
+            <option value="5">5+ years</option>
+            <option value="8">8+ years</option>
+          </select>
+        </div>
       </div>
+
+      {/* Active filter chips */}
+      {hasFilters && (
+        <div className="mt-5 flex flex-wrap gap-1.5 border-t border-line pt-4">
+          {activePosition && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3 py-1 text-[11px] font-semibold text-paper-2">
+              {POSITIONS.find((p) => p.value === activePosition)?.label || activePosition}
+              <button onClick={() => updateFilter("position", "")} className="flex h-4 w-4 items-center justify-center rounded-full bg-sand/15 text-[10px] hover:bg-sand/30">×</button>
+            </span>
+          )}
+          {activeCountry && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3 py-1 text-[11px] font-semibold text-paper-2">
+              {activeCountry}
+              <button onClick={() => updateFilter("country", "")} className="flex h-4 w-4 items-center justify-center rounded-full bg-sand/15 text-[10px] hover:bg-sand/30">×</button>
+            </span>
+          )}
+          {activeHeight && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3 py-1 text-[11px] font-semibold text-paper-2">
+              {activeHeight}+ cm
+              <button onClick={() => updateFilter("min_height", "")} className="flex h-4 w-4 items-center justify-center rounded-full bg-sand/15 text-[10px] hover:bg-sand/30">×</button>
+            </span>
+          )}
+          {activeExp && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3 py-1 text-[11px] font-semibold text-paper-2">
+              {activeExp}+ yrs exp
+              <button onClick={() => updateFilter("min_exp", "")} className="flex h-4 w-4 items-center justify-center rounded-full bg-sand/15 text-[10px] hover:bg-sand/30">×</button>
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }

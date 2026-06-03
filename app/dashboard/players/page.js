@@ -5,7 +5,15 @@ import PlayerFilters from "./PlayerFilters";
 import MessageButton from "../MessageButton";
 
 export const metadata = {
-  title: "Find Basketball Players — Semi-Pro Talent Across Europe",
+  title: "Find Players — Picked",
+};
+
+const TONES = ["warm", "rust", "sage", "cool"];
+const GRADS = {
+  warm: "linear-gradient(180deg,#221c17,#3a2f25 60%,#4a3d31)",
+  rust: "linear-gradient(180deg,#2a1a16,#4a2a22 60%,#5a3530)",
+  sage: "linear-gradient(180deg,#1f2820,#2d3a2a 60%,#3a4a37)",
+  cool: "linear-gradient(180deg,#1f262a,#2c373c 60%,#3a4a4f)",
 };
 
 export default async function BrowsePlayersPage({ searchParams }) {
@@ -27,7 +35,7 @@ export default async function BrowsePlayersPage({ searchParams }) {
 
   const countries = [...new Set(countryRows?.map((r) => r.country).filter(Boolean))];
 
-  // Build query — join player_ads with profiles
+  // Build query
   let query = supabase
     .from("player_ads")
     .select("*, profile:profile_id(full_name, avatar_url, country, city)")
@@ -46,188 +54,179 @@ export default async function BrowsePlayersPage({ searchParams }) {
 
   const { data: players } = await query;
 
-  // Client-side country filter (country lives on the joined profile)
+  // Client-side country filter (country is on joined profile)
   const filtered = countryFilter
     ? players?.filter((p) => p.profile?.country === countryFilter)
     : players;
 
-  // Fetch active boosts to mark boosted players
+  // Fetch active boosts
   const boostedIds = new Set();
   if (filtered && filtered.length > 0) {
     const { data: boosts } = await supabase
       .from("boosts")
       .select("profile_id")
       .eq("is_active", true)
-      .in(
-        "profile_id",
-        filtered.map((p) => p.profile_id)
-      );
+      .in("profile_id", filtered.map((p) => p.profile_id));
     boosts?.forEach((b) => boostedIds.add(b.profile_id));
   }
 
   // Sort boosted first
   const sorted = filtered
     ? [...filtered].sort((a, b) => {
-        const aBoost = boostedIds.has(a.profile_id) ? 1 : 0;
-        const bBoost = boostedIds.has(b.profile_id) ? 1 : 0;
-        return bBoost - aBoost;
+        const aB = boostedIds.has(a.profile_id) ? 1 : 0;
+        const bB = boostedIds.has(b.profile_id) ? 1 : 0;
+        return bB - aB;
       })
     : [];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-text-primary">Find Your Next Player</h1>
-        <p className="mt-1 text-sm text-text-secondary">
-          Every player here is hungry, available, and ready to prove themselves. Use the filters to find your perfect match.
-        </p>
+    <div className="mx-auto max-w-[1340px] px-6 py-8 sm:px-12 sm:py-10 lg:px-16">
+      {/* Header */}
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-6">
+        <div>
+          <h1 className="display-sm">
+            Find your next <span className="serif text-sage-deep">signing.</span>
+          </h1>
+          <p className="mt-2 text-[14px] text-mute">
+            <span className="num font-bold text-ink">{sorted.length}</span> player{sorted.length !== 1 ? "s" : ""} · {countries.length} countries
+          </p>
+        </div>
+        <Link href="/dashboard/ad" className="btn btn-ink">
+          Post a position
+        </Link>
       </div>
 
-      <Suspense>
-        <PlayerFilters countries={countries} />
-      </Suspense>
-
-      {/* Results count */}
-      <p className="text-sm text-text-muted">
-        {sorted.length} player{sorted.length !== 1 ? "s" : ""} found
-      </p>
-
-      {/* Player grid */}
-      {sorted.length > 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {sorted.map((player) => (
-            <PlayerCard
-              key={player.id}
-              player={player}
-              boosted={boostedIds.has(player.profile_id)}
-              isSeed={!!player.is_seed}
-            />
-          ))}
+      {/* Layout: filter rail + results */}
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[280px_1fr]">
+        {/* Filter rail — sticky on desktop */}
+        <div className="top-6 lg:sticky">
+          <Suspense>
+            <PlayerFilters countries={countries} />
+          </Suspense>
         </div>
-      ) : (
-        <div className="rounded-2xl border border-dashed border-border py-16 text-center">
-          <svg className="mx-auto h-10 w-10 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-            <path d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-          </svg>
-          <p className="mt-3 text-sm text-text-muted">No players match those filters</p>
-          <p className="mt-1 text-xs text-text-muted">New players sign up every day. Try adjusting your search or check back soon.</p>
-        </div>
-      )}
-    </div>
-  );
-}
 
-function PlayerCard({ player, boosted, isSeed }) {
-  const profile = player.profile;
-  const age = player.date_of_birth
-    ? Math.floor(
-        (Date.now() - new Date(player.date_of_birth).getTime()) /
-          (365.25 * 24 * 60 * 60 * 1000)
-      )
-    : null;
-
-  const positions = player.positions || [];
-
-  return (
-    <div className="group relative rounded-2xl border border-border bg-surface p-5 transition-all hover:border-orange-500/30 hover:shadow-lg hover:shadow-orange-500/5">
-      {isSeed && (
-        <div className="absolute left-4 top-4 rounded-full bg-text-muted/15 px-2.5 py-1 text-xs font-medium text-text-muted">
-          Sample
-        </div>
-      )}
-      {boosted && (
-        <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-orange-500/15 px-2.5 py-1 text-xs font-medium text-orange-400">
-          <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-          </svg>
-          Boosted
-        </div>
-      )}
-
-      {/* Avatar + name */}
-      <div className="flex items-center gap-3">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-light text-lg font-semibold text-orange-400">
-          {profile?.avatar_url ? (
-            <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
-          ) : (
-            (profile?.full_name || "?").charAt(0).toUpperCase()
-          )}
-        </div>
-        <div className="min-w-0">
-          <h3 className="truncate text-base font-semibold text-text-primary">
-            {profile?.full_name || "Unnamed Player"}
-          </h3>
-          {positions.length > 0 ? (
-            <div className="mt-1 flex flex-wrap gap-1">
-              {positions.map((pos) => (
-                <span key={pos} className="rounded-full bg-orange-500/10 px-2 py-0.5 text-xs font-medium text-orange-400">
-                  {pos}
-                </span>
+        {/* Results */}
+        <div>
+          {sorted.length > 0 ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {sorted.map((player, i) => (
+                <PlayerCard
+                  key={player.id}
+                  player={player}
+                  index={i}
+                  boosted={boostedIds.has(player.profile_id)}
+                  isSeed={!!player.is_seed}
+                />
               ))}
             </div>
           ) : (
-            <p className="text-sm text-orange-400">Position TBD</p>
+            <div className="rounded-2xl border border-dashed border-line py-20 text-center">
+              <p className="text-[14px] font-semibold text-ink">No players match those filters</p>
+              <p className="mt-2 text-[13px] text-mute">
+                New players sign up every day. Try adjusting your search or check back soon.
+              </p>
+            </div>
           )}
         </div>
-      </div>
-
-      {/* Stats row */}
-      <div className="mt-4 grid grid-cols-4 gap-2 text-center text-xs">
-        <StatPill label="PPG" value={player.ppg} />
-        <StatPill label="APG" value={player.apg} />
-        <StatPill label="RPG" value={player.rpg} />
-        <StatPill label="Height" value={player.height_cm ? `${player.height_cm}cm` : "--"} />
-      </div>
-
-      {/* Details */}
-      <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-muted">
-        {profile?.country && <span>{profile.country}</span>}
-        {age && (
-          <>
-            <span>&middot;</span>
-            <span>{age} years old</span>
-          </>
-        )}
-        {player.experience_years > 0 && (
-          <>
-            <span>&middot;</span>
-            <span>{player.experience_years}y exp</span>
-          </>
-        )}
-      </div>
-
-      {/* Looking for preview */}
-      {player.looking_for && (
-        <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-text-secondary">
-          {player.looking_for}
-        </p>
-      )}
-
-      <div className="mt-4 grid grid-cols-2 gap-2">
-        <MessageButton profileId={player.profile_id} isSeed={isSeed} />
-        <Link
-          href={`/dashboard/players/${player.profile_id}`}
-          className="rounded-lg border border-border bg-surface-light py-2 text-center text-sm font-medium text-text-primary transition-colors hover:border-orange-500/50 hover:text-orange-400"
-        >
-          View Profile
-        </Link>
       </div>
     </div>
   );
 }
 
-function StatPill({ label, value }) {
-  const display =
-    value !== null && value !== undefined && value !== 0
-      ? Number(value).toFixed(1)
-      : typeof value === "string"
-        ? value
-        : "--";
+function PlayerCard({ player, index, boosted, isSeed }) {
+  const profile = player.profile;
+  const name = profile?.full_name || "Unnamed";
+  const initials = name.split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase();
+  const positions = player.positions || [];
+  const posLabel = positions.length > 0
+    ? positions.map((p) => p.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())).join(" · ")
+    : "Position TBD";
+  const age = player.date_of_birth
+    ? Math.floor((Date.now() - new Date(player.date_of_birth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+    : null;
+  const tone = TONES[index % TONES.length];
+  const jersey = String(((index + 1) * 7) % 99).padStart(2, "0");
+
+  const badge = isSeed ? "Sample" : boosted ? "Boosted" : "Available";
+  const badgeColor = isSeed ? "#7E776D" : boosted ? "#E0926F" : "#7BC76A";
 
   return (
-    <div className="rounded-lg bg-surface-light px-2 py-1.5">
-      <p className="text-[10px] text-text-muted">{label}</p>
-      <p className="font-semibold text-text-primary">{display}</p>
+    <div className="group overflow-hidden rounded-2xl border border-line bg-paper-2">
+      {/* Portrait */}
+      <Link href={`/dashboard/players/${player.profile_id}`} className="relative block" style={{ aspectRatio: "1.05/1" }}>
+        <div className="absolute inset-0" style={{ background: GRADS[tone] }}>
+          <div
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-serif italic"
+            style={{ fontSize: 130, color: "rgba(255,255,255,0.05)", fontWeight: 400, lineHeight: 1 }}
+          >
+            {initials}
+          </div>
+          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg,transparent 50%,rgba(0,0,0,0.55) 100%)" }} />
+        </div>
+
+        <div className="absolute left-3 top-3 flex gap-1.5">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(252,248,236,0.95)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-ink">
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: badgeColor }} /> {badge}
+          </span>
+        </div>
+
+        <div className="num absolute right-4 top-3 font-extrabold leading-none tracking-[-0.03em] text-[rgba(252,248,236,0.85)]" style={{ fontSize: 30 }}>
+          <span className="font-medium opacity-50" style={{ fontSize: "0.7em", verticalAlign: 7 }}>#</span>
+          {jersey}
+        </div>
+
+        <div className="absolute bottom-4 left-4 right-4 text-white">
+          <div className="text-[18px] font-semibold leading-[1.2] tracking-[-0.01em]">{name}</div>
+          <div className="mt-1 text-[11px] font-medium uppercase tracking-[0.1em] opacity-75">
+            {posLabel} · {profile?.country || "—"}
+          </div>
+        </div>
+      </Link>
+
+      {/* Stats row */}
+      <div className="grid grid-cols-4 border-t border-line text-center">
+        <StatCell label="Age" value={age || "—"} />
+        <StatCell label="Height" value={player.height_cm ? `${player.height_cm}` : "—"} border />
+        <StatCell label="PPG" value={player.ppg ? Number(player.ppg).toFixed(1) : "—"} border />
+        <StatCell label="3PT" value={player.three_pt_pct ? `${Number(player.three_pt_pct).toFixed(0)}%` : "—"} border />
+      </div>
+
+      {/* Footer with actions */}
+      <div className="flex items-center justify-between border-t border-line bg-paper px-4 py-3">
+        <span className="text-[11px] font-semibold text-mute">
+          {player.experience_years ? `${player.experience_years}y exp` : "No exp listed"}
+        </span>
+        <div className="flex gap-2">
+          <MessageButton
+            profileId={player.profile_id}
+            isSeed={isSeed}
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-line bg-paper-2 text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper-2"
+            label={
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                <path d="M1.5 3h11v7H6l-3 2v-2H1.5V3z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+              </svg>
+            }
+          />
+          <Link
+            href={`/dashboard/players/${player.profile_id}`}
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-line bg-paper-2 text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper-2"
+            title="View profile"
+          >
+            <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+              <path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StatCell({ label, value, border }) {
+  return (
+    <div className={`py-3 ${border ? "border-l border-line" : ""}`}>
+      <div className="num text-[15px] font-bold leading-none tracking-[-0.01em]">{value}</div>
+      <div className="mt-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-mute">{label}</div>
     </div>
   );
 }
