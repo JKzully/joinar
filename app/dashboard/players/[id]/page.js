@@ -4,41 +4,29 @@ import { createClient } from "@/lib/supabase/server";
 import MessageButton from "../../MessageButton";
 import InviteToTryoutButton from "../../tryouts/InviteToTryoutButton";
 
-export const metadata = {
-  title: "Player Profile - Picked",
-};
+export const metadata = { title: "Player Profile — Picked" };
 
-const STAT_TOOLTIPS = {
-  PPG: "Points Per Game",
-  APG: "Assists Per Game",
-  RPG: "Rebounds Per Game",
-  SPG: "Steals Per Game",
-  BPG: "Blocks Per Game",
-  "3PT%": "Three-Point Percentage",
-};
-
-const EXP_LABELS = {
-  amateur: "Amateur",
-  semi_pro: "Semi-Pro",
-  pro: "Pro",
+const EXP_LABELS = { amateur: "Amateur", semi_pro: "Semi-Pro", pro: "Pro" };
+const TONES = ["warm", "rust", "sage", "cool"];
+const GRADS = {
+  warm: "linear-gradient(180deg,#221c17,#3a2f25 60%,#4a3d31)",
+  rust: "linear-gradient(180deg,#2a1a16,#4a2a22 60%,#5a3530)",
+  sage: "linear-gradient(180deg,#1f2820,#2d3a2a 60%,#3a4a37)",
+  cool: "linear-gradient(180deg,#1f262a,#2c373c 60%,#3a4a4f)",
 };
 
 export default async function PlayerProfilePage({ params }) {
   const { id } = await params;
   const supabase = await createClient();
 
-  // Fetch player ad joined with base profile
   const { data: player, error } = await supabase
     .from("player_ads")
     .select("*, profile:profile_id(full_name, avatar_url, country, city)")
     .eq("profile_id", id)
     .single();
 
-  if (error || !player) {
-    redirect("/dashboard/players");
-  }
+  if (error || !player) redirect("/dashboard/players");
 
-  // Check boost status
   const { data: boost } = await supabase
     .from("boosts")
     .select("id")
@@ -46,7 +34,6 @@ export default async function PlayerProfilePage({ params }) {
     .eq("is_active", true)
     .maybeSingle();
 
-  // Check if seed profile
   const { data: profileRow } = await supabase
     .from("profiles")
     .select("is_seed")
@@ -54,10 +41,7 @@ export default async function PlayerProfilePage({ params }) {
     .single();
   const isSeed = !!profileRow?.is_seed;
 
-  // Fetch current user's role to conditionally show team actions
-  const {
-    data: { user: currentUser },
-  } = await supabase.auth.getUser();
+  const { data: { user: currentUser } } = await supabase.auth.getUser();
   const { data: currentProfile } = await supabase
     .from("profiles")
     .select("role")
@@ -67,14 +51,19 @@ export default async function PlayerProfilePage({ params }) {
 
   const isBoosted = !!boost;
   const profile = player.profile;
+  const name = profile?.full_name || "Unnamed Player";
+  const initials = name.split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase();
   const positions = player.positions || [];
-
+  const posLabel = positions.length > 0
+    ? positions.map((p) => p.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())).join(" · ")
+    : "Position TBD";
   const age = player.date_of_birth
-    ? Math.floor(
-        (Date.now() - new Date(player.date_of_birth).getTime()) /
-          (365.25 * 24 * 60 * 60 * 1000)
-      )
+    ? Math.floor((Date.now() - new Date(player.date_of_birth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
     : null;
+
+  // Hash-based tone
+  const toneIdx = name.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0) % TONES.length;
+  const tone = TONES[toneIdx];
 
   const stats = [
     { label: "PPG", value: player.ppg },
@@ -82,194 +71,165 @@ export default async function PlayerProfilePage({ params }) {
     { label: "RPG", value: player.rpg },
     { label: "SPG", value: player.spg },
     { label: "BPG", value: player.bpg },
-    { label: "3PT%", value: player.three_pt_pct },
+    { label: "3PT%", value: player.three_pt_pct, suffix: "%" },
   ];
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      {/* Back link */}
+    <div className="mx-auto max-w-[1100px] px-6 py-8 sm:px-12 sm:py-10 lg:px-16">
+      {/* Back */}
       <Link
         href="/dashboard/players"
-        className="inline-flex items-center gap-1.5 text-sm text-text-muted transition-colors hover:text-text-primary"
+        className="mb-8 inline-flex items-center gap-2 text-[13px] font-semibold text-mute hover:text-ink"
       >
-        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-          <path d="M15 19l-7-7 7-7" />
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M13 7H1M6 2L1 7l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
         Back to players
       </Link>
 
-      {/* Header */}
-      <div className="rounded-2xl border border-border bg-surface p-6">
-        <div className="flex items-start gap-4">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-light text-2xl font-semibold text-orange-400">
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
-            ) : (
-              (profile?.full_name || "?").charAt(0).toUpperCase()
+      {/* ─── Hero card ────────────────────────────────────── */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_1.3fr]">
+        {/* Portrait */}
+        <div className="relative overflow-hidden rounded-2xl border border-line" style={{ aspectRatio: "0.9/1" }}>
+          <div className="absolute inset-0" style={{ background: GRADS[tone] }}>
+            <div
+              className="absolute left-1/2 top-[48%] -translate-x-1/2 -translate-y-1/2 font-serif italic select-none"
+              style={{ fontSize: 260, color: "rgba(255,255,255,0.04)", fontWeight: 400, lineHeight: 1, letterSpacing: "-0.04em" }}
+            >
+              {initials}
+            </div>
+            <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 50% at 50% 70%, rgba(0,0,0,0.45), transparent 70%)" }} />
+          </div>
+
+          <div className="absolute left-4 top-4 flex gap-1.5">
+            {isSeed && (
+              <span className="rounded-full bg-[rgba(252,248,236,0.95)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-mute">
+                Sample
+              </span>
+            )}
+            {isBoosted && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(252,248,236,0.95)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-ink">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#E0926F]" /> Boosted
+              </span>
+            )}
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(252,248,236,0.95)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-sage-deep">
+              <span className="h-1.5 w-1.5 rounded-full bg-sage" /> Available
+            </span>
+          </div>
+        </div>
+
+        {/* Info panel */}
+        <div className="flex flex-col">
+          <div className="label-meta text-mute">Player profile</div>
+
+          <h1 className="mt-4 text-[42px] font-extrabold leading-[1] tracking-[-0.03em]">
+            {name}
+          </h1>
+
+          <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] font-bold uppercase tracking-[0.1em] text-mute">
+            <span>{posLabel}</span>
+            {profile?.country && (
+              <>
+                <span className="text-line-2">·</span>
+                <span>{profile.country}{profile.city && `, ${profile.city}`}</span>
+              </>
+            )}
+            {age && (
+              <>
+                <span className="text-line-2">·</span>
+                <span>{age} yrs</span>
+              </>
+            )}
+            {player.experience_level && (
+              <>
+                <span className="text-line-2">·</span>
+                <span className="text-sage-deep">{EXP_LABELS[player.experience_level]}</span>
+              </>
             )}
           </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-2xl font-bold text-text-primary">
-                {profile?.full_name || "Unnamed Player"}
-              </h1>
-              {isSeed && (
-                <span className="rounded-full bg-text-muted/15 px-2.5 py-1 text-xs font-medium text-text-muted">
-                  Sample Profile
-                </span>
-              )}
-              {isBoosted && (
-                <span className="flex items-center gap-1 rounded-full bg-orange-500/15 px-2.5 py-1 text-xs font-medium text-orange-400">
-                  <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-                  </svg>
-                  Boosted
-                </span>
-              )}
-              {player.experience_level && (
-                <span className="rounded-full bg-surface-light px-2.5 py-1 text-xs font-medium text-text-secondary">
-                  {EXP_LABELS[player.experience_level] || player.experience_level}
-                </span>
-              )}
-            </div>
-            {positions.length > 0 ? (
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {positions.map((pos) => (
-                  <span key={pos} className="rounded-full bg-orange-500/10 px-2.5 py-1 text-xs font-medium text-orange-400">
-                    {pos}
-                  </span>
-                ))}
+
+          {/* Stats grid */}
+          <div className="mt-8 grid grid-cols-3 gap-px overflow-hidden rounded-2xl border border-line sm:grid-cols-6">
+            {stats.map((s) => (
+              <div key={s.label} className="bg-paper-2 px-4 py-4 text-center">
+                <div className="num text-[22px] font-extrabold leading-none tracking-[-0.02em]">
+                  {s.value != null && s.value !== 0
+                    ? `${Number(s.value).toFixed(1)}${s.suffix || ""}`
+                    : "—"}
+                </div>
+                <div className="mt-1.5 text-[9px] font-bold uppercase tracking-[0.14em] text-mute">{s.label}</div>
               </div>
-            ) : (
-              <p className="mt-1 text-sm font-medium text-orange-400">Position TBD</p>
-            )}
-            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-text-muted">
-              {profile?.country && (
-                <span>
-                  {profile.country}
-                  {profile.city && `, ${profile.city}`}
-                </span>
-              )}
-              {age && (
-                <>
-                  <span>&middot;</span>
-                  <span>{age} years old</span>
-                </>
-              )}
-            </div>
+            ))}
+          </div>
+
+          {/* Details */}
+          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <Detail label="Height" value={player.height_cm ? `${player.height_cm} cm` : null} />
+            <Detail label="Weight" value={player.weight_kg ? `${player.weight_kg} kg` : null} />
+            <Detail label="Experience" value={player.experience_years ? `${player.experience_years} years` : null} />
+            <Detail label="Exp level" value={player.experience_level ? EXP_LABELS[player.experience_level] : null} />
+          </div>
+
+          {/* Actions */}
+          <div className="mt-auto flex flex-wrap gap-3 pt-8">
+            <MessageButton
+              profileId={player.profile_id}
+              isSeed={isSeed}
+              className="btn btn-terra"
+              label="Send message"
+            />
+            {isTeam && !isSeed && <InviteToTryoutButton playerId={player.profile_id} />}
+            <Link href="/dashboard/players" className="btn btn-ghost">
+              Back to browse
+            </Link>
           </div>
         </div>
       </div>
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
-        {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className="rounded-2xl border border-border bg-surface p-4 text-center"
-          >
-            <p className="flex items-center justify-center gap-1 text-xs text-text-muted">
-              {stat.label}
-              {STAT_TOOLTIPS[stat.label] && (
-                <span title={STAT_TOOLTIPS[stat.label]} className="inline-flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full bg-surface-light text-[9px] text-text-muted">
-                  ?
-                </span>
-              )}
-            </p>
-            <p className="mt-1 text-xl font-bold text-text-primary">
-              {stat.value !== null && stat.value !== undefined && stat.value !== 0
-                ? Number(stat.value).toFixed(1)
-                : "--"}
+      {/* ─── Looking for / Previous teams ──────────────────── */}
+      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {player.looking_for && (
+          <div className="rounded-2xl border border-line bg-paper-2 p-7">
+            <div className="label-meta mb-4 text-mute">Looking for</div>
+            <p className="text-[15px] leading-[1.55] text-ink-2 whitespace-pre-line">
+              {player.looking_for}
             </p>
           </div>
-        ))}
-      </div>
+        )}
 
-      {/* Details */}
-      <div className="rounded-2xl border border-border bg-surface p-6">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-text-muted">
-          My Game
-        </h2>
-        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <DetailItem
-            label="Height"
-            value={player.height_cm ? `${player.height_cm} cm` : null}
-          />
-          <DetailItem
-            label="Weight"
-            value={player.weight_kg ? `${player.weight_kg} kg` : null}
-          />
-          <DetailItem
-            label="Experience"
-            value={
-              player.experience_years
-                ? `${player.experience_years} year${player.experience_years !== 1 ? "s" : ""}`
-                : null
-            }
-          />
-          <DetailItem label="Looking for" value={player.looking_for} />
-        </div>
+        {player.previous_teams && (
+          <div className="rounded-2xl border border-line bg-paper-2 p-7">
+            <div className="label-meta mb-4 text-mute">Previous teams</div>
+            <p className="text-[15px] leading-[1.55] text-ink-2 whitespace-pre-line">
+              {player.previous_teams}
+            </p>
+          </div>
+        )}
       </div>
-
-      {/* Previous Teams */}
-      {player.previous_teams && (
-        <div className="rounded-2xl border border-border bg-surface p-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-text-muted">
-            Previous Teams
-          </h2>
-          <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-text-secondary">
-            {player.previous_teams}
-          </p>
-        </div>
-      )}
 
       {/* Highlights */}
       {player.highlights_url && (
-        <div className="rounded-2xl border border-border bg-surface p-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-text-muted">
-            See Me Play
-          </h2>
+        <div className="mt-6 rounded-2xl border border-line bg-paper-2 p-7">
+          <div className="label-meta mb-4 text-mute">Film & highlights</div>
           <a
             href={player.highlights_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-orange-400 transition-colors hover:text-orange-300"
+            className="inline-flex items-center gap-2 text-[14px] font-semibold text-sage-deep underline-offset-4 hover:underline"
           >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
-              <path d="M10.172 13.828a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.102 1.101" />
-            </svg>
-            Watch highlights
+            Watch highlights →
           </a>
         </div>
       )}
-
-      {/* Actions */}
-      <div className="flex gap-3">
-        <MessageButton
-          profileId={player.profile_id}
-          isSeed={isSeed}
-          className="flex-1 rounded-xl bg-orange-500 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
-        />
-        {isTeam && !isSeed && <InviteToTryoutButton playerId={player.profile_id} />}
-        <Link
-          href="/dashboard/players"
-          className="flex-1 rounded-xl border border-border bg-surface py-3 text-center text-sm font-medium text-text-primary transition-colors hover:border-orange-500/50 hover:text-orange-400"
-        >
-          Back to Browse
-        </Link>
-      </div>
     </div>
   );
 }
 
-function DetailItem({ label, value }) {
+function Detail({ label, value }) {
   return (
     <div>
-      <p className="text-xs text-text-muted">{label}</p>
-      <p className="mt-1 text-sm font-medium text-text-primary">
-        {value || "--"}
-      </p>
+      <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-mute">{label}</div>
+      <div className="mt-1 text-[14px] font-semibold text-ink">{value || "—"}</div>
     </div>
   );
 }
