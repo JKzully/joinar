@@ -89,23 +89,23 @@ async function PlayerDashboard({ supabase, profile }) {
     <div className="space-y-6">
       {/* Welcome */}
       <div>
-        <h1 className="text-2xl font-bold text-text-primary">
+        <h1 className="display-sm">
           Welcome back, {profile.full_name || "Player"}
         </h1>
-        <p className="mt-1 text-sm text-text-secondary">
+        <p className="mt-2 max-w-[560px] text-[14px] leading-[1.55] text-ink-2">
           Here&apos;s what&apos;s happening with your profile
         </p>
       </div>
 
       {/* Ad completion banner */}
       {completionPct < 100 && (
-        <div className="rounded-2xl border border-orange-500/20 bg-gradient-to-r from-orange-500/10 to-surface p-5">
+        <div className="rounded-2xl border border-line bg-paper-2 p-5 shadow-[0_1px_0_rgba(19,17,14,0.04)]">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="font-semibold text-text-primary">
+              <h3 className="text-[15px] font-bold text-ink">
                 Complete your ad
               </h3>
-              <p className="mt-1 text-sm text-text-secondary">
+              <p className="mt-1 text-[13px] leading-[1.55] text-ink-2">
                 {hasAd
                   ? "Add more details to get noticed by teams."
                   : "Set up your player ad to start getting discovered."}
@@ -113,20 +113,20 @@ async function PlayerDashboard({ supabase, profile }) {
             </div>
             <Link
               href="/dashboard/ad"
-              className="shrink-0 rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
+              className="btn btn-terra shrink-0"
             >
               {hasAd ? "Edit Ad" : "Create Ad"}
             </Link>
           </div>
           {hasAd && (
             <div className="mt-4">
-              <div className="flex items-center justify-between text-xs text-text-muted">
+              <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.08em] text-mute">
                 <span>Ad completion</span>
                 <span>{completionPct}%</span>
               </div>
-              <div className="mt-1.5 h-2 rounded-full bg-surface-light">
+              <div className="mt-1.5 h-2 rounded-full bg-paper">
                 <div
-                  className="h-2 rounded-full bg-orange-500 transition-all"
+                  className="h-2 rounded-full bg-terra transition-all"
                   style={{ width: `${completionPct}%` }}
                 />
               </div>
@@ -182,14 +182,14 @@ async function PlayerDashboard({ supabase, profile }) {
       </div>
 
       {/* Pending tryout invitations */}
-      <div className="rounded-2xl border border-border bg-surface p-6">
+      <div className="rounded-2xl border border-line bg-paper-2 p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-text-primary">
+          <h2 className="text-[18px] font-bold text-ink">
             Tryout Invitations
           </h2>
           <Link
             href="/dashboard/tryouts"
-            className="text-sm font-medium text-orange-400 hover:text-orange-500"
+            className="text-[13px] font-bold text-ink underline-offset-4 hover:underline"
           >
             View all &rarr;
           </Link>
@@ -199,13 +199,13 @@ async function PlayerDashboard({ supabase, profile }) {
             {invitationsWithTeam.map((inv) => (
               <div
                 key={inv.id}
-                className="flex items-center justify-between rounded-xl border border-border bg-background p-4"
+                className="flex items-center justify-between rounded-xl border border-line bg-paper p-4"
               >
                 <div>
-                  <p className="text-sm font-medium text-text-primary">
+                  <p className="text-[14px] font-bold text-ink">
                     {inv.team_name}
                   </p>
-                  <p className="mt-0.5 text-xs text-text-muted">
+                  <p className="mt-0.5 text-[12px] text-mute">
                     {inv.tryout_date
                       ? new Date(inv.tryout_date).toLocaleDateString("en-GB", {
                           day: "numeric",
@@ -216,7 +216,7 @@ async function PlayerDashboard({ supabase, profile }) {
                     {inv.location && ` \u00B7 ${inv.location}`}
                   </p>
                 </div>
-                <span className="rounded-full bg-orange-500/10 px-3 py-1 text-xs font-medium capitalize text-orange-400">
+                <span className="rounded-full bg-terra/10 px-3 py-1 text-[11px] font-bold capitalize text-terra">
                   {inv.status}
                 </span>
               </div>
@@ -314,30 +314,30 @@ async function TeamDashboard({ supabase, profile }) {
     <div className="space-y-6">
       {/* Welcome */}
       <div>
-        <h1 className="text-2xl font-bold text-text-primary">
+        <h1 className="display-sm">
           Welcome back, {teamAd?.team_name || profile.full_name || "Team"}
         </h1>
-        <p className="mt-1 text-sm text-text-secondary">
+        <p className="mt-2 max-w-[560px] text-[14px] leading-[1.55] text-ink-2">
           Manage your team and find the right talent
         </p>
       </div>
 
       {/* Setup banner */}
       {!hasAd && (
-        <div className="rounded-2xl border border-orange-500/20 bg-gradient-to-r from-orange-500/10 to-surface p-5">
+        <div className="rounded-2xl border border-line bg-paper-2 p-5 shadow-[0_1px_0_rgba(19,17,14,0.04)]">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="font-semibold text-text-primary">
+              <h3 className="text-[15px] font-bold text-ink">
                 Set up your team ad
               </h3>
-              <p className="mt-1 text-sm text-text-secondary">
+              <p className="mt-1 text-[13px] leading-[1.55] text-ink-2">
                 Add your team details, league info, and list positions needed
                 to attract players.
               </p>
             </div>
             <Link
               href="/dashboard/ad"
-              className="shrink-0 rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
+              className="btn btn-terra shrink-0"
             >
               Create Ad
             </Link>
@@ -392,14 +392,14 @@ async function TeamDashboard({ supabase, profile }) {
       </div>
 
       {/* Positions needed */}
-      <div className="rounded-2xl border border-border bg-surface p-6">
+      <div className="rounded-2xl border border-line bg-paper-2 p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-text-primary">
+          <h2 className="text-[18px] font-bold text-ink">
             Positions Needed
           </h2>
           <Link
             href="/dashboard/ad"
-            className="text-sm font-medium text-orange-400 hover:text-orange-500"
+            className="text-[13px] font-bold text-ink underline-offset-4 hover:underline"
           >
             Edit Ad &rarr;
           </Link>
@@ -409,7 +409,7 @@ async function TeamDashboard({ supabase, profile }) {
             {openPositions.map((pos) => (
               <span
                 key={pos}
-                className="rounded-full bg-orange-500/10 px-3 py-1.5 text-sm font-medium text-orange-400"
+                className="rounded-full border border-line-2 bg-paper px-3 py-1.5 text-[13px] font-bold text-ink"
               >
                 {pos}
               </span>
@@ -424,14 +424,14 @@ async function TeamDashboard({ supabase, profile }) {
       </div>
 
       {/* Recent invitations */}
-      <div className="rounded-2xl border border-border bg-surface p-6">
+      <div className="rounded-2xl border border-line bg-paper-2 p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-text-primary">
+          <h2 className="text-[18px] font-bold text-ink">
             Recent Tryout Invites
           </h2>
           <Link
             href="/dashboard/tryouts"
-            className="text-sm font-medium text-orange-400 hover:text-orange-500"
+            className="text-[13px] font-bold text-ink underline-offset-4 hover:underline"
           >
             View all &rarr;
           </Link>
@@ -441,13 +441,13 @@ async function TeamDashboard({ supabase, profile }) {
             {invitationsWithPlayer.map((inv) => (
               <div
                 key={inv.id}
-                className="flex items-center justify-between rounded-xl border border-border bg-background p-4"
+                className="flex items-center justify-between rounded-xl border border-line bg-paper p-4"
               >
                 <div>
-                  <p className="text-sm font-medium text-text-primary">
+                  <p className="text-[14px] font-bold text-ink">
                     {inv.player_name}
                   </p>
-                  <p className="mt-0.5 text-xs text-text-muted">
+                  <p className="mt-0.5 text-[12px] text-mute">
                     {inv.tryout_date
                       ? new Date(inv.tryout_date).toLocaleDateString("en-GB", {
                           day: "numeric",
@@ -461,10 +461,10 @@ async function TeamDashboard({ supabase, profile }) {
                 <span
                   className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${
                     inv.status === "accepted"
-                      ? "bg-emerald-500/10 text-emerald-400"
+                      ? "bg-sage/15 text-sage-deep"
                       : inv.status === "declined"
                         ? "bg-red-500/10 text-red-400"
-                        : "bg-orange-500/10 text-orange-400"
+                        : "bg-terra/10 text-terra"
                   }`}
                 >
                   {inv.status}
@@ -521,19 +521,19 @@ async function TeamDashboard({ supabase, profile }) {
 
 function StatCard({ label, value, note, icon, accent }) {
   return (
-    <div className="rounded-2xl border border-border bg-surface p-5">
+    <div className="rounded-2xl border border-line bg-paper-2 p-5 shadow-[0_1px_0_rgba(19,17,14,0.035)]">
       <div className="flex items-center justify-between">
-        <span className="text-sm text-text-muted">{label}</span>
+        <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-mute">{label}</span>
         <div
-          className={`flex h-9 w-9 items-center justify-center rounded-lg ${
-            accent ? "bg-orange-500/15 text-orange-400" : "bg-surface-light text-text-muted"
+          className={`flex h-9 w-9 items-center justify-center rounded-xl ${
+            accent ? "bg-terra/10 text-terra" : "bg-paper text-mute"
           }`}
         >
           {icon}
         </div>
       </div>
-      <p className="mt-2 text-2xl font-bold text-text-primary">{value}</p>
-      <p className="mt-0.5 text-xs text-text-muted">{note}</p>
+      <p className="num mt-3 text-[28px] font-bold leading-none text-ink">{value}</p>
+      <p className="mt-2 text-[12px] text-mute">{note}</p>
     </div>
   );
 }
@@ -542,22 +542,22 @@ function QuickAction({ href, title, description, icon }) {
   return (
     <Link
       href={href}
-      className="group rounded-2xl border border-border bg-surface p-5 transition-all hover:border-orange-500/30 hover:shadow-lg hover:shadow-orange-500/5"
+      className="group rounded-2xl border border-line bg-paper-2 p-5 transition-all hover:border-ink/25 hover:shadow-[0_8px_28px_rgba(19,17,14,0.06)]"
     >
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10 text-orange-400 transition-colors group-hover:bg-orange-500/20">
+      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-paper text-terra transition-colors group-hover:bg-terra group-hover:text-white">
         {icon}
       </div>
-      <h3 className="text-sm font-semibold text-text-primary">{title}</h3>
-      <p className="mt-1 text-xs text-text-muted">{description}</p>
+      <h3 className="text-[14px] font-bold text-ink">{title}</h3>
+      <p className="mt-1 text-[12px] leading-[1.5] text-mute">{description}</p>
     </Link>
   );
 }
 
 function EmptyState({ message, sub }) {
   return (
-    <div className="rounded-xl border border-dashed border-border py-8 text-center">
-      <p className="text-sm text-text-muted">{message}</p>
-      {sub && <p className="mt-1 text-xs text-text-muted">{sub}</p>}
+    <div className="rounded-xl border border-dashed border-line py-8 text-center">
+      <p className="text-[14px] font-semibold text-ink">{message}</p>
+      {sub && <p className="mt-1 text-[12px] text-mute">{sub}</p>}
     </div>
   );
 }

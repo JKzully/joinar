@@ -23,7 +23,7 @@ export default function TryoutActions({ invitationId }) {
       <span
         className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${
           result.status === "accepted"
-            ? "bg-green-500/15 text-green-400"
+            ? "bg-sage/15 text-sage-deep"
             : "bg-red-500/15 text-red-400"
         }`}
       >
@@ -40,14 +40,14 @@ export default function TryoutActions({ invitationId }) {
       <button
         onClick={() => handleRespond("accepted")}
         disabled={loading}
-        className="rounded-lg bg-green-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="rounded-xl bg-sage-deep px-4 py-2 text-[12px] font-bold text-white transition-colors hover:bg-sage disabled:cursor-not-allowed disabled:opacity-50"
       >
         {loading ? "..." : "Accept"}
       </button>
       <button
         onClick={() => handleRespond("declined")}
         disabled={loading}
-        className="rounded-lg bg-surface-light px-4 py-2 text-xs font-semibold text-text-primary transition-colors hover:bg-red-500/15 hover:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="rounded-xl border border-line-2 bg-paper px-4 py-2 text-[12px] font-bold text-ink transition-colors hover:bg-red-500/10 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {loading ? "..." : "Decline"}
       </button>

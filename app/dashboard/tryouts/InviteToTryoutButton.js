@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { createTryoutInvitation } from "../actions";
 
+const inputClass =
+  "mt-1 w-full rounded-xl border border-line-2 bg-paper px-3 py-2 text-[14px] text-ink placeholder:text-mute focus:border-ink focus:outline-none";
+
 export default function InviteToTryoutButton({ playerId }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -35,59 +38,59 @@ export default function InviteToTryoutButton({ playerId }) {
           setOpen(true);
           setFeedback(null);
         }}
-        className="flex-1 rounded-xl border border-border bg-surface py-3 text-center text-sm font-semibold text-text-primary transition-colors hover:border-orange-500/50 hover:text-orange-400"
+        className="flex-1 rounded-xl border border-line-2 bg-paper py-3 text-center text-[13px] font-bold text-ink transition-colors hover:border-ink/40"
       >
         Invite to Tryout
       </button>
 
       {open && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/70 p-4"
           onClick={(e) => {
             if (e.target === e.currentTarget) setOpen(false);
           }}
         >
-          <div className="w-full max-w-md rounded-2xl border border-border bg-surface p-6">
-            <h2 className="text-lg font-bold text-text-primary">
+          <div className="w-full max-w-md rounded-2xl border border-line bg-paper-2 p-6 shadow-xl">
+            <h2 className="text-[20px] font-bold text-ink">
               Invite to Tryout
             </h2>
-            <p className="mt-1 text-sm text-text-muted">
+            <p className="mt-1 text-[14px] leading-[1.55] text-ink-2">
               This is it — you&apos;re giving someone a real shot. Fill in the details and let them know you&apos;re serious.
             </p>
 
             <form onSubmit={handleSubmit} className="mt-5 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-text-secondary">
+                <label className="block text-[13px] font-bold text-ink-2">
                   Tryout Date
                 </label>
                 <input
                   type="date"
                   name="tryout_date"
-                  className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-text-primary focus:border-orange-500 focus:outline-none"
+                  className={inputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text-secondary">
+                <label className="block text-[13px] font-bold text-ink-2">
                   Location
                 </label>
                 <input
                   type="text"
                   name="location"
                   placeholder="e.g. Main Arena, City"
-                  className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:border-orange-500 focus:outline-none"
+                  className={inputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text-secondary">
+                <label className="block text-[13px] font-bold text-ink-2">
                   Personal Message
                 </label>
                 <textarea
                   name="message"
                   rows={3}
                   placeholder="Why you'd like this player to try out..."
-                  className="mt-1 w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:border-orange-500 focus:outline-none"
+                  className={`${inputClass} resize-none`}
                 />
               </div>
 
@@ -107,14 +110,14 @@ export default function InviteToTryoutButton({ playerId }) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 rounded-lg bg-orange-500 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn btn-terra flex-1 justify-center disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
                 >
                   {loading ? "Sending..." : "Send Invitation"}
                 </button>
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="flex-1 rounded-lg border border-border bg-surface-light py-2.5 text-sm font-medium text-text-primary transition-colors hover:text-text-secondary"
+                  className="flex-1 rounded-xl border border-line-2 bg-paper py-2.5 text-[13px] font-bold text-ink transition-colors hover:border-ink/30"
                 >
                   Cancel
                 </button>

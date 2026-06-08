@@ -27,6 +27,9 @@ const STAT_TOOLTIPS = {
   "3PT%": "Three-Point Percentage",
 };
 
+const inputClass =
+  "w-full rounded-xl border border-line-2 bg-paper px-4 py-3 text-[14px] text-ink placeholder:text-mute outline-none transition-colors focus:border-ink focus:ring-1 focus:ring-ink/10";
+
 export default function PlayerAdForm({ playerAd }) {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
@@ -75,10 +78,10 @@ export default function PlayerAdForm({ playerAd }) {
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Active/Inactive Toggle */}
       {playerAd && (
-        <div className="flex items-center justify-between rounded-2xl border border-border bg-surface p-5">
+        <div className="flex items-center justify-between rounded-2xl border border-line bg-paper-2 p-5">
           <div>
-            <h2 className="text-sm font-semibold text-text-primary">Ad Status</h2>
-            <p className="mt-0.5 text-xs text-text-muted">
+            <h2 className="text-[14px] font-bold text-ink">Ad Status</h2>
+            <p className="mt-0.5 text-[12px] text-mute">
               {isActive ? "Your ad is visible to teams" : "Your ad is hidden from search"}
             </p>
           </div>
@@ -88,11 +91,11 @@ export default function PlayerAdForm({ playerAd }) {
             disabled={toggling}
             className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
               isActive
-                ? "bg-emerald-500/15 text-emerald-400"
-                : "bg-surface-light text-text-muted"
+                ? "bg-sage/15 text-sage-deep"
+                : "bg-paper text-mute"
             }`}
           >
-            <span className={`h-2 w-2 rounded-full ${isActive ? "bg-emerald-400" : "bg-text-muted"}`} />
+            <span className={`h-2 w-2 rounded-full ${isActive ? "bg-sage-deep" : "bg-mute"}`} />
             {toggling ? "..." : isActive ? "Live" : "Hidden"}
           </button>
         </div>
@@ -110,8 +113,8 @@ export default function PlayerAdForm({ playerAd }) {
                 onClick={() => togglePosition(pos.value)}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                   selected
-                    ? "bg-orange-500 text-white"
-                    : "bg-surface-light text-text-secondary hover:bg-surface-light/80"
+                    ? "border border-ink bg-ink text-paper-2"
+                    : "border border-line-2 bg-paper text-ink hover:border-ink/40"
                 }`}
               >
                 {pos.label}
@@ -137,11 +140,11 @@ export default function PlayerAdForm({ playerAd }) {
       <Section title="Experience" description="Your basketball experience">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-text-secondary">Experience Level</label>
+            <label className="mb-1.5 block text-[13px] font-bold text-ink-2">Experience Level</label>
             <select
               name="experience_level"
               defaultValue={playerAd?.experience_level || ""}
-              className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-text-primary outline-none transition-colors focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50"
+              className={inputClass}
             >
               {EXPERIENCE_LEVELS.map((l) => (
                 <option key={l.value} value={l.value}>{l.label}</option>
@@ -150,13 +153,13 @@ export default function PlayerAdForm({ playerAd }) {
           </div>
           <Field label="Years of experience" name="experience_years" type="number" defaultValue={playerAd?.experience_years} placeholder="5" />
           <div className="sm:col-span-2">
-            <label className="mb-1.5 block text-sm font-medium text-text-secondary">Previous Teams</label>
+            <label className="mb-1.5 block text-[13px] font-bold text-ink-2">Previous Teams</label>
             <textarea
               name="previous_teams"
               rows={3}
               defaultValue={playerAd?.previous_teams}
               placeholder="List your previous teams, leagues, and seasons..."
-              className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-text-primary placeholder-text-muted outline-none transition-colors focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50"
+              className={inputClass}
             />
           </div>
         </div>
@@ -185,13 +188,13 @@ export default function PlayerAdForm({ playerAd }) {
             placeholder="https://youtube.com/watch?v=..."
           />
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-text-secondary">What are you looking for?</label>
+            <label className="mb-1.5 block text-[13px] font-bold text-ink-2">What are you looking for?</label>
             <textarea
               name="looking_for"
               rows={3}
               defaultValue={playerAd?.looking_for}
               placeholder="Describe the type of team, league level, country, or opportunity you're seeking..."
-              className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-text-primary placeholder-text-muted outline-none transition-colors focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50"
+              className={inputClass}
             />
           </div>
         </div>
@@ -200,7 +203,7 @@ export default function PlayerAdForm({ playerAd }) {
       {/* Message + Submit */}
       {message && (
         <div
-          className={`rounded-lg border px-4 py-3 text-sm ${
+          className={`rounded-xl border px-4 py-3 text-[14px] ${
             message.type === "error"
               ? "border-red-500/30 bg-red-500/10 text-red-400"
               : "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
@@ -210,11 +213,11 @@ export default function PlayerAdForm({ playerAd }) {
         </div>
       )}
 
-      <div className="flex items-center justify-end gap-3 border-t border-border pt-6">
+      <div className="flex items-center justify-end gap-3 border-t border-line pt-6">
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-orange-500 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition-all hover:bg-orange-600 hover:shadow-orange-500/40 disabled:cursor-not-allowed disabled:opacity-50"
+          className="btn btn-terra disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
         >
           {saving ? "Saving..." : "Save Ad"}
         </button>
@@ -225,10 +228,10 @@ export default function PlayerAdForm({ playerAd }) {
 
 function Section({ title, description, children }) {
   return (
-    <div className="rounded-2xl border border-border bg-surface p-6">
+    <div className="rounded-2xl border border-line bg-paper-2 p-6">
       <div className="mb-5">
-        <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
-        <p className="mt-1 text-sm text-text-muted">{description}</p>
+        <h2 className="text-[18px] font-bold text-ink">{title}</h2>
+        <p className="mt-1 text-[13px] text-mute">{description}</p>
       </div>
       {children}
     </div>
@@ -238,10 +241,10 @@ function Section({ title, description, children }) {
 function Field({ label, className, ...props }) {
   return (
     <div className={className}>
-      <label className="mb-1.5 block text-sm font-medium text-text-secondary">{label}</label>
+      <label className="mb-1.5 block text-[13px] font-bold text-ink-2">{label}</label>
       <input
         {...props}
-        className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-text-primary placeholder-text-muted outline-none transition-colors focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50"
+        className={inputClass}
       />
     </div>
   );
@@ -251,10 +254,10 @@ function StatField({ label, name, defaultValue }) {
   const tooltip = STAT_TOOLTIPS[label];
   return (
     <div>
-      <label className="mb-1.5 flex items-center gap-1 text-sm font-medium text-text-secondary">
+      <label className="mb-1.5 flex items-center gap-1 text-[13px] font-bold text-ink-2">
         {label}
         {tooltip && (
-          <span title={tooltip} className="inline-flex h-4 w-4 cursor-help items-center justify-center rounded-full bg-surface-light text-[10px] text-text-muted">
+          <span title={tooltip} className="inline-flex h-4 w-4 cursor-help items-center justify-center rounded-full bg-paper text-[10px] text-mute">
             ?
           </span>
         )}
@@ -265,7 +268,7 @@ function StatField({ label, name, defaultValue }) {
         step="0.1"
         defaultValue={defaultValue}
         placeholder="0.0"
-        className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-text-primary placeholder-text-muted outline-none transition-colors focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50"
+        className={inputClass}
       />
     </div>
   );

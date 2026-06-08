@@ -21,8 +21,8 @@ export default async function AccountPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-text-primary">My Account</h1>
-        <p className="mt-1 text-sm text-text-secondary">
+        <h1 className="display-sm">My Account</h1>
+        <p className="mt-2 text-[14px] leading-[1.55] text-ink-2">
           Manage your personal information
         </p>
       </div>

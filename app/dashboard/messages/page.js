@@ -24,8 +24,8 @@ export default async function MessagesPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Messages</h1>
-          <p className="mt-1 text-sm text-text-secondary">
+          <h1 className="display-sm">Messages</h1>
+          <p className="mt-2 text-[14px] leading-[1.55] text-ink-2">
             Your conversations with players and teams
           </p>
         </div>
@@ -104,14 +104,14 @@ export default async function MessagesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-text-primary">Messages</h1>
-        <p className="mt-1 text-sm text-text-secondary">
+        <h1 className="display-sm">Messages</h1>
+        <p className="mt-2 text-[14px] leading-[1.55] text-ink-2">
           Your conversations with players and teams
         </p>
       </div>
 
       {conversations.length > 0 ? (
-        <div className="divide-y divide-border rounded-2xl border border-border bg-surface">
+        <div className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-paper-2">
           {conversations.map((conv) => (
             <ConversationRow
               key={conv.id}
@@ -137,15 +137,15 @@ function ConversationRow({ conversation, currentUserId }) {
   return (
     <Link
       href={`/dashboard/messages/${id}`}
-      className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-surface-light"
+      className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-paper"
     >
       {/* Avatar */}
       <div className="relative shrink-0">
-        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-surface-light text-sm font-semibold text-orange-400">
+        <div className="flex h-11 w-11 items-center justify-center rounded-full border border-line bg-paper text-[14px] font-bold text-terra">
           {name.charAt(0).toUpperCase()}
         </div>
         {unread > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-[10px] font-bold text-white">
+          <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-terra text-[10px] font-bold text-white">
             {unread > 9 ? "9+" : unread}
           </span>
         )}
@@ -155,29 +155,29 @@ function ConversationRow({ conversation, currentUserId }) {
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
           <h3
-            className={`truncate text-sm ${
+            className={`truncate text-[14px] ${
               unread > 0
-                ? "font-semibold text-text-primary"
-                : "font-medium text-text-primary"
+                ? "font-bold text-ink"
+                : "font-semibold text-ink"
             }`}
           >
             {name}
           </h3>
-          <span className="shrink-0 text-xs text-text-muted">{timeStr}</span>
+          <span className="shrink-0 text-[12px] text-mute">{timeStr}</span>
         </div>
         <div className="flex items-center gap-1">
           <p
-            className={`truncate text-sm ${
-              unread > 0 ? "text-text-secondary" : "text-text-muted"
+            className={`truncate text-[14px] ${
+              unread > 0 ? "text-ink-2" : "text-mute"
             }`}
           >
             {isOwnMessage && (
-              <span className="text-text-muted">You: </span>
+              <span className="text-mute">You: </span>
             )}
             {lastMessage.content}
           </p>
         </div>
-        <p className="mt-0.5 text-xs capitalize text-text-muted">
+        <p className="mt-0.5 text-[12px] capitalize text-mute">
           {otherProfile?.role || "user"}
           {otherProfile?.country && ` \u00B7 ${otherProfile.country}`}
         </p>
@@ -185,7 +185,7 @@ function ConversationRow({ conversation, currentUserId }) {
 
       {/* Chevron */}
       <svg
-        className="h-4 w-4 shrink-0 text-text-muted"
+        className="h-4 w-4 shrink-0 text-mute"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -199,9 +199,9 @@ function ConversationRow({ conversation, currentUserId }) {
 
 function EmptyInbox() {
   return (
-    <div className="rounded-2xl border border-dashed border-border py-16 text-center">
+    <div className="rounded-2xl border border-dashed border-line py-16 text-center">
       <svg
-        className="mx-auto h-10 w-10 text-text-muted"
+        className="mx-auto h-10 w-10 text-mute"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -209,8 +209,8 @@ function EmptyInbox() {
       >
         <path d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
       </svg>
-      <p className="mt-3 text-sm text-text-muted">No conversations yet</p>
-      <p className="mt-1 text-xs text-text-muted">
+      <p className="mt-3 text-[14px] font-semibold text-ink">No conversations yet</p>
+      <p className="mt-1 text-[12px] text-mute">
         This could be the conversation that changes your career. Browse players or teams to get started.
       </p>
     </div>

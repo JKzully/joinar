@@ -19,6 +19,9 @@ const LEAGUE_TIERS = [
   { value: "4", label: "Tier 4" },
 ];
 
+const inputClass =
+  "w-full rounded-xl border border-line-2 bg-paper px-4 py-3 text-[14px] text-ink placeholder:text-mute outline-none transition-colors focus:border-ink focus:ring-1 focus:ring-ink/10";
+
 export default function TeamAdForm({ teamAd }) {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
@@ -67,10 +70,10 @@ export default function TeamAdForm({ teamAd }) {
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Active/Inactive Toggle */}
       {teamAd && (
-        <div className="flex items-center justify-between rounded-2xl border border-border bg-surface p-5">
+        <div className="flex items-center justify-between rounded-2xl border border-line bg-paper-2 p-5">
           <div>
-            <h2 className="text-sm font-semibold text-text-primary">Ad Status</h2>
-            <p className="mt-0.5 text-xs text-text-muted">
+            <h2 className="text-[14px] font-bold text-ink">Ad Status</h2>
+            <p className="mt-0.5 text-[12px] text-mute">
               {isActive ? "Your ad is visible to players" : "Your ad is hidden from search"}
             </p>
           </div>
@@ -80,11 +83,11 @@ export default function TeamAdForm({ teamAd }) {
             disabled={toggling}
             className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
               isActive
-                ? "bg-emerald-500/15 text-emerald-400"
-                : "bg-surface-light text-text-muted"
+                ? "bg-sage/15 text-sage-deep"
+                : "bg-paper text-mute"
             }`}
           >
-            <span className={`h-2 w-2 rounded-full ${isActive ? "bg-emerald-400" : "bg-text-muted"}`} />
+            <span className={`h-2 w-2 rounded-full ${isActive ? "bg-sage-deep" : "bg-mute"}`} />
             {toggling ? "..." : isActive ? "Live" : "Hidden"}
           </button>
         </div>
@@ -96,11 +99,11 @@ export default function TeamAdForm({ teamAd }) {
           <Field label="Team Name" name="team_name" defaultValue={teamAd?.team_name} placeholder="BC Milano" className="sm:col-span-2" />
           <Field label="League" name="league" defaultValue={teamAd?.league} placeholder="Serie A2" />
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-text-secondary">League Tier</label>
+            <label className="mb-1.5 block text-[13px] font-bold text-ink-2">League Tier</label>
             <select
               name="league_tier"
               defaultValue={teamAd?.league_tier || ""}
-              className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-text-primary outline-none transition-colors focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50"
+              className={inputClass}
             >
               {LEAGUE_TIERS.map((t) => (
                 <option key={t.value} value={t.value}>{t.label}</option>
@@ -124,8 +127,8 @@ export default function TeamAdForm({ teamAd }) {
                 onClick={() => togglePosition(pos.value)}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                   selected
-                    ? "bg-orange-500 text-white"
-                    : "bg-surface-light text-text-secondary hover:bg-surface-light/80"
+                    ? "border border-ink bg-ink text-paper-2"
+                    : "border border-line-2 bg-paper text-ink hover:border-ink/40"
                 }`}
               >
                 {pos.label}
@@ -142,23 +145,23 @@ export default function TeamAdForm({ teamAd }) {
       <Section title="About" description="Tell players about your team and what you offer">
         <div className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-text-secondary">Description</label>
+            <label className="mb-1.5 block text-[13px] font-bold text-ink-2">Description</label>
             <textarea
               name="description"
               rows={4}
               defaultValue={teamAd?.description}
               placeholder="Tell players about your team's history, playing style, and culture..."
-              className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-text-primary placeholder-text-muted outline-none transition-colors focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50"
+              className={inputClass}
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-text-secondary">What We Offer</label>
+            <label className="mb-1.5 block text-[13px] font-bold text-ink-2">What We Offer</label>
             <textarea
               name="what_we_offer"
               rows={3}
               defaultValue={teamAd?.what_we_offer}
               placeholder="Salary, housing, coaching staff, facilities, development opportunities..."
-              className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-text-primary placeholder-text-muted outline-none transition-colors focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50"
+              className={inputClass}
             />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -171,7 +174,7 @@ export default function TeamAdForm({ teamAd }) {
       {/* Message + Submit */}
       {message && (
         <div
-          className={`rounded-lg border px-4 py-3 text-sm ${
+          className={`rounded-xl border px-4 py-3 text-[14px] ${
             message.type === "error"
               ? "border-red-500/30 bg-red-500/10 text-red-400"
               : "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
@@ -181,11 +184,11 @@ export default function TeamAdForm({ teamAd }) {
         </div>
       )}
 
-      <div className="flex items-center justify-end gap-3 border-t border-border pt-6">
+      <div className="flex items-center justify-end gap-3 border-t border-line pt-6">
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-orange-500 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition-all hover:bg-orange-600 hover:shadow-orange-500/40 disabled:cursor-not-allowed disabled:opacity-50"
+          className="btn btn-terra disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
         >
           {saving ? "Saving..." : "Save Ad"}
         </button>
@@ -196,10 +199,10 @@ export default function TeamAdForm({ teamAd }) {
 
 function Section({ title, description, children }) {
   return (
-    <div className="rounded-2xl border border-border bg-surface p-6">
+    <div className="rounded-2xl border border-line bg-paper-2 p-6">
       <div className="mb-5">
-        <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
-        <p className="mt-1 text-sm text-text-muted">{description}</p>
+        <h2 className="text-[18px] font-bold text-ink">{title}</h2>
+        <p className="mt-1 text-[13px] text-mute">{description}</p>
       </div>
       {children}
     </div>
@@ -209,10 +212,10 @@ function Section({ title, description, children }) {
 function Field({ label, className, ...props }) {
   return (
     <div className={className}>
-      <label className="mb-1.5 block text-sm font-medium text-text-secondary">{label}</label>
+      <label className="mb-1.5 block text-[13px] font-bold text-ink-2">{label}</label>
       <input
         {...props}
-        className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-text-primary placeholder-text-muted outline-none transition-colors focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50"
+        className={inputClass}
       />
     </div>
   );

@@ -4,6 +4,9 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 import { updateAccount, uploadAvatar } from "../actions";
 
+const inputClass =
+  "w-full rounded-xl border border-line-2 bg-paper px-4 py-3 text-[14px] text-ink placeholder:text-mute outline-none transition-colors focus:border-ink focus:ring-1 focus:ring-ink/10";
+
 export default function AccountForm({ profile }) {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
@@ -54,7 +57,7 @@ export default function AccountForm({ profile }) {
       {/* Avatar */}
       <Section title="Profile Photo" description="Upload a photo so teams and players can recognize you">
         <div className="flex items-center gap-5">
-          <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-light text-2xl font-semibold text-orange-400">
+          <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-paper text-2xl font-bold text-terra">
             {avatarUrl ? (
               <Image src={avatarUrl} alt="Avatar" width={80} height={80} unoptimized className="h-full w-full object-cover" />
             ) : (
@@ -66,7 +69,7 @@ export default function AccountForm({ profile }) {
               type="button"
               onClick={() => fileRef.current?.click()}
               disabled={uploading}
-              className="rounded-lg border border-border bg-surface-light px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:border-orange-500/50 hover:text-orange-400 disabled:opacity-50"
+              className="rounded-xl border border-line-2 bg-paper px-4 py-2 text-[13px] font-bold text-ink transition-colors hover:border-ink/30 disabled:opacity-50"
             >
               {uploading ? "Uploading..." : "Change Photo"}
             </button>
@@ -77,7 +80,7 @@ export default function AccountForm({ profile }) {
               onChange={handleAvatarChange}
               className="hidden"
             />
-            <p className="mt-1.5 text-xs text-text-muted">JPG, PNG or WebP. Max 2MB.</p>
+            <p className="mt-1.5 text-[12px] text-mute">JPG, PNG or WebP. Max 2MB.</p>
           </div>
         </div>
       </Section>
@@ -98,14 +101,14 @@ export default function AccountForm({ profile }) {
           rows={4}
           defaultValue={profile.bio}
           placeholder="A short bio about yourself..."
-          className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-text-primary placeholder-text-muted outline-none transition-colors focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50"
+          className={inputClass}
         />
       </Section>
 
       {/* Message + Submit */}
       {message && (
         <div
-          className={`rounded-lg border px-4 py-3 text-sm ${
+          className={`rounded-xl border px-4 py-3 text-[14px] ${
             message.type === "error"
               ? "border-red-500/30 bg-red-500/10 text-red-400"
               : "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
@@ -115,11 +118,11 @@ export default function AccountForm({ profile }) {
         </div>
       )}
 
-      <div className="flex items-center justify-end gap-3 border-t border-border pt-6">
+      <div className="flex items-center justify-end gap-3 border-t border-line pt-6">
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-orange-500 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition-all hover:bg-orange-600 hover:shadow-orange-500/40 disabled:cursor-not-allowed disabled:opacity-50"
+          className="btn btn-terra disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
         >
           {saving ? "Saving..." : "Save Account"}
         </button>
@@ -130,10 +133,10 @@ export default function AccountForm({ profile }) {
 
 function Section({ title, description, children }) {
   return (
-    <div className="rounded-2xl border border-border bg-surface p-6">
+    <div className="rounded-2xl border border-line bg-paper-2 p-6">
       <div className="mb-5">
-        <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
-        <p className="mt-1 text-sm text-text-muted">{description}</p>
+        <h2 className="text-[18px] font-bold text-ink">{title}</h2>
+        <p className="mt-1 text-[13px] text-mute">{description}</p>
       </div>
       {children}
     </div>
@@ -143,10 +146,10 @@ function Section({ title, description, children }) {
 function Field({ label, className, ...props }) {
   return (
     <div className={className}>
-      <label className="mb-1.5 block text-sm font-medium text-text-secondary">{label}</label>
+      <label className="mb-1.5 block text-[13px] font-bold text-ink-2">{label}</label>
       <input
         {...props}
-        className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-text-primary placeholder-text-muted outline-none transition-colors focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50"
+        className={inputClass}
       />
     </div>
   );
