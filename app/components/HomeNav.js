@@ -10,9 +10,8 @@ const Arrow = ({ size = 14 }) => (
 );
 
 const LINKS = [
-  { href: "#positions", label: "Open spots" },
-  { href: "#players", label: "Players" },
-  { href: "/dashboard/teams", label: "For teams" },
+  { href: "#how", label: "How it works" },
+  { href: "#teams", label: "For teams" },
 ];
 
 export default function HomeNav() {
@@ -42,7 +41,7 @@ export default function HomeNav() {
               Log in
             </Link>
             <Link href="/signup" className="btn btn-ink">
-              Create profile <Arrow />
+              Start free <Arrow />
             </Link>
           </div>
 
@@ -93,7 +92,7 @@ export default function HomeNav() {
                 className="btn btn-ink mt-2 justify-center"
                 style={{ padding: "13px 18px", fontSize: 14 }}
               >
-                Create profile <Arrow />
+                Start free <Arrow />
               </Link>
             </div>
           </div>
