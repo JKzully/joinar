@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { updateAccount, uploadAvatar } from "@/app/dashboard/actions";
 import { COUNTRIES } from "@/lib/countries";
@@ -64,7 +65,7 @@ export default function OnboardingAccountForm({ profile }) {
         <div className="flex items-center gap-5">
           <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-light text-2xl font-semibold text-orange-400">
             {avatarUrl ? (
-              <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+              <Image src={avatarUrl} alt="Avatar" width={80} height={80} unoptimized className="h-full w-full object-cover" />
             ) : (
               (profile.full_name || "?").charAt(0).toUpperCase()
             )}

@@ -31,23 +31,22 @@ export default async function DashboardLayout({ children }) {
     redirect("/onboarding");
   }
 
-  // Unread message count — joined to conversations user is a participant in
+  // Unread message count — one batched count across conversations user participates in.
   let unreadCount = 0;
   const { data: participantRows } = await supabase
     .from("conversation_participants")
-    .select("conversation_id, last_read_at")
+    .select("conversation_id")
     .eq("profile_id", profile.id);
 
   if (participantRows && participantRows.length > 0) {
-    for (const row of participantRows) {
-      const { count } = await supabase
-        .from("messages")
-        .select("id", { count: "exact", head: true })
-        .eq("conversation_id", row.conversation_id)
-        .neq("sender_id", profile.id)
-        .gt("created_at", row.last_read_at || "1970-01-01");
-      unreadCount += count || 0;
-    }
+    const conversationIds = participantRows.map((row) => row.conversation_id);
+    const { count } = await supabase
+      .from("messages")
+      .select("id", { count: "exact", head: true })
+      .in("conversation_id", conversationIds)
+      .neq("sender_id", profile.id)
+      .is("read_at", null);
+    unreadCount = count || 0;
   }
 
   return (

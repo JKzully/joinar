@@ -16,6 +16,18 @@ const GRADS = {
   cool: "linear-gradient(180deg,#1f262a,#2c373c 60%,#3a4a4f)",
 };
 
+function calculateAge(dateOfBirth) {
+  if (!dateOfBirth) return null;
+  const birthDate = new Date(dateOfBirth);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age -= 1;
+  }
+  return Number.isFinite(age) ? age : null;
+}
+
 export default async function BrowsePlayersPage({ searchParams }) {
   const params = await searchParams;
   const positionFilter = params?.position || "";
@@ -141,9 +153,7 @@ function PlayerCard({ player, index, boosted, isSeed }) {
   const posLabel = positions.length > 0
     ? positions.map((p) => p.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())).join(" · ")
     : "Position TBD";
-  const age = player.date_of_birth
-    ? Math.floor((Date.now() - new Date(player.date_of_birth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
-    : null;
+  const age = calculateAge(player.date_of_birth);
   const tone = TONES[index % TONES.length];
   const jersey = String(((index + 1) * 7) % 99).padStart(2, "0");
 
@@ -200,7 +210,8 @@ function PlayerCard({ player, index, boosted, isSeed }) {
           <MessageButton
             profileId={player.profile_id}
             isSeed={isSeed}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-line bg-paper-2 text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper-2"
+            ariaLabel={`Message ${name}`}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-line bg-paper-2 text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper-2"
             label={
               <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
                 <path d="M1.5 3h11v7H6l-3 2v-2H1.5V3z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
@@ -209,8 +220,9 @@ function PlayerCard({ player, index, boosted, isSeed }) {
           />
           <Link
             href={`/dashboard/players/${player.profile_id}`}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-line bg-paper-2 text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper-2"
-            title="View profile"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-line bg-paper-2 text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper-2"
+            aria-label={`View ${name}'s profile`}
+            title={`View ${name}'s profile`}
           >
             <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
               <path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />

@@ -290,7 +290,7 @@ export default function OnboardingWizard({ profile, ad }) {
           </div>
 
           <div className="mt-9 border-t border-line pt-6">
-            <h4 className="mb-3.5 text-[11px] font-bold uppercase tracking-[0.14em] text-mute">// Tip</h4>
+            <h4 className="mb-3.5 text-[11px] font-bold uppercase tracking-[0.14em] text-mute">Tip</h4>
             <div className="rounded-xl bg-paper p-4 text-[12px] leading-[1.55] text-ink-2">
               {isPlayer ? (
                 <>
@@ -566,7 +566,7 @@ function PlayerStep05Availability({ form, update }) {
         What are you <span className="serif text-terra">looking for?</span>
       </h1>
       <p className="mt-3 max-w-[560px] text-[15px] leading-[1.55] text-ink-2">
-        Tell coaches what you want. Specific is better than vague — "score-first SG in EuroBasket-level program" beats "any opportunity."
+        Tell coaches what you want. Specific is better than vague — &ldquo;score-first SG in EuroBasket-level program&rdquo; beats &ldquo;any opportunity.&rdquo;
       </p>
 
       <FormSection title="Looking for" help="2–4 sentences. Specific level, role, region.">

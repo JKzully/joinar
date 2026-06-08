@@ -15,6 +15,18 @@ const GRADS = {
   cool: "linear-gradient(180deg,#1f262a,#2c373c 60%,#3a4a4f)",
 };
 
+function calculateAge(dateOfBirth) {
+  if (!dateOfBirth) return null;
+  const birthDate = new Date(dateOfBirth);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age -= 1;
+  }
+  return Number.isFinite(age) ? age : null;
+}
+
 export default async function PlayerProfilePage({ params }) {
   const { id } = await params;
   const supabase = await createClient();
@@ -57,9 +69,7 @@ export default async function PlayerProfilePage({ params }) {
   const posLabel = positions.length > 0
     ? positions.map((p) => p.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())).join(" · ")
     : "Position TBD";
-  const age = player.date_of_birth
-    ? Math.floor((Date.now() - new Date(player.date_of_birth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
-    : null;
+  const age = calculateAge(player.date_of_birth);
 
   // Hash-based tone
   const toneIdx = name.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0) % TONES.length;

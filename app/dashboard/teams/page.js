@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import TeamFilters from "./TeamFilters";
 import MessageButton from "../MessageButton";
@@ -97,7 +98,7 @@ function TeamCard({ team, boosted, isSeed }) {
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] text-[14px] font-bold text-paper-2" style={{ background: "linear-gradient(135deg,#2a241e,#4a3d31)" }}>
               {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="" className="h-full w-full rounded-[10px] object-cover" />
+                <Image src={profile.avatar_url} alt="" width={44} height={44} unoptimized className="h-full w-full rounded-[10px] object-cover" />
               ) : initial}
             </div>
             <div>

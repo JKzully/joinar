@@ -26,6 +26,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://getpicked.co"),
   title: "Picked — The basketball roster network",
   description:
     "Build a coach-ready profile, get seen by teams across 28 countries, take the call — without agents, politics, or the wait.",

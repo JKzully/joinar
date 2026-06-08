@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { completeOnboarding } from "@/app/dashboard/actions";
 
@@ -34,7 +35,7 @@ export default function SuccessContent({ profile, ad }) {
         <div className="flex items-center gap-4">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-orange-500/15 text-lg font-semibold text-orange-400">
             {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+              <Image src={profile.avatar_url} alt="" width={48} height={48} unoptimized className="h-full w-full object-cover" />
             ) : (
               (profile?.full_name || "?").charAt(0).toUpperCase()
             )}

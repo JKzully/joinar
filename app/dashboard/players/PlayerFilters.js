@@ -44,7 +44,7 @@ export default function PlayerFilters({ countries }) {
       <div className="flex items-center justify-between border-b border-line pb-4 mb-5">
         <h3 className="text-[14px] font-bold">Filter</h3>
         {hasFilters && (
-          <button onClick={clearAll} className="text-[11px] font-semibold text-terra hover:underline">
+          <button type="button" onClick={clearAll} className="min-h-11 px-2 text-[11px] font-semibold text-terra hover:underline">
             Clear all
           </button>
         )}
@@ -55,8 +55,9 @@ export default function PlayerFilters({ countries }) {
         <div className="label-meta mb-3 text-mute">Position</div>
         <div className="flex flex-wrap gap-1.5">
           <button
+            type="button"
             onClick={() => updateFilter("position", "")}
-            className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors ${
+            className={`min-h-11 rounded-full border px-4 py-2.5 text-[11px] font-semibold transition-colors ${
               !activePosition
                 ? "border-ink bg-ink text-paper-2"
                 : "border-line-2 bg-paper text-ink hover:border-ink/40"
@@ -66,9 +67,10 @@ export default function PlayerFilters({ countries }) {
           </button>
           {POSITIONS.map((p) => (
             <button
+              type="button"
               key={p.value}
               onClick={() => updateFilter("position", activePosition === p.value ? "" : p.value)}
-              className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors ${
+              className={`min-h-11 rounded-full border px-4 py-2.5 text-[11px] font-semibold transition-colors ${
                 activePosition === p.value
                   ? "border-ink bg-ink text-paper-2"
                   : "border-line-2 bg-paper text-ink hover:border-ink/40"
@@ -133,25 +135,25 @@ export default function PlayerFilters({ countries }) {
           {activePosition && (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3 py-1 text-[11px] font-semibold text-paper-2">
               {POSITIONS.find((p) => p.value === activePosition)?.label || activePosition}
-              <button onClick={() => updateFilter("position", "")} className="flex h-4 w-4 items-center justify-center rounded-full bg-sand/15 text-[10px] hover:bg-sand/30">×</button>
+              <button type="button" aria-label="Remove position filter" onClick={() => updateFilter("position", "")} className="relative flex h-4 w-4 items-center justify-center rounded-full bg-sand/15 text-[10px] hover:bg-sand/30 after:absolute after:-inset-3.5 after:content-['']">×</button>
             </span>
           )}
           {activeCountry && (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3 py-1 text-[11px] font-semibold text-paper-2">
               {activeCountry}
-              <button onClick={() => updateFilter("country", "")} className="flex h-4 w-4 items-center justify-center rounded-full bg-sand/15 text-[10px] hover:bg-sand/30">×</button>
+              <button type="button" aria-label="Remove country filter" onClick={() => updateFilter("country", "")} className="relative flex h-4 w-4 items-center justify-center rounded-full bg-sand/15 text-[10px] hover:bg-sand/30 after:absolute after:-inset-3.5 after:content-['']">×</button>
             </span>
           )}
           {activeHeight && (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3 py-1 text-[11px] font-semibold text-paper-2">
               {activeHeight}+ cm
-              <button onClick={() => updateFilter("min_height", "")} className="flex h-4 w-4 items-center justify-center rounded-full bg-sand/15 text-[10px] hover:bg-sand/30">×</button>
+              <button type="button" aria-label="Remove height filter" onClick={() => updateFilter("min_height", "")} className="relative flex h-4 w-4 items-center justify-center rounded-full bg-sand/15 text-[10px] hover:bg-sand/30 after:absolute after:-inset-3.5 after:content-['']">×</button>
             </span>
           )}
           {activeExp && (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3 py-1 text-[11px] font-semibold text-paper-2">
               {activeExp}+ yrs exp
-              <button onClick={() => updateFilter("min_exp", "")} className="flex h-4 w-4 items-center justify-center rounded-full bg-sand/15 text-[10px] hover:bg-sand/30">×</button>
+              <button type="button" aria-label="Remove experience filter" onClick={() => updateFilter("min_exp", "")} className="relative flex h-4 w-4 items-center justify-center rounded-full bg-sand/15 text-[10px] hover:bg-sand/30 after:absolute after:-inset-3.5 after:content-['']">×</button>
             </span>
           )}
         </div>

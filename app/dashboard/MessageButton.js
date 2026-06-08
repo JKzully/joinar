@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { startConversation } from "./actions";
 
-export default function MessageButton({ profileId, className, label, isSeed }) {
+export default function MessageButton({ profileId, className, label, ariaLabel, isSeed }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showSeedModal, setShowSeedModal] = useState(false);
@@ -33,6 +33,7 @@ export default function MessageButton({ profileId, className, label, isSeed }) {
       <button
         onClick={handleClick}
         disabled={loading}
+        aria-label={ariaLabel}
         className={
           className ||
           "w-full rounded-xl border border-line-2 bg-paper py-2.5 text-center text-[13px] font-semibold text-ink transition-colors hover:border-ink hover:bg-paper-2 disabled:opacity-50 disabled:cursor-not-allowed"

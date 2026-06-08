@@ -21,6 +21,18 @@ const IconEye = () => (
   </svg>
 );
 
+function calculateAge(dateOfBirth) {
+  if (!dateOfBirth) return null;
+  const birthDate = new Date(dateOfBirth);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age -= 1;
+  }
+  return Number.isFinite(age) ? age : null;
+}
+
 // ─── Section label (magazine-style consistent treatment) ─────
 function SectionLabel({ no, title, color = "terra" }) {
   const colorClass = color === "sage" ? "text-sage-deep" : "text-terra";
@@ -148,7 +160,7 @@ export default async function Home() {
               <div />
             </div>
             {OPEN_POSITIONS.map((r, i) => (
-              <div key={i} className="group grid cursor-pointer grid-cols-[44px_1.5fr_1.4fr_1fr_1fr_120px] items-center border-b border-line py-6 transition-colors hover:bg-paper-2">
+              <div key={i} className="group grid grid-cols-[44px_1.5fr_1.4fr_1fr_1fr_120px] items-center border-b border-line py-6 transition-colors hover:bg-paper-2">
                 <div className="num text-[14px] font-bold text-mute">0{i + 1}</div>
                 <div className="flex items-center gap-3.5">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] text-[14px] font-bold text-paper-2" style={{ background: "linear-gradient(135deg,#2a241e,#4a3d31)" }}>
@@ -192,9 +204,9 @@ export default async function Home() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="btn btn-ink" style={{ padding: "10px 16px", fontSize: 12 }}>
+                  <Link href="/signup?role=player" className="btn btn-ink" style={{ padding: "10px 16px", fontSize: 12 }}>
                     Apply <Arrow size={11} />
-                  </span>
+                  </Link>
                 </div>
               </div>
             ))}
@@ -254,9 +266,9 @@ export default async function Home() {
                   </div>
                 </div>
 
-                <span className="btn btn-ink mt-5 w-full justify-center" style={{ padding: "12px 14px", fontSize: 13 }}>
+                <Link href="/signup?role=player" className="btn btn-ink mt-5 w-full justify-center" style={{ padding: "12px 14px", fontSize: 13 }}>
                   Apply directly <Arrow size={12} />
-                </span>
+                </Link>
               </div>
             ))}
           </div>
@@ -288,9 +300,7 @@ export default async function Home() {
                 const profile = p.profile;
                 const name = profile?.full_name || "Unnamed";
                 const role = p.positions?.[0] || "—";
-                const age = p.date_of_birth
-                  ? Math.floor((Date.now() - new Date(p.date_of_birth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
-                  : null;
+                const age = calculateAge(p.date_of_birth);
                 const boosted = boostedIds.has(p.profile_id);
                 // Staircase: 0, 16, 32, 12 (lg only)
                 const offsetMt = ["", "lg:mt-16", "lg:mt-32", "lg:mt-12"][i % 4];

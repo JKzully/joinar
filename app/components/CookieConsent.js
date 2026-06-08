@@ -1,21 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 
 export default function CookieConsent() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const accepted = localStorage.getItem("cookie-consent");
-    if (!accepted) {
-      setVisible(true);
-    }
-  }, []);
+  const [dismissed, setDismissed] = useState(false);
+  const shouldShow = useSyncExternalStore(
+    () => () => {},
+    () => localStorage.getItem("cookie-consent") !== "accepted",
+    () => false
+  );
+  const visible = shouldShow && !dismissed;
 
   function handleAccept() {
     localStorage.setItem("cookie-consent", "accepted");
-    setVisible(false);
+    setDismissed(true);
   }
 
   if (!visible) return null;

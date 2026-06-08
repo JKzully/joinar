@@ -89,10 +89,6 @@ export default function ChatThread({
     inputRef.current?.focus();
   }
 
-  // Group consecutive messages from the same sender
-  let lastSenderId = null;
-  let lastDate = null;
-
   return (
     <>
       {/* Messages */}
@@ -105,14 +101,15 @@ export default function ChatThread({
           </div>
         )}
 
-        {messages.map((msg) => {
+        {messages.map((msg, index) => {
+          const previous = messages[index - 1];
           const isOwn = msg.sender_id === currentUserId;
-          const showAvatar = msg.sender_id !== lastSenderId;
+          const showAvatar = msg.sender_id !== previous?.sender_id;
           const msgDate = new Date(msg.created_at).toLocaleDateString();
-          const showDate = msgDate !== lastDate;
-
-          lastSenderId = msg.sender_id;
-          lastDate = msgDate;
+          const previousDate = previous
+            ? new Date(previous.created_at).toLocaleDateString()
+            : null;
+          const showDate = msgDate !== previousDate;
 
           return (
             <div key={msg.id}>
@@ -186,6 +183,7 @@ export default function ChatThread({
         <button
           type="submit"
           disabled={!input.trim() || sending}
+          aria-label="Send message"
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-500 text-white transition-colors hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">

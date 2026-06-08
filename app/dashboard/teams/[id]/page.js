@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import MessageButton from "../../MessageButton";
 
@@ -63,7 +64,7 @@ export default async function TeamProfilePage({ params }) {
       <div className="flex flex-wrap items-start gap-5">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl text-[22px] font-bold text-paper-2" style={{ background: "linear-gradient(135deg,#2a241e,#4a3d31)" }}>
           {profile?.avatar_url ? (
-            <img src={profile.avatar_url} alt="" className="h-full w-full rounded-2xl object-cover" />
+            <Image src={profile.avatar_url} alt="" width={64} height={64} unoptimized className="h-full w-full rounded-2xl object-cover" />
           ) : initial}
         </div>
         <div className="flex-1">

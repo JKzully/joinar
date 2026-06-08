@@ -220,10 +220,15 @@ function SignUpForm() {
 
                 {/* Terms */}
                 <label className="mt-6 flex cursor-pointer items-start gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setAgreed(!agreed)}
-                    aria-pressed={agreed}
+                  <input
+                    type="checkbox"
+                    checked={agreed}
+                    onChange={(e) => setAgreed(e.target.checked)}
+                    required
+                    className="sr-only"
+                  />
+                  <span
+                    aria-hidden="true"
                     className={`relative mt-0.5 h-[18px] w-[18px] flex-none rounded-[5px] border-[1.5px] transition-colors ${
                       agreed ? "border-ink bg-ink" : "border-line-2 bg-paper-2"
                     }`}
@@ -234,7 +239,7 @@ function SignUpForm() {
                         className="absolute left-[4px] top-[1px] h-[10px] w-[5px] rotate-45 border-b-[2px] border-r-[2px] border-sand"
                       />
                     )}
-                  </button>
+                  </span>
                   <span className="text-[13px] leading-[1.5] text-ink-2">
                     I agree to Picked&apos;s{" "}
                     <Link href="/terms" className="font-bold text-ink underline">Terms</Link>{" "}
