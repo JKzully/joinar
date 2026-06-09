@@ -31,25 +31,15 @@ const EXP_LEVELS = [
 
 // ─── Player steps definition ─────────────────────────────────
 const PLAYER_STEPS = [
-  { n: "01", t: "Basics",        d: "Name, country, contact" },
-  { n: "02", t: "Position",      d: "How you play" },
-  { n: "03", t: "Measurements",  d: "Height, weight, experience" },
-  { n: "04", t: "Season stats",  d: "PPG, FG%, APG, more" },
-  { n: "05", t: "Availability",  d: "Looking for, last team" },
-  { n: "06", t: "Film & highlights", d: "Coming soon", locked: true },
-  { n: "07", t: "References",    d: "Coming soon", locked: true },
-  { n: "08", t: "Combine verify", d: "Coming soon", locked: true },
+  { n: "01", t: "Basics", d: "Name, country, city" },
+  { n: "02", t: "Position", d: "Role and level" },
+  { n: "03", t: "Coach scan", d: "Measurements and goals" },
 ];
 
 const TEAM_STEPS = [
-  { n: "01", t: "Basics",        d: "Contact, country, city" },
-  { n: "02", t: "Team identity", d: "Name, league, division" },
-  { n: "03", t: "Positions",     d: "What you're hiring for" },
-  { n: "04", t: "Pitch",         d: "About the program" },
-  { n: "05", t: "Details",       d: "Website, founded, record" },
-  { n: "06", t: "Open positions", d: "Coming soon", locked: true },
-  { n: "07", t: "Tryout calendar", d: "Coming soon", locked: true },
-  { n: "08", t: "Verification",  d: "Coming soon", locked: true },
+  { n: "01", t: "Basics", d: "Contact and location" },
+  { n: "02", t: "Roster need", d: "Team and positions" },
+  { n: "03", t: "Pitch", d: "Program and offer" },
 ];
 
 // ═══════════════════════════════════════════════════════════
@@ -58,7 +48,7 @@ const TEAM_STEPS = [
 export default function OnboardingWizard({ profile, ad }) {
   const isPlayer = profile.role !== "team";
   const STEPS = isPlayer ? PLAYER_STEPS : TEAM_STEPS;
-  const ACTIVE_STEPS = 5; // Steps 06-08 locked
+  const ACTIVE_STEPS = 3;
 
   // Resume from furthest filled step
   const initialStep = computeInitialStep(profile, ad, isPlayer);
@@ -123,14 +113,10 @@ export default function OnboardingWizard({ profile, ad }) {
           weight_kg: numOrNull(form.weight_kg),
           date_of_birth: form.date_of_birth || null,
           experience_years: numOrNull(form.experience_years) ?? 0,
-        };
-        case 4: return {
           ppg: numOrNull(form.ppg) ?? 0,
           apg: numOrNull(form.apg) ?? 0,
           rpg: numOrNull(form.rpg) ?? 0,
           three_pt_pct: numOrNull(form.three_pt_pct),
-        };
-        case 5: return {
           looking_for: form.looking_for || null,
           previous_teams: form.previous_teams || null,
         };
@@ -145,13 +131,11 @@ export default function OnboardingWizard({ profile, ad }) {
           league_tier: numOrNull(form.league_tier),
           division: form.division || null,
           founded_year: numOrNull(form.founded_year),
+          positions_needed: form.positions_needed,
         };
-        case 3: return { positions_needed: form.positions_needed };
-        case 4: return {
+        case 3: return {
           description: form.description || null,
           what_we_offer: form.what_we_offer || null,
-        };
-        case 5: return {
           website: form.website || null,
           season_record: form.season_record || null,
         };
@@ -240,9 +224,9 @@ export default function OnboardingWizard({ profile, ad }) {
         <aside className="hidden border-r border-line bg-paper-2 px-7 py-10 lg:block">
           <div className="mb-7 border-b border-line pb-6">
             <h2 className="display-sm" style={{ fontSize: 28, lineHeight: 1.05 }}>
-              Build your<br /><span className="serif text-sage-deep">profile.</span>
+              Build your<br /><span className="serif text-sage-deep">{isPlayer ? "profile." : "team."}</span>
             </h2>
-            <div className="mt-2 text-[12px] text-mute">12 minutes, once. Free forever.</div>
+            <div className="mt-2 text-[12px] text-mute">Three steps. You can edit later.</div>
           </div>
 
           <div className="flex flex-col gap-1">
@@ -290,16 +274,17 @@ export default function OnboardingWizard({ profile, ad }) {
           </div>
 
           <div className="mt-9 border-t border-line pt-6">
-            <h4 className="mb-3.5 text-[11px] font-bold uppercase tracking-[0.14em] text-mute">Tip</h4>
+            <h4 className="mb-3.5 text-[11px] font-bold uppercase tracking-[0.14em] text-mute">Focus</h4>
             <div className="rounded-xl bg-paper p-4 text-[12px] leading-[1.55] text-ink-2">
               {isPlayer ? (
                 <>
-                  Most coaches reject profiles missing measurements.{" "}
-                  <span className="serif text-terra">Be exact</span> — height and experience are worth more than PPG to most scouts.
+                  Get the essentials live first.{" "}
+                  <span className="serif text-terra">Film and deeper stats</span> can come after signup.
                 </>
               ) : (
                 <>
-                  Players filter by <span className="serif text-terra">league level</span> first. Being specific about division and what you offer beats vague hype every time.
+                  Players decide fast. Be clear about the{" "}
+                  <span className="serif text-terra">role, level and offer</span>.
                 </>
               )}
             </div>
@@ -347,7 +332,7 @@ export default function OnboardingWizard({ profile, ad }) {
                     onClick={handleNext}
                     className="font-semibold text-ink underline-offset-4 hover:underline"
                   >
-                    Skip & come back
+                    Skip for now
                   </button>
                 </span>
               )}
@@ -376,9 +361,7 @@ export default function OnboardingWizard({ profile, ad }) {
 function PlayerStep({ step, form, update, togglePosition }) {
   if (step === 1) return <Step01Basics form={form} update={update} />;
   if (step === 2) return <PlayerStep02Position form={form} update={update} togglePosition={togglePosition} />;
-  if (step === 3) return <PlayerStep03Measurements form={form} update={update} />;
-  if (step === 4) return <PlayerStep04Stats form={form} update={update} />;
-  if (step === 5) return <PlayerStep05Availability form={form} update={update} />;
+  if (step === 3) return <PlayerStep03CoachScan form={form} update={update} />;
   return null;
 }
 
@@ -471,17 +454,17 @@ function PlayerStep02Position({ form, update, togglePosition }) {
   );
 }
 
-function PlayerStep03Measurements({ form, update }) {
+function PlayerStep03CoachScan({ form, update }) {
   return (
     <>
       <h1 className="display-md">
-        Your <span className="serif text-sage-deep">measurements.</span>
+        The details coaches <span className="serif text-sage-deep">scan first.</span>
       </h1>
       <p className="mt-3 max-w-[560px] text-[15px] leading-[1.55] text-ink-2">
-        Coaches filter by height first, weight second. Get these right and you&apos;ll surface in twice the searches.
+        Add enough to go live. You can come back later for film, references and deeper stats.
       </p>
 
-      <FormSection title="Essentials" help="Required for your profile to appear in coach searches.">
+      <FormSection title="Measurements" help="Height is the most common coach filter.">
         <Grid cols={3}>
           <Field label="Height" required hint={form.height_cm ? `≈ ${(form.height_cm / 30.48).toFixed(1)} ft` : null}>
             <InputWithUnit
@@ -505,10 +488,7 @@ function PlayerStep03Measurements({ form, update }) {
             <Input type="date" value={form.date_of_birth} onChange={(v) => update("date_of_birth", v)} />
           </Field>
         </Grid>
-      </FormSection>
-
-      <FormSection title="Experience" help="Years actively competing.">
-        <Grid cols={1}>
+        <div className="mt-3">
           <Field label="Years played competitively">
             <InputWithUnit
               value={form.experience_years}
@@ -518,23 +498,10 @@ function PlayerStep03Measurements({ form, update }) {
               placeholder="6"
             />
           </Field>
-        </Grid>
+        </div>
       </FormSection>
-    </>
-  );
-}
 
-function PlayerStep04Stats({ form, update }) {
-  return (
-    <>
-      <h1 className="display-md">
-        Your last <span className="serif text-sage-deep">season.</span>
-      </h1>
-      <p className="mt-3 max-w-[560px] text-[15px] leading-[1.55] text-ink-2">
-        Be honest. Coaches verify against game footage. Inflated stats lose more contracts than missing ones.
-      </p>
-
-      <FormSection title="Per-game averages" help="From your most recent full season.">
+      <FormSection title="Recent stats" help="Optional. Keep it honest and simple.">
         <Grid cols={3}>
           <Field label="Points (PPG)">
             <InputWithUnit value={form.ppg} onChange={(v) => update("ppg", v)} unit="ppg" type="number" step="0.1" placeholder="14.2" />
@@ -545,46 +512,24 @@ function PlayerStep04Stats({ form, update }) {
           <Field label="Rebounds (RPG)">
             <InputWithUnit value={form.rpg} onChange={(v) => update("rpg", v)} unit="rpg" type="number" step="0.1" placeholder="4.2" />
           </Field>
-        </Grid>
-      </FormSection>
-
-      <FormSection title="Shooting" help="3-point efficiency is the #2 filter for combo guards and wings.">
-        <Grid cols={1}>
           <Field label="3-point percentage">
             <InputWithUnit value={form.three_pt_pct} onChange={(v) => update("three_pt_pct", v)} unit="%" type="number" step="0.1" placeholder="38.5" />
           </Field>
         </Grid>
       </FormSection>
-    </>
-  );
-}
 
-function PlayerStep05Availability({ form, update }) {
-  return (
-    <>
-      <h1 className="display-md">
-        What are you <span className="serif text-terra">looking for?</span>
-      </h1>
-      <p className="mt-3 max-w-[560px] text-[15px] leading-[1.55] text-ink-2">
-        Tell coaches what you want. Specific is better than vague — &ldquo;score-first SG in EuroBasket-level program&rdquo; beats &ldquo;any opportunity.&rdquo;
-      </p>
-
-      <FormSection title="Looking for" help="2–4 sentences. Specific level, role, region.">
+      <FormSection title="What are you looking for?" help="One or two clear sentences.">
         <Textarea
           value={form.looking_for}
           onChange={(v) => update("looking_for", v)}
-          rows={4}
-          placeholder="A semi-pro contract in Northern Europe. Score-first combo guard role with real minutes. Open to relocation from August 2026."
-        />
-      </FormSection>
-
-      <FormSection title="Last team" help="Optional. Builds credibility.">
-        <Textarea
-          value={form.previous_teams}
-          onChange={(v) => update("previous_teams", v)}
           rows={3}
-          placeholder="Mega Basket U19 (2024–25)&#10;OKK Beograd (2023–24)"
+          placeholder="A semi-pro contract in Northern Europe. Score-first combo guard role with real minutes."
         />
+        <div className="mt-3">
+          <Field label="Last team" hint="Optional">
+            <Input value={form.previous_teams} onChange={(v) => update("previous_teams", v)} placeholder="Mega Basket U19" />
+          </Field>
+        </div>
       </FormSection>
     </>
   );
@@ -595,21 +540,19 @@ function PlayerStep05Availability({ form, update }) {
 // ═══════════════════════════════════════════════════════════
 function TeamStep({ step, form, update, togglePosition }) {
   if (step === 1) return <Step01Basics form={form} update={update} />;
-  if (step === 2) return <TeamStep02Identity form={form} update={update} />;
-  if (step === 3) return <TeamStep03Positions form={form} togglePosition={togglePosition} />;
-  if (step === 4) return <TeamStep04Pitch form={form} update={update} />;
-  if (step === 5) return <TeamStep05Details form={form} update={update} />;
+  if (step === 2) return <TeamStep02RosterNeed form={form} update={update} togglePosition={togglePosition} />;
+  if (step === 3) return <TeamStep03Pitch form={form} update={update} />;
   return null;
 }
 
-function TeamStep02Identity({ form, update }) {
+function TeamStep02RosterNeed({ form, update, togglePosition }) {
   return (
     <>
       <h1 className="display-md">
-        Your team <span className="serif text-sage-deep">identity.</span>
+        What are you <span className="serif text-terra">hiring?</span>
       </h1>
       <p className="mt-3 max-w-[560px] text-[15px] leading-[1.55] text-ink-2">
-        The name on your jersey, the league you compete in, the level you play.
+        Add your team, league and open positions. Players need to know the level before they answer.
       </p>
 
       <FormSection title="Team" help="As it appears in league standings.">
@@ -636,19 +579,6 @@ function TeamStep02Identity({ form, update }) {
           </Field>
         </Grid>
       </FormSection>
-    </>
-  );
-}
-
-function TeamStep03Positions({ form, togglePosition }) {
-  return (
-    <>
-      <h1 className="display-md">
-        Who are you <span className="serif text-terra">hiring?</span>
-      </h1>
-      <p className="mt-3 max-w-[560px] text-[15px] leading-[1.55] text-ink-2">
-        Select the positions you have open spots for this window. Be specific — narrow searches get faster replies.
-      </p>
 
       <FormSection title="Open positions" help="Select all that apply.">
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
@@ -676,22 +606,22 @@ function TeamStep03Positions({ form, togglePosition }) {
   );
 }
 
-function TeamStep04Pitch({ form, update }) {
+function TeamStep03Pitch({ form, update }) {
   return (
     <>
       <h1 className="display-md">
-        Why should they <span className="serif text-sage-deep">choose you?</span>
+        Why should players <span className="serif text-sage-deep">answer?</span>
       </h1>
       <p className="mt-3 max-w-[560px] text-[15px] leading-[1.55] text-ink-2">
-        Top players have options. Tell them what your program offers — culture, development, the role, the city.
+        Keep it concrete: role, salary range, housing, league level and timeline beat broad hype.
       </p>
 
-      <FormSection title="About the program" help="3–6 sentences. Real specifics, no buzzwords.">
+      <FormSection title="About the opportunity" help="Specific beats polished.">
         <Textarea
           value={form.description}
           onChange={(v) => update("description", v)}
-          rows={5}
-          placeholder="ABA Liga 2 club competing for promotion. Young roster, ex-pro coaching staff, full-court pressure system."
+          rows={4}
+          placeholder="ABA Liga 2 club competing for promotion. Looking for a stretch 4 with immediate rotation minutes."
         />
       </FormSection>
 
@@ -703,35 +633,16 @@ function TeamStep04Pitch({ form, update }) {
           placeholder="€1,800–2,400 / month based on role. Apartment provided. Two flights home per season. EU-eligible passports preferred but not required."
         />
       </FormSection>
-    </>
-  );
-}
 
-function TeamStep05Details({ form, update }) {
-  return (
-    <>
-      <h1 className="display-md">
-        A few <span className="serif text-terra">final details.</span>
-      </h1>
-      <p className="mt-3 max-w-[560px] text-[15px] leading-[1.55] text-ink-2">
-        Optional — but recent record and a website give serious players the proof points they need.
-      </p>
-
-      <FormSection title="Public presence" help="Where players can verify you're real.">
-        <Grid cols={1}>
+      <FormSection title="Proof" help="Optional, but helps players trust the listing.">
+        <Grid cols={2}>
           <Field label="Website" hint="Optional">
             <Input type="url" value={form.website} onChange={(v) => update("website", v)} placeholder="https://bcmornar.com" />
           </Field>
+          <Field label="Last season" hint="Optional">
+            <Input value={form.season_record} onChange={(v) => update("season_record", v)} placeholder="22-8, semifinal" />
+          </Field>
         </Grid>
-      </FormSection>
-
-      <FormSection title="Last season" help="Recent record, finals, notable wins.">
-        <Textarea
-          value={form.season_record}
-          onChange={(v) => update("season_record", v)}
-          rows={3}
-          placeholder="2024–25: 22–8 regular season. Reached Liga 2 semifinal. Promoted to ABA Liga 1 in 2026–27."
-        />
       </FormSection>
     </>
   );
@@ -828,15 +739,12 @@ function numOrNull(v) {
 function computeInitialStep(profile, ad, isPlayer) {
   if (!profile.full_name || !profile.country) return 1;
   if (isPlayer) {
-    if (!ad.positions || ad.positions.length === 0) return 2;
-    if (!ad.height_cm) return 3;
-    if (ad.ppg == null || ad.ppg === 0) return 4;
-    if (!ad.looking_for) return 5;
-    return 5;
+    if (!ad.positions || ad.positions.length === 0 || !ad.experience_level) return 2;
+    if (!ad.height_cm || !ad.looking_for) return 3;
+    return 3;
   } else {
-    if (!ad.team_name) return 2;
-    if (!ad.positions_needed || ad.positions_needed.length === 0) return 3;
-    if (!ad.description) return 4;
-    return 5;
+    if (!ad.team_name || !ad.positions_needed || ad.positions_needed.length === 0) return 2;
+    if (!ad.description) return 3;
+    return 3;
   }
 }
