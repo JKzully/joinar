@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import { uploadAvatar } from "@/app/dashboard/actions";
 import { savePlayerStep, saveTeamStep, completeOnboarding } from "./actions";
 
 const Arrow = ({ size = 14, dir = "right" }) => (
@@ -29,11 +31,41 @@ const EXP_LEVELS = [
   { v: "pro", n: "Pro", d: "Top tier or international" },
 ];
 
+const PREFERRED_COUNTRIES = [
+  "Spain",
+  "Germany",
+  "Iceland",
+  "Denmark",
+  "Sweden",
+  "Norway",
+  "Finland",
+  "France",
+  "Italy",
+  "Serbia",
+  "Lithuania",
+  "Poland",
+];
+
+const LANGUAGE_OPTIONS = [
+  "English",
+  "Spanish",
+  "German",
+  "Serbian",
+  "Icelandic",
+  "French",
+  "Italian",
+  "Lithuanian",
+  "Finnish",
+  "Danish",
+  "Swedish",
+  "Norwegian",
+];
+
 // ─── Player steps definition ─────────────────────────────────
 const PLAYER_STEPS = [
-  { n: "01", t: "Basics", d: "Name, country, city" },
-  { n: "02", t: "Position", d: "Role and level" },
-  { n: "03", t: "Coach scan", d: "Measurements and goals" },
+  { n: "01", t: "Identity", d: "Photo and location" },
+  { n: "02", t: "Player fit", d: "Role, size, level" },
+  { n: "03", t: "Coach scan", d: "Proof and preferences" },
 ];
 
 const TEAM_STEPS = [
@@ -55,6 +87,9 @@ export default function OnboardingWizard({ profile, ad }) {
   const [step, setStep] = useState(initialStep);
   const [saving, setSaving] = useTransition();
   const [error, setError] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url || "");
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileRef = useRef(null);
 
   // Form data state — initialized from existing values
   const [form, setForm] = useState({
@@ -62,6 +97,7 @@ export default function OnboardingWizard({ profile, ad }) {
     full_name: profile.full_name || "",
     country: profile.country || "",
     city: profile.city || "",
+    avatar_url: profile.avatar_url || "",
     // Player ad
     positions: ad.positions || [],
     experience_level: ad.experience_level || "",
@@ -74,6 +110,9 @@ export default function OnboardingWizard({ profile, ad }) {
     apg: ad.apg ?? "",
     rpg: ad.rpg ?? "",
     three_pt_pct: ad.three_pt_pct ?? "",
+    highlights_url: ad.highlights_url || "",
+    preferred_countries: ad.preferred_countries || [],
+    languages: ad.languages || [],
     looking_for: ad.looking_for || "",
     // Team ad
     team_name: ad.team_name || "",
@@ -102,21 +141,33 @@ export default function OnboardingWizard({ profile, ad }) {
     });
   }
 
+  function toggleListValue(key, value) {
+    setForm((prev) => {
+      const current = Array.isArray(prev[key]) ? prev[key] : parseList(prev[key]);
+      const next = current.includes(value)
+        ? current.filter((item) => item !== value)
+        : [...current, value];
+      return { ...prev, [key]: next };
+    });
+  }
+
   function getStepPayload(currentStep) {
     // Return fields to save for the current step
     if (isPlayer) {
       switch (currentStep) {
         case 1: return pick(form, ["full_name", "country", "city"]);
-        case 2: return { positions: form.positions, experience_level: form.experience_level || null };
-        case 3: return {
+        case 2: return {
+          positions: form.positions,
+          experience_level: form.experience_level || null,
           height_cm: numOrNull(form.height_cm),
           weight_kg: numOrNull(form.weight_kg),
           date_of_birth: form.date_of_birth || null,
+        };
+        case 3: return {
           experience_years: numOrNull(form.experience_years) ?? 0,
-          ppg: numOrNull(form.ppg) ?? 0,
-          apg: numOrNull(form.apg) ?? 0,
-          rpg: numOrNull(form.rpg) ?? 0,
-          three_pt_pct: numOrNull(form.three_pt_pct),
+          highlights_url: form.highlights_url || null,
+          preferred_countries: form.preferred_countries,
+          languages: form.languages,
           looking_for: form.looking_for || null,
           previous_teams: form.previous_teams || null,
         };
@@ -173,170 +224,110 @@ export default function OnboardingWizard({ profile, ad }) {
     if (targetStep <= ACTIVE_STEPS) setStep(targetStep);
   }
 
+  async function handleAvatarChange(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingAvatar(true);
+    setError("");
+
+    const formData = new FormData();
+    formData.append("avatar", file);
+    const result = await uploadAvatar(formData);
+
+    setUploadingAvatar(false);
+
+    if (result?.error) {
+      setError(result.error);
+      return;
+    }
+
+    setAvatarUrl(result.avatar_url);
+    update("avatar_url", result.avatar_url);
+  }
+
   const progress = (step / ACTIVE_STEPS) * 100;
+  const currentStep = STEPS[step - 1];
 
   return (
     <div className="min-h-screen bg-sand text-ink">
       {/* ─── Top bar ────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-line bg-paper-2 px-6 py-4 sm:px-10">
-        <Link href="/" className="flex items-baseline gap-2 text-[17px] font-extrabold tracking-wide">
-          <span className="inline-block h-1.5 w-1.5 -translate-y-px rounded-full bg-terra" />
-          <span>Picked</span>
-        </Link>
+      <div className="border-b border-line bg-paper-2">
+        <div className="mx-auto flex max-w-[920px] flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-6">
+          <Link href="/" className="flex items-baseline gap-2 text-[17px] font-extrabold tracking-wide">
+            <span className="inline-block h-1.5 w-1.5 -translate-y-px rounded-full bg-terra" />
+            <span>Picked</span>
+          </Link>
 
-        <div className="hidden items-center gap-3.5 md:flex">
-          <div className="relative h-[5px] w-[240px] overflow-hidden rounded-full bg-ink/[0.08]">
+          <div className="flex items-center gap-4 text-[12px] text-mute">
+            <span className="hidden items-center gap-1.5 font-semibold text-sage-deep sm:inline-flex">
+              <span className="pulse-dot" /> Saved
+            </span>
+            <Link href="/dashboard" className="rounded-full border border-line-2 px-3.5 py-1.5 text-[12px] font-semibold text-ink hover:bg-paper">
+              Save & exit
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <main className="mx-auto w-full max-w-[820px] px-5 py-9 sm:px-6 sm:py-12">
+        <div className="mb-8">
+          <div className="mb-3 flex items-center justify-between gap-4 text-[12px]">
+            <span className="font-bold uppercase tracking-[0.14em] text-terra-deep">
+              Step {step} of {ACTIVE_STEPS}
+            </span>
+            <span className="text-mute">{currentStep.t}</span>
+          </div>
+          <div className="h-[5px] overflow-hidden rounded-full bg-ink/[0.08]">
             <div
-              className="absolute left-0 top-0 h-full bg-sage transition-all duration-300"
+              className="h-full rounded-full bg-sage transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="text-[12px] font-mono tracking-[0.04em] text-mute">
-            <b className="font-bold text-ink">STEP {step} / {ACTIVE_STEPS}</b>
-            <span className="ml-2">· ~ {Math.max(2, (ACTIVE_STEPS - step) * 2)} min remaining</span>
-          </div>
         </div>
 
-        <div className="flex items-center gap-4 text-[12px] text-mute">
-          <span className="hidden items-center gap-1.5 text-sage-deep font-semibold sm:inline-flex">
-            <span className="pulse-dot" /> Saved
-          </span>
-          <Link href="/dashboard" className="rounded-full border border-line-2 px-3.5 py-1.5 text-[12px] font-semibold text-ink hover:bg-paper">
-            Save & exit
-          </Link>
-        </div>
-      </div>
+        {/* Step content */}
+        {isPlayer ? (
+          <PlayerStep
+            step={step}
+            form={form}
+            update={update}
+            avatarUrl={avatarUrl}
+            uploadingAvatar={uploadingAvatar}
+            fileRef={fileRef}
+            onAvatarChange={handleAvatarChange}
+            togglePosition={(p) => togglePosition(p, "positions")}
+            toggleListValue={toggleListValue}
+          />
+        ) : (
+          <TeamStep step={step} form={form} update={update} togglePosition={(p) => togglePosition(p, "positions_needed")} />
+        )}
 
-      {/* Mobile progress (between top bar and content) */}
-      <div className="border-b border-line bg-paper-2 px-6 py-3 md:hidden">
-        <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.1em] text-mute">
-          <span>Step {step} / {ACTIVE_STEPS} · {STEPS[step - 1].t}</span>
-          <span className="num">{Math.round(progress)}%</span>
-        </div>
-        <div className="mt-2 h-[4px] w-full overflow-hidden rounded-full bg-ink/[0.08]">
-          <div className="h-full bg-sage transition-all duration-300" style={{ width: `${progress}%` }} />
-        </div>
-      </div>
-
-      {/* ─── Layout: rail + main ────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr]">
-        {/* Step rail */}
-        <aside className="hidden border-r border-line bg-paper-2 px-7 py-10 lg:block">
-          <div className="mb-7 border-b border-line pb-6">
-            <h2 className="display-sm" style={{ fontSize: 28, lineHeight: 1.05 }}>
-              Build your<br /><span className="serif text-sage-deep">{isPlayer ? "profile." : "team."}</span>
-            </h2>
-            <div className="mt-2 text-[12px] text-mute">Three steps. You can edit later.</div>
+        {error && (
+          <div className="mt-6 rounded-xl border border-terra/30 bg-terra/10 px-4 py-3 text-[13px] text-terra-deep">
+            {error}
           </div>
+        )}
 
-          <div className="flex flex-col gap-1">
-            {STEPS.map((s, i) => {
-              const stepNum = i + 1;
-              const isDone = stepNum < step && !s.locked;
-              const isActive = stepNum === step;
-              const isLocked = !!s.locked;
-              return (
-                <button
-                  key={s.n}
-                  type="button"
-                  onClick={() => !isLocked && jumpToStep(stepNum)}
-                  disabled={isLocked}
-                  className={`flex items-center gap-3.5 rounded-[10px] px-3.5 py-3 text-left transition-colors ${
-                    isActive
-                      ? "bg-ink text-paper-2"
-                      : isLocked
-                        ? "cursor-not-allowed opacity-40"
-                        : "hover:bg-ink/[0.04]"
-                  }`}
-                >
-                  <div
-                    className={`flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full border-[1.5px] font-mono text-[11px] font-bold ${
-                      isDone
-                        ? "border-sage bg-sage text-white"
-                        : isActive
-                          ? "border-terra bg-terra text-white"
-                          : "border-line-2 bg-paper-2 text-mute"
-                    }`}
-                  >
-                    {isDone ? "✓" : s.n}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className={`text-[13px] font-semibold tracking-[-0.005em] ${isActive ? "text-paper-2" : ""}`}>
-                      {s.t}
-                    </div>
-                    <div className={`mt-0.5 text-[11px] ${isActive ? "text-paper-2/55" : "text-mute"}`}>
-                      {s.d}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="mt-9 border-t border-line pt-6">
-            <h4 className="mb-3.5 text-[11px] font-bold uppercase tracking-[0.14em] text-mute">Focus</h4>
-            <div className="rounded-xl bg-paper p-4 text-[12px] leading-[1.55] text-ink-2">
-              {isPlayer ? (
-                <>
-                  Get the essentials live first.{" "}
-                  <span className="serif text-terra">Film and deeper stats</span> can come after signup.
-                </>
-              ) : (
-                <>
-                  Players decide fast. Be clear about the{" "}
-                  <span className="serif text-terra">role, level and offer</span>.
-                </>
-              )}
-            </div>
-          </div>
-        </aside>
-
-        {/* Main content */}
-        <main className="max-w-[980px] px-6 py-10 sm:px-12 sm:py-14">
-          <div className="mb-6 inline-flex items-center gap-3.5 rounded-full border border-line bg-paper-2 py-1.5 pl-1.5 pr-3.5">
-            <span className="rounded-full bg-terra px-2.5 py-1 font-mono text-[10px] font-bold tracking-[0.06em] text-white">
-              {String(step).padStart(2, "0")} / {String(ACTIVE_STEPS).padStart(2, "0")}
-            </span>
-            <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-mute">
-              Step {step === 1 ? "one" : step === 2 ? "two" : step === 3 ? "three" : step === 4 ? "four" : "five"} · {STEPS[step - 1].t}
-            </span>
-          </div>
-
-          {/* Step content */}
-          {isPlayer ? (
-            <PlayerStep step={step} form={form} update={update} togglePosition={(p) => togglePosition(p, "positions")} />
-          ) : (
-            <TeamStep step={step} form={form} update={update} togglePosition={(p) => togglePosition(p, "positions_needed")} />
-          )}
-
-          {error && (
-            <div className="mt-6 rounded-xl border border-terra/30 bg-terra/10 px-4 py-3 text-[13px] text-terra-deep">
-              {error}
-            </div>
-          )}
-
-          {/* Step footer */}
-          <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-7">
-            <div className="flex flex-wrap items-center gap-4">
+        {/* Step footer */}
+        <div className="mt-9 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
+          <button
+            onClick={handleBack}
+            disabled={step === 1 || saving}
+            className="btn btn-ghost disabled:opacity-40"
+          >
+            <Arrow dir="left" size={12} /> Back
+          </button>
+          <div className="flex flex-wrap items-center justify-end gap-4">
+            {step < ACTIVE_STEPS && (
               <button
-                onClick={handleBack}
-                disabled={step === 1 || saving}
-                className="btn btn-ghost disabled:opacity-40"
+                onClick={handleNext}
+                disabled={saving}
+                className="text-[13px] font-semibold text-mute underline-offset-4 hover:text-ink hover:underline disabled:opacity-50"
               >
-                <Arrow dir="left" size={12} /> Back
+                Skip for now
               </button>
-              {step < ACTIVE_STEPS && (
-                <span className="text-[13px] text-mute">
-                  Don&apos;t have these yet?{" "}
-                  <button
-                    onClick={handleNext}
-                    className="font-semibold text-ink underline-offset-4 hover:underline"
-                  >
-                    Skip for now
-                  </button>
-                </span>
-              )}
-            </div>
+            )}
             <button
               onClick={handleNext}
               disabled={saving}
@@ -349,8 +340,8 @@ export default function OnboardingWizard({ profile, ad }) {
                   : <>Save & continue <Arrow /></>}
             </button>
           </div>
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }
@@ -358,24 +349,101 @@ export default function OnboardingWizard({ profile, ad }) {
 // ═══════════════════════════════════════════════════════════
 // PLAYER STEPS
 // ═══════════════════════════════════════════════════════════
-function PlayerStep({ step, form, update, togglePosition }) {
-  if (step === 1) return <Step01Basics form={form} update={update} />;
+function PlayerStep({
+  step,
+  form,
+  update,
+  avatarUrl,
+  uploadingAvatar,
+  fileRef,
+  onAvatarChange,
+  togglePosition,
+  toggleListValue,
+}) {
+  if (step === 1) {
+    return (
+      <Step01Basics
+        form={form}
+        update={update}
+        avatarUrl={avatarUrl}
+        uploadingAvatar={uploadingAvatar}
+        fileRef={fileRef}
+        onAvatarChange={onAvatarChange}
+      />
+    );
+  }
   if (step === 2) return <PlayerStep02Position form={form} update={update} togglePosition={togglePosition} />;
-  if (step === 3) return <PlayerStep03CoachScan form={form} update={update} />;
+  if (step === 3) return <PlayerStep03CoachScan form={form} update={update} toggleListValue={toggleListValue} />;
   return null;
 }
 
-function Step01Basics({ form, update }) {
+function Step01Basics({
+  form,
+  update,
+  avatarUrl,
+  uploadingAvatar,
+  fileRef,
+  onAvatarChange,
+}) {
+  const hasPhotoUpload = Boolean(onAvatarChange);
+
   return (
     <>
       <h1 className="display-md">
-        Let&apos;s start with the <span className="serif text-sage-deep">basics.</span>
+        {hasPhotoUpload ? (
+          <>Let&apos;s make you <span className="serif text-sage-deep">recognizable.</span></>
+        ) : (
+          <>Let&apos;s start with the <span className="serif text-sage-deep">basics.</span></>
+        )}
       </h1>
       <p className="mt-3 max-w-[560px] text-[15px] leading-[1.55] text-ink-2">
-        Your name and where you&apos;re based. Coaches filter by country and city to find players within reach.
+        {hasPhotoUpload
+          ? "A clear photo and location help coaches trust the profile before they scan the basketball details."
+          : "Your name and where you're based. Players filter by country and city to understand fit."}
       </p>
 
-      <FormSection title="About you" help="Visible on your profile.">
+      {hasPhotoUpload && (
+        <FormSection title="Photo" help="Optional, but it makes the profile feel real.">
+          <div className="flex flex-wrap items-center gap-5">
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-paper text-[28px] font-extrabold text-terra">
+              {avatarUrl ? (
+                <Image
+                  src={avatarUrl}
+                  alt=""
+                  width={96}
+                  height={96}
+                  unoptimized
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                (form.full_name || "?").charAt(0).toUpperCase()
+              )}
+            </div>
+            <div>
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                disabled={uploadingAvatar}
+                className="btn btn-ghost disabled:opacity-50"
+              >
+                {uploadingAvatar ? "Uploading..." : "Upload photo"}
+              </button>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                onChange={onAvatarChange}
+                className="hidden"
+              />
+              <p className="mt-2 text-[12px] text-mute">
+                JPG, PNG or WebP. A simple headshot works best.
+              </p>
+            </div>
+          </div>
+        </FormSection>
+      )}
+
+      <FormSection title="Location" help="Visible on your profile.">
         <Grid cols={2}>
           <Field label="Full name" required>
             <Input value={form.full_name} onChange={(v) => update("full_name", v)} placeholder="Marko Kovač" />
@@ -399,7 +467,7 @@ function PlayerStep02Position({ form, update, togglePosition }) {
         How do you <span className="serif text-sage-deep">play?</span>
       </h1>
       <p className="mt-3 max-w-[560px] text-[15px] leading-[1.55] text-ink-2">
-        Pick every position you can play. Most pros play 2 — your primary, plus the position you cover when needed.
+        Coaches scan position, size, age and level first. Make that information easy to trust.
       </p>
 
       <FormSection title="Positions" help="Select all that apply.">
@@ -450,21 +518,8 @@ function PlayerStep02Position({ form, update, togglePosition }) {
           })}
         </div>
       </FormSection>
-    </>
-  );
-}
 
-function PlayerStep03CoachScan({ form, update }) {
-  return (
-    <>
-      <h1 className="display-md">
-        The details coaches <span className="serif text-sage-deep">scan first.</span>
-      </h1>
-      <p className="mt-3 max-w-[560px] text-[15px] leading-[1.55] text-ink-2">
-        Add enough to go live. You can come back later for film, references and deeper stats.
-      </p>
-
-      <FormSection title="Measurements" help="Height is the most common coach filter.">
+      <FormSection title="Size and age" help="Height and age are common roster filters.">
         <Grid cols={3}>
           <Field label="Height" required hint={form.height_cm ? `≈ ${(form.height_cm / 30.48).toFixed(1)} ft` : null}>
             <InputWithUnit
@@ -475,7 +530,7 @@ function PlayerStep03CoachScan({ form, update }) {
               placeholder="193"
             />
           </Field>
-          <Field label="Weight" required hint={form.weight_kg ? `≈ ${Math.round(form.weight_kg * 2.205)} lb` : null}>
+          <Field label="Weight" hint={form.weight_kg ? `≈ ${Math.round(form.weight_kg * 2.205)} lb` : "Optional"}>
             <InputWithUnit
               value={form.weight_kg}
               onChange={(v) => update("weight_kg", v)}
@@ -488,7 +543,66 @@ function PlayerStep03CoachScan({ form, update }) {
             <Input type="date" value={form.date_of_birth} onChange={(v) => update("date_of_birth", v)} />
           </Field>
         </Grid>
-        <div className="mt-3">
+      </FormSection>
+    </>
+  );
+}
+
+function PlayerStep03CoachScan({ form, update, toggleListValue }) {
+  return (
+    <>
+      <h1 className="display-md">
+        Give coaches enough to <span className="serif text-sage-deep">judge fit.</span>
+      </h1>
+      <p className="mt-3 max-w-[560px] text-[15px] leading-[1.55] text-ink-2">
+        Add proof, where you want to play, and how teams can understand you quickly.
+      </p>
+
+      <FormSection title="Proof" help="YouTube, Instagram reel, Hudl, Drive or another public link.">
+        <Grid cols={2}>
+          <Field label="Highlight / social link" hint="Optional">
+            <Input
+              type="url"
+              value={form.highlights_url}
+              onChange={(v) => update("highlights_url", v)}
+              placeholder="https://youtube.com/watch?v=..."
+            />
+          </Field>
+          <Field label="Last team" hint="Optional">
+            <Input value={form.previous_teams} onChange={(v) => update("previous_teams", v)} placeholder="Mega Basket U19" />
+          </Field>
+        </Grid>
+      </FormSection>
+
+      <FormSection title="Preferences" help="Select the markets and languages that help a manager judge fit.">
+        <Grid cols={2}>
+          <Field label="Preferred countries">
+            <ChoiceDropdown
+              label="Choose countries"
+              options={PREFERRED_COUNTRIES}
+              selected={form.preferred_countries}
+              onToggle={(value) => toggleListValue("preferred_countries", value)}
+            />
+          </Field>
+          <Field label="Languages">
+            <ChoiceDropdown
+              label="Choose languages"
+              options={LANGUAGE_OPTIONS}
+              selected={form.languages}
+              onToggle={(value) => toggleListValue("languages", value)}
+            />
+          </Field>
+        </Grid>
+      </FormSection>
+
+      <FormSection title="About you" help="Short player description coaches can scan.">
+        <Textarea
+          value={form.looking_for}
+          onChange={(v) => update("looking_for", v)}
+          rows={4}
+          placeholder="Tell coaches what kind of player you are, what level you have played, and what you bring to a team."
+        />
+        <div className="mt-3 max-w-[260px]">
           <Field label="Years played competitively">
             <InputWithUnit
               value={form.experience_years}
@@ -497,37 +611,6 @@ function PlayerStep03CoachScan({ form, update }) {
               type="number"
               placeholder="6"
             />
-          </Field>
-        </div>
-      </FormSection>
-
-      <FormSection title="Recent stats" help="Optional. Keep it honest and simple.">
-        <Grid cols={3}>
-          <Field label="Points (PPG)">
-            <InputWithUnit value={form.ppg} onChange={(v) => update("ppg", v)} unit="ppg" type="number" step="0.1" placeholder="14.2" />
-          </Field>
-          <Field label="Assists (APG)">
-            <InputWithUnit value={form.apg} onChange={(v) => update("apg", v)} unit="apg" type="number" step="0.1" placeholder="5.1" />
-          </Field>
-          <Field label="Rebounds (RPG)">
-            <InputWithUnit value={form.rpg} onChange={(v) => update("rpg", v)} unit="rpg" type="number" step="0.1" placeholder="4.2" />
-          </Field>
-          <Field label="3-point percentage">
-            <InputWithUnit value={form.three_pt_pct} onChange={(v) => update("three_pt_pct", v)} unit="%" type="number" step="0.1" placeholder="38.5" />
-          </Field>
-        </Grid>
-      </FormSection>
-
-      <FormSection title="What are you looking for?" help="One or two clear sentences.">
-        <Textarea
-          value={form.looking_for}
-          onChange={(v) => update("looking_for", v)}
-          rows={3}
-          placeholder="A semi-pro contract in Northern Europe. Score-first combo guard role with real minutes."
-        />
-        <div className="mt-3">
-          <Field label="Last team" hint="Optional">
-            <Input value={form.previous_teams} onChange={(v) => update("previous_teams", v)} placeholder="Mega Basket U19" />
           </Field>
         </div>
       </FormSection>
@@ -653,10 +736,10 @@ function TeamStep03Pitch({ form, update }) {
 // ═══════════════════════════════════════════════════════════
 function FormSection({ title, help, children }) {
   return (
-    <div className="mt-5 rounded-2xl border border-line bg-paper-2 p-7">
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-3 border-b border-line pb-4">
+    <div className="mt-6 rounded-2xl border border-line bg-paper-2 p-5 sm:p-7">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-3 border-b border-line pb-4">
         <h3 className="text-[18px] font-bold tracking-[-0.01em]">{title}</h3>
-        {help && <div className="max-w-[300px] text-right text-[12px] text-mute">{help}</div>}
+        {help && <div className="max-w-[340px] text-left text-[12px] leading-[1.5] text-mute sm:text-right">{help}</div>}
       </div>
       {children}
     </div>
@@ -671,10 +754,10 @@ function Grid({ cols = 2, children }) {
 function Field({ label, required, hint, children }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.1em] text-mute">
-        {label}
-        {required && <span className="ml-2 font-normal normal-case tracking-normal text-mute/70">required</span>}
-        {hint && !required && <span className="ml-2 font-normal normal-case tracking-normal text-sage-deep">{hint}</span>}
+      <span className="mb-1.5 flex min-h-[18px] flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[11px] font-bold uppercase tracking-[0.1em] text-mute">
+        <span>{label}</span>
+        {required && <span className="font-normal normal-case tracking-normal text-mute/70">required</span>}
+        {hint && !required && <span className="font-normal normal-case tracking-normal text-sage-deep">{hint}</span>}
       </span>
       {children}
     </label>
@@ -723,6 +806,84 @@ function Textarea({ value, onChange, rows = 3, placeholder }) {
   );
 }
 
+function ChoiceDropdown({ label, options, selected, onToggle }) {
+  const [open, setOpen] = useState(false);
+  const selectedValues = Array.isArray(selected) ? selected : parseList(selected);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-3 rounded-xl border border-line-2 bg-paper px-4 py-3 text-left text-[15px] text-ink transition-colors hover:border-ink/40 focus:border-ink focus:outline-none"
+      >
+        <span className={selectedValues.length > 0 ? "font-semibold" : "text-mute"}>
+          {selectedValues.length > 0
+            ? `${selectedValues.length} selected`
+            : label}
+        </span>
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 13 13"
+          fill="none"
+          aria-hidden="true"
+          className={`shrink-0 text-mute transition-transform ${open ? "rotate-180" : ""}`}
+        >
+          <path d="M3 5l3.5 3L10 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+
+      {selectedValues.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {selectedValues.map((item) => (
+            <span
+              key={item}
+              className="inline-flex items-center gap-1.5 rounded-full bg-ink px-2.5 py-1 text-[11px] font-bold text-paper-2"
+            >
+              {item}
+              <button
+                type="button"
+                onClick={() => onToggle(item)}
+                aria-label={`Remove ${item}`}
+                className="rounded-full text-paper-2/70 hover:text-paper-2"
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+
+      {open && (
+        <div className="absolute left-0 right-0 z-20 mt-2 max-h-[260px] overflow-auto rounded-xl border border-line-2 bg-paper-2 p-2 shadow-[0_14px_35px_rgba(19,17,14,0.12)]">
+          {options.map((option) => {
+            const on = selectedValues.includes(option);
+            return (
+              <button
+                key={option}
+                type="button"
+                onClick={() => onToggle(option)}
+                className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-[13px] font-semibold transition-colors ${
+                  on ? "bg-ink text-paper-2" : "text-ink hover:bg-paper"
+                }`}
+              >
+                <span>{option}</span>
+                {on && (
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                    <path d="M2.5 6.8l2.3 2.2 5.7-5.9" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ═══════════════════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════════════════
@@ -736,11 +897,19 @@ function numOrNull(v) {
   return Number.isFinite(n) ? n : null;
 }
 
+function parseList(value) {
+  if (Array.isArray(value)) return value;
+  return String(value || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 function computeInitialStep(profile, ad, isPlayer) {
   if (!profile.full_name || !profile.country) return 1;
   if (isPlayer) {
-    if (!ad.positions || ad.positions.length === 0 || !ad.experience_level) return 2;
-    if (!ad.height_cm || !ad.looking_for) return 3;
+    if (!ad.positions || ad.positions.length === 0 || !ad.experience_level || !ad.height_cm) return 2;
+    if (!ad.highlights_url || !ad.looking_for) return 3;
     return 3;
   } else {
     if (!ad.team_name || !ad.positions_needed || ad.positions_needed.length === 0) return 2;

@@ -15,7 +15,7 @@ export default async function AdPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, role")
+    .select("id, role, full_name, country")
     .eq("id", user.id)
     .single();
 
@@ -34,7 +34,7 @@ export default async function AdPage() {
             This is what teams see when they browse players
           </p>
         </div>
-        <PlayerAdForm playerAd={playerAd} />
+        <PlayerAdForm playerAd={playerAd} profile={profile} />
       </div>
     );
   }
@@ -54,7 +54,7 @@ export default async function AdPage() {
           This is what players see when they browse teams
         </p>
       </div>
-      <TeamAdForm teamAd={teamAd} />
+      <TeamAdForm teamAd={teamAd} profile={profile} />
     </div>
   );
 }

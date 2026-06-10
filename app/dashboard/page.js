@@ -68,6 +68,15 @@ async function PlayerDashboard({ supabase, profile }) {
     .maybeSingle();
 
   const hasAd = !!playerAd;
+  const isPublished = !!playerAd?.is_active;
+  const hasSeasonStats = !!playerAd && [
+    playerAd.ppg,
+    playerAd.apg,
+    playerAd.rpg,
+    playerAd.spg,
+    playerAd.bpg,
+    playerAd.three_pt_pct,
+  ].some((value) => value != null && Number(value) > 0);
 
   // Calculate ad completion
   const completionFields = playerAd
@@ -77,6 +86,9 @@ async function PlayerDashboard({ supabase, profile }) {
         playerAd.date_of_birth,
         playerAd.experience_years != null,
         playerAd.looking_for,
+        playerAd.highlights_url,
+        playerAd.preferred_countries?.length > 0,
+        playerAd.languages?.length > 0,
         profile.country,
       ]
     : [];
@@ -87,181 +99,158 @@ async function PlayerDashboard({ supabase, profile }) {
 
   return (
     <div className="space-y-6">
-      {/* Welcome */}
       <div>
-        <h1 className="display-sm">
+        <p className="label-meta text-terra-deep">Dashboard</p>
+        <h1 className="display-sm mt-3">
           Welcome back, {profile.full_name || "Player"}
         </h1>
         <p className="mt-2 max-w-[560px] text-[14px] leading-[1.55] text-ink-2">
-          Here&apos;s what&apos;s happening with your profile
+          {isPublished
+            ? "Your profile is live. Keep the coach scan sharp, then reach out to teams that fit."
+            : "Your profile is saved as a draft. Finish the essentials, then publish when you are ready."}
         </p>
       </div>
 
-      {/* Ad completion banner */}
-      {completionPct < 100 && (
-        <div className="rounded-2xl border border-line bg-paper-2 p-5 shadow-[0_1px_0_rgba(19,17,14,0.04)]">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h3 className="text-[15px] font-bold text-ink">
-                Complete your ad
-              </h3>
-              <p className="mt-1 text-[13px] leading-[1.55] text-ink-2">
-                {hasAd
-                  ? "Add more details to get noticed by teams."
-                  : "Set up your player ad to start getting discovered."}
-              </p>
-            </div>
-            <Link
-              href="/dashboard/ad"
-              className="btn btn-terra shrink-0"
-            >
-              {hasAd ? "Edit Ad" : "Create Ad"}
+      <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
+        <section className="rounded-2xl border border-line bg-paper-2 p-6 sm:p-7">
+          <div className={`label-meta ${isPublished ? "text-sage-deep" : "text-terra-deep"}`}>
+            {isPublished ? "Profile live" : "Draft profile"}
+          </div>
+          <h2 className="display-sm mt-4 max-w-[560px]" style={{ fontSize: 38 }}>
+            {isPublished ? "Improve the coach scan." : "Finish the coach scan before going live."}
+          </h2>
+          <p className="mt-4 max-w-[540px] text-[14px] leading-[1.6] text-ink-2">
+            {isPublished
+              ? "Coaches decide fast. Make sure the profile has film, fit, markets and a clear description."
+              : "You can edit safely while hidden from team search. Publish once the profile has enough signal for a manager to judge fit."}
+          </p>
+          <div className="mt-7 flex flex-wrap gap-3">
+            {hasAd && isPublished && (
+              <Link href={`/players/${profile.id}`} className="btn btn-ink">
+                View public profile &rarr;
+              </Link>
+            )}
+            {hasAd && !isPublished && (
+              <Link href={`/dashboard/players/${profile.id}`} className="btn btn-ink">
+                Preview profile &rarr;
+              </Link>
+            )}
+            {!isPublished ? (
+              <Link href="/dashboard/ad" className="btn btn-terra">
+                Publish when ready &rarr;
+              </Link>
+            ) : !hasSeasonStats ? (
+              <Link
+                href="/dashboard/ad#season-stats"
+                className="btn btn-terra"
+              >
+                Add season stats &rarr;
+              </Link>
+            ) : (
+              <Link href="/dashboard/teams" className="btn btn-terra">
+                Browse teams &rarr;
+              </Link>
+            )}
+            <Link href="/dashboard/ad" className="btn btn-ghost">
+              Edit profile
             </Link>
           </div>
-          {hasAd && (
-            <div className="mt-4">
-              <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.08em] text-mute">
-                <span>Ad completion</span>
-                <span>{completionPct}%</span>
-              </div>
-              <div className="mt-1.5 h-2 rounded-full bg-paper">
-                <div
-                  className="h-2 rounded-full bg-terra transition-all"
-                  style={{ width: `${completionPct}%` }}
-                />
-              </div>
+        </section>
+
+        <section className="rounded-2xl border border-line bg-paper-2 p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-[18px] font-bold text-ink">
+                Coach scan
+              </h2>
+              <p className="mt-1 text-[13px] leading-[1.55] text-ink-2">
+                {completionPct}% ready for a fast manager read.
+              </p>
             </div>
-          )}
-        </div>
-      )}
-
-      {/* Stats cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          label="Profile Views"
-          value="--"
-          note="Coming soon"
-          icon={
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-              <path d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-              <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          }
-        />
-        <StatCard
-          label="Messages"
-          value={messageCount || 0}
-          note="Total conversations"
-          icon={
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-              <path d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
-            </svg>
-          }
-        />
-        <StatCard
-          label="Tryout Invites"
-          value={invitationsWithTeam.length}
-          note="Pending"
-          icon={
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-              <path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-            </svg>
-          }
-        />
-        <StatCard
-          label="Boost Status"
-          value={activeBoost ? "Active" : "Inactive"}
-          note={activeBoost ? "Your profile is boosted" : "Boost to get seen more"}
-          icon={
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-              <path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-            </svg>
-          }
-          accent={!!activeBoost}
-        />
-      </div>
-
-      {/* Pending tryout invitations */}
-      <div className="rounded-2xl border border-line bg-paper-2 p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-[18px] font-bold text-ink">
-            Tryout Invitations
-          </h2>
-          <Link
-            href="/dashboard/tryouts"
-            className="text-[13px] font-bold text-ink underline-offset-4 hover:underline"
-          >
-            View all &rarr;
-          </Link>
-        </div>
-        {invitationsWithTeam.length > 0 ? (
-          <div className="space-y-3">
-            {invitationsWithTeam.map((inv) => (
-              <div
-                key={inv.id}
-                className="flex items-center justify-between rounded-xl border border-line bg-paper p-4"
-              >
-                <div>
-                  <p className="text-[14px] font-bold text-ink">
-                    {inv.team_name}
-                  </p>
-                  <p className="mt-0.5 text-[12px] text-mute">
-                    {inv.tryout_date
-                      ? new Date(inv.tryout_date).toLocaleDateString("en-GB", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })
-                      : "Date TBD"}
-                    {inv.location && ` \u00B7 ${inv.location}`}
-                  </p>
-                </div>
-                <span className="rounded-full bg-terra/10 px-3 py-1 text-[11px] font-bold capitalize text-terra">
-                  {inv.status}
-                </span>
-              </div>
-            ))}
+            <span className="num text-[28px] font-bold leading-none text-ink">
+              {completionPct}%
+            </span>
           </div>
-        ) : (
-          <EmptyState
-            message="No tryout invitations yet"
-            sub="When teams invite you to tryouts, they'll show up here."
-          />
-        )}
+          <div className="mt-5 h-2 rounded-full bg-paper">
+            <div
+              className="h-2 rounded-full bg-terra transition-all"
+              style={{ width: `${completionPct}%` }}
+            />
+          </div>
+          <div className="mt-5 space-y-3 border-t border-line pt-5">
+            <ScanRow label="Visibility" value={isPublished ? "Published" : "Draft"} muted={!isPublished} />
+            <ScanRow label="Film" value={playerAd?.highlights_url ? "Added" : "Missing"} />
+            <ScanRow label="Markets" value={playerAd?.preferred_countries?.length ? "Added" : "Missing"} />
+            <ScanRow label="Languages" value={playerAd?.languages?.length ? "Added" : "Missing"} />
+            <ScanRow label="Season stats" value={hasSeasonStats ? "Added" : "Later"} muted={!hasSeasonStats} />
+          </div>
+        </section>
       </div>
 
-      {/* Quick actions */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <QuickAction
-          href="/dashboard/teams"
-          title="Browse Teams"
-          description="Find teams with open positions that match your skills"
-          icon={
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-              <path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-            </svg>
-          }
-        />
-        <QuickAction
-          href="/dashboard/messages"
-          title="Messages"
-          description="Check your conversations with teams"
-          icon={
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-              <path d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
-            </svg>
-          }
-        />
-        <QuickAction
-          href="/dashboard/boost"
-          title="Boost Profile"
-          description="Get more visibility in search results"
-          icon={
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-              <path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-            </svg>
-          }
-        />
+      <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
+        <section className="rounded-2xl border border-line bg-paper-2 p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-[18px] font-bold text-ink">
+              Tryout invitations
+            </h2>
+            <Link
+              href="/dashboard/tryouts"
+              className="text-[13px] font-bold text-ink underline-offset-4 hover:underline"
+            >
+              View all &rarr;
+            </Link>
+          </div>
+          {invitationsWithTeam.length > 0 ? (
+            <div className="space-y-3">
+              {invitationsWithTeam.map((inv) => (
+                <div
+                  key={inv.id}
+                  className="flex items-center justify-between rounded-xl border border-line bg-paper p-4"
+                >
+                  <div>
+                    <p className="text-[14px] font-bold text-ink">
+                      {inv.team_name}
+                    </p>
+                    <p className="mt-0.5 text-[12px] text-mute">
+                      {inv.tryout_date
+                        ? new Date(inv.tryout_date).toLocaleDateString("en-GB", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })
+                        : "Date TBD"}
+                      {inv.location && ` \u00B7 ${inv.location}`}
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-terra/10 px-3 py-1 text-[11px] font-bold capitalize text-terra">
+                    {inv.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              message="No tryout invitations yet"
+              sub="When a team invites you, it will appear here."
+            />
+          )}
+        </section>
+
+        <aside className="space-y-3">
+          <SmallAction
+            href="/dashboard/messages"
+            label="Messages"
+            value={messageCount || 0}
+            note="Conversations"
+          />
+          <SmallAction
+            href="/dashboard/boost"
+            label="Boost"
+            value={activeBoost ? "Active" : "Off"}
+            note={activeBoost ? "Profile boosted" : "Optional visibility"}
+          />
+          <SmallAction href="/dashboard/teams" label="Teams" value="Browse" note="Find roster fits" />
+        </aside>
       </div>
     </div>
   );
@@ -549,6 +538,32 @@ function QuickAction({ href, title, description, icon }) {
       </div>
       <h3 className="text-[14px] font-bold text-ink">{title}</h3>
       <p className="mt-1 text-[12px] leading-[1.5] text-mute">{description}</p>
+    </Link>
+  );
+}
+
+function ScanRow({ label, value, muted }) {
+  return (
+    <div className="flex items-center justify-between gap-4 text-[13px]">
+      <span className="font-semibold text-ink-2">{label}</span>
+      <span className={`font-bold ${muted ? "text-mute" : "text-sage-deep"}`}>
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function SmallAction({ href, label, value, note }) {
+  return (
+    <Link
+      href={href}
+      className="flex items-center justify-between gap-4 rounded-2xl border border-line bg-paper-2 p-5 transition-all hover:border-ink/25 hover:shadow-[0_8px_28px_rgba(19,17,14,0.06)]"
+    >
+      <div>
+        <div className="text-[13px] font-bold text-ink">{label}</div>
+        <div className="mt-1 text-[12px] text-mute">{note}</div>
+      </div>
+      <div className="num text-[24px] font-bold text-ink">{value}</div>
     </Link>
   );
 }

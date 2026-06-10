@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { updatePlayerAd, toggleAdActive } from "../actions";
 
 const POSITIONS = [
@@ -30,13 +31,14 @@ const STAT_TOOLTIPS = {
 const inputClass =
   "w-full rounded-xl border border-line-2 bg-paper px-4 py-3 text-[14px] text-ink placeholder:text-mute outline-none transition-colors focus:border-ink focus:ring-1 focus:ring-ink/10";
 
-export default function PlayerAdForm({ playerAd }) {
+export default function PlayerAdForm({ playerAd, profile }) {
+  const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
   const [selectedPositions, setSelectedPositions] = useState(
     playerAd?.positions || []
   );
-  const [isActive, setIsActive] = useState(playerAd?.is_active ?? true);
+  const [isActive, setIsActive] = useState(playerAd?.is_active ?? false);
   const [toggling, setToggling] = useState(false);
 
   async function handleSubmit(e) {
@@ -53,6 +55,7 @@ export default function PlayerAdForm({ playerAd }) {
       setMessage({ type: "error", text: result.error });
     } else {
       setMessage({ type: "success", text: "Ad saved successfully" });
+      router.refresh();
     }
   }
 
@@ -65,6 +68,11 @@ export default function PlayerAdForm({ playerAd }) {
       setMessage({ type: "error", text: result.error });
     } else {
       setIsActive(result.is_active);
+      setMessage({
+        type: "success",
+        text: result.is_active ? "Profile published" : "Profile moved to draft",
+      });
+      router.refresh();
     }
   }
 
@@ -76,30 +84,13 @@ export default function PlayerAdForm({ playerAd }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {/* Active/Inactive Toggle */}
-      {playerAd && (
-        <div className="flex items-center justify-between rounded-2xl border border-line bg-paper-2 p-5">
-          <div>
-            <h2 className="text-[14px] font-bold text-ink">Ad Status</h2>
-            <p className="mt-0.5 text-[12px] text-mute">
-              {isActive ? "Your ad is visible to teams" : "Your ad is hidden from search"}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={handleToggle}
-            disabled={toggling}
-            className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
-              isActive
-                ? "bg-sage/15 text-sage-deep"
-                : "bg-paper text-mute"
-            }`}
-          >
-            <span className={`h-2 w-2 rounded-full ${isActive ? "bg-sage-deep" : "bg-mute"}`} />
-            {toggling ? "..." : isActive ? "Live" : "Hidden"}
-          </button>
-        </div>
-      )}
+      <PublishReadiness
+        ad={playerAd}
+        profile={profile}
+        isActive={isActive}
+        toggling={toggling}
+        onToggle={handleToggle}
+      />
 
       {/* Positions */}
       <Section title="Positions" description="Select all positions you can play">
@@ -166,7 +157,7 @@ export default function PlayerAdForm({ playerAd }) {
       </Section>
 
       {/* Stats */}
-      <Section title="Season Stats" description="Your average stats per game">
+      <Section id="season-stats" title="Season Stats" description="Your average stats per game">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           <StatField label="PPG" name="ppg" defaultValue={playerAd?.ppg} />
           <StatField label="APG" name="apg" defaultValue={playerAd?.apg} />
@@ -187,6 +178,20 @@ export default function PlayerAdForm({ playerAd }) {
             defaultValue={playerAd?.highlights_url}
             placeholder="https://youtube.com/watch?v=..."
           />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field
+              label="Preferred countries"
+              name="preferred_countries"
+              defaultValue={(playerAd?.preferred_countries || []).join(", ")}
+              placeholder="Spain, Germany, Iceland"
+            />
+            <Field
+              label="Languages"
+              name="languages"
+              defaultValue={(playerAd?.languages || []).join(", ")}
+              placeholder="English, Serbian, Spanish"
+            />
+          </div>
           <div>
             <label className="mb-1.5 block text-[13px] font-bold text-ink-2">What are you looking for?</label>
             <textarea
@@ -226,15 +231,95 @@ export default function PlayerAdForm({ playerAd }) {
   );
 }
 
-function Section({ title, description, children }) {
+function Section({ id, title, description, children }) {
   return (
-    <div className="rounded-2xl border border-line bg-paper-2 p-6">
+    <div id={id} className="scroll-mt-28 rounded-2xl border border-line bg-paper-2 p-6">
       <div className="mb-5">
         <h2 className="text-[18px] font-bold text-ink">{title}</h2>
         <p className="mt-1 text-[13px] text-mute">{description}</p>
       </div>
       {children}
     </div>
+  );
+}
+
+function PublishReadiness({ ad, profile, isActive, toggling, onToggle }) {
+  const items = [
+    { label: "Name and country", done: Boolean(profile?.full_name && profile?.country) },
+    { label: "Position", done: (ad?.positions || []).length > 0 },
+    { label: "Height and date of birth", done: Boolean(ad?.height_cm && ad?.date_of_birth) },
+    { label: "Playing level", done: Boolean(ad?.experience_level) },
+    { label: "Film or social link", done: Boolean(ad?.highlights_url) },
+    { label: "Preferred countries", done: (ad?.preferred_countries || []).length > 0 },
+    { label: "Languages", done: (ad?.languages || []).length > 0 },
+    { label: "Player description", done: Boolean(ad?.looking_for) },
+  ];
+  const completeCount = items.filter((item) => item.done).length;
+  const isReady = completeCount === items.length;
+  const primaryText = isActive
+    ? "Unpublish profile"
+    : isReady
+      ? "Publish profile"
+      : "Complete missing details";
+
+  return (
+    <section className="rounded-2xl border border-line bg-paper-2 p-5 sm:p-6">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <div className="max-w-[560px]">
+          <div className={`label-meta ${isActive ? "text-sage-deep" : "text-terra-deep"}`}>
+            {isActive ? "Published" : "Draft"}
+          </div>
+          <h2 className="mt-3 text-[24px] font-bold leading-[1.05] tracking-[-0.02em] text-ink">
+            {isActive
+              ? "Teams can see this profile."
+              : isReady
+                ? "Ready to go live."
+                : "Finish the essentials before going live."}
+          </h2>
+          <p className="mt-2 text-[13px] leading-[1.55] text-ink-2">
+            {isActive
+              ? "You can unpublish anytime if you want to edit privately."
+              : "Draft profiles stay hidden from team search until the coach scan has enough signal."}
+          </p>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-3">
+          <div className="rounded-full border border-line bg-paper px-4 py-2 text-[12px] font-bold text-ink">
+            {completeCount}/{items.length} ready
+          </div>
+          <button
+            type="button"
+            onClick={onToggle}
+            disabled={toggling || (!isActive && !isReady)}
+            className={`btn ${
+              isActive || isReady ? "btn-terra" : "btn-ghost"
+            } disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0`}
+          >
+            {toggling ? "Updating..." : primaryText}
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-2 border-t border-line pt-5 sm:grid-cols-2">
+        {items.map((item) => (
+          <div
+            key={item.label}
+            className="flex items-center justify-between gap-3 rounded-xl border border-line bg-paper px-3 py-2.5"
+          >
+            <span className="text-[13px] font-semibold text-ink-2">{item.label}</span>
+            <span
+              className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] ${
+                item.done
+                  ? "bg-sage/15 text-sage-deep"
+                  : "bg-terra/10 text-terra-deep"
+              }`}
+            >
+              {item.done ? "Done" : "Missing"}
+            </span>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 

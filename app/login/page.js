@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -11,12 +11,49 @@ const Arrow = ({ size = 14 }) => (
   </svg>
 );
 
+function getAuthErrorMessage(value) {
+  const message = decodeURIComponent(value || "").replace(/\+/g, " ");
+
+  if (/expired|invalid/i.test(message)) {
+    return "That email link has expired or was already used. Request a new link or log in with your password.";
+  }
+
+  if (/access_denied|denied/i.test(message)) {
+    return "We could not confirm that email link. Request a new link or log in with your password.";
+  }
+
+  if (/auth/i.test(message)) {
+    return "We could not finish signing you in. Please try again.";
+  }
+
+  return message || "";
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const authError =
+      params.get("auth_error") ||
+      hashParams.get("error_description") ||
+      hashParams.get("error_code") ||
+      hashParams.get("error") ||
+      params.get("error");
+
+    if (!authError) return undefined;
+
+    const timer = window.setTimeout(() => {
+      setError(getAuthErrorMessage(authError));
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, []);
 
   async function handleLogin(e) {
     e.preventDefault();

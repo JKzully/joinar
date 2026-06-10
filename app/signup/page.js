@@ -2,8 +2,9 @@
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { createLocalTestAccount } from "./actions";
 
 const Arrow = ({ size = 14 }) => (
   <svg
@@ -23,7 +24,27 @@ const Arrow = ({ size = 14 }) => (
   </svg>
 );
 
+function getSignUpErrorMessage(error) {
+  const message = error?.message || String(error || "");
+
+  if (/failed to fetch|fetch failed|network/i.test(message)) {
+    return "Signup is temporarily unavailable because Picked is not connected to a live auth project yet.";
+  }
+
+  if (/invalid api key|jwt|apikey|api key/i.test(message)) {
+    return "Signup is connected to Supabase, but the public auth key does not match this project yet.";
+  }
+
+  return message || "We could not create your account. Please try again.";
+}
+
+function isEmailRateLimit(error) {
+  const message = error?.message || String(error || "");
+  return /rate limit|email rate|too many/i.test(message);
+}
+
 function SignUpForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const preselectedRole = searchParams.get("role");
 
@@ -63,25 +84,60 @@ function SignUpForm() {
     }
 
     setLoading(true);
-    const supabase = createClient();
 
-    const { error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { role, full_name: fullName.trim() },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    try {
+      const supabase = createClient();
 
-    setLoading(false);
+      const { error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { role, full_name: fullName.trim() },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
 
-    if (signUpError) {
-      setError(signUpError.message);
-      return;
+      if (signUpError) {
+        if (isEmailRateLimit(signUpError)) {
+          const localResult = await createLocalTestAccount({
+            email,
+            password,
+            role,
+            fullName: fullName.trim(),
+          });
+
+          if (localResult?.success) {
+            const { error: loginError } = await supabase.auth.signInWithPassword({
+              email,
+              password,
+            });
+
+            if (!loginError) {
+              router.push("/onboarding");
+              return;
+            }
+
+            setError(loginError.message);
+            return;
+          }
+
+          setError(
+            localResult?.error ||
+              "Supabase email limit is active. Use a fresh test email or wait for the limit to reset."
+          );
+          return;
+        }
+
+        setError(getSignUpErrorMessage(signUpError));
+        return;
+      }
+
+      setConfirmationSent(true);
+    } catch (signUpError) {
+      setError(getSignUpErrorMessage(signUpError));
+    } finally {
+      setLoading(false);
     }
-
-    setConfirmationSent(true);
   }
 
   if (confirmationSent) {

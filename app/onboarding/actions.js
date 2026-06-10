@@ -25,10 +25,11 @@ export async function savePlayerStep(stepData) {
   }
 
   // Ad-level fields (Steps 02–05)
-  const adPatch = { profile_id: user.id, is_active: true };
+  const adPatch = { profile_id: user.id, is_active: false };
   const adFields = [
     "positions", "experience_level", "experience_years",
     "height_cm", "weight_kg", "date_of_birth", "previous_teams",
+    "highlights_url", "preferred_countries", "languages",
     "ppg", "apg", "rpg", "three_pt_pct", "looking_for",
   ];
   let hasAdData = false;
@@ -66,7 +67,7 @@ export async function saveTeamStep(stepData) {
     if (error) return { error: error.message };
   }
 
-  const adPatch = { profile_id: user.id, is_active: true };
+  const adPatch = { profile_id: user.id, is_active: false };
   const adFields = [
     "team_name", "league", "league_tier", "division", "founded_year",
     "positions_needed", "description", "what_we_offer", "website", "season_record",

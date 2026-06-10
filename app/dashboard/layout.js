@@ -52,7 +52,9 @@ export default async function DashboardLayout({ children }) {
   return (
     <div className="min-h-screen bg-sand text-ink">
       <DashboardTopNav profile={profile} unreadCount={unreadCount} />
-      <main>{children}</main>
+      <main className="mx-auto max-w-[1340px] px-6 py-8 sm:px-12 lg:px-14">
+        {children}
+      </main>
     </div>
   );
 }

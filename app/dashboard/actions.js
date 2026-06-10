@@ -73,7 +73,17 @@ export async function uploadAvatar(formData) {
   const file = formData.get("avatar");
   if (!file || !file.size) return { error: "No file provided" };
 
-  const ext = file.name.split(".").pop();
+  const ALLOWED_TYPES = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+  };
+  const MAX_SIZE = 5 * 1024 * 1024;
+
+  const ext = ALLOWED_TYPES[file.type];
+  if (!ext) return { error: "Only JPG, PNG or WebP images are allowed" };
+  if (file.size > MAX_SIZE) return { error: "Image must be under 5MB" };
+
   const filePath = `${user.id}/avatar.${ext}`;
 
   const arrayBuffer = await file.arrayBuffer();
@@ -114,6 +124,9 @@ export async function updatePlayerAd(formData) {
 
   const positions = formData.getAll("positions");
 
+  const preferredCountries = parseCommaList(formData.get("preferred_countries"));
+  const languages = parseCommaList(formData.get("languages"));
+
   const adData = {
     profile_id: user.id,
     positions: positions.length > 0 ? positions : [],
@@ -124,6 +137,8 @@ export async function updatePlayerAd(formData) {
     experience_years: parseInt(formData.get("experience_years")) || 0,
     previous_teams: formData.get("previous_teams") || null,
     highlights_url: formData.get("highlights_url") || null,
+    preferred_countries: preferredCountries,
+    languages,
     ppg: parseFloat(formData.get("ppg")) || 0,
     apg: parseFloat(formData.get("apg")) || 0,
     rpg: parseFloat(formData.get("rpg")) || 0,
@@ -141,6 +156,47 @@ export async function updatePlayerAd(formData) {
 
   revalidatePath("/dashboard");
   return { success: true };
+}
+
+function parseCommaList(value) {
+  return String(value || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function hasText(value) {
+  return typeof value === "string" ? value.trim().length > 0 : Boolean(value);
+}
+
+function getMissingPublishFields(role, profile, ad) {
+  if (role === "team") {
+    return [
+      [profile?.country, "country"],
+      [ad?.team_name, "team name"],
+      [ad?.league, "league"],
+      [ad?.positions_needed?.length > 0, "positions needed"],
+      [ad?.description, "team description"],
+      [ad?.what_we_offer, "what you offer"],
+    ]
+      .filter(([value]) => !hasText(value))
+      .map(([, label]) => label);
+  }
+
+  return [
+    [profile?.full_name, "name"],
+    [profile?.country, "country"],
+    [ad?.positions?.length > 0, "position"],
+    [ad?.height_cm, "height"],
+    [ad?.date_of_birth, "date of birth"],
+    [ad?.experience_level, "level"],
+    [ad?.highlights_url, "film or social link"],
+    [ad?.preferred_countries?.length > 0, "preferred countries"],
+    [ad?.languages?.length > 0, "languages"],
+    [ad?.looking_for, "player description"],
+  ]
+    .filter(([value]) => !hasText(value))
+    .map(([, label]) => label);
 }
 
 export async function updateTeamAd(formData) {
@@ -189,7 +245,7 @@ export async function toggleAdActive() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, full_name, country")
     .eq("id", user.id)
     .single();
 
@@ -199,13 +255,21 @@ export async function toggleAdActive() {
 
   const { data: ad } = await supabase
     .from(table)
-    .select("id, is_active")
+    .select("*")
     .eq("profile_id", user.id)
     .single();
 
   if (!ad) return { error: "No ad found" };
 
   const newState = !ad.is_active;
+  if (newState) {
+    const missing = getMissingPublishFields(profile.role, profile, ad);
+    if (missing.length > 0) {
+      return {
+        error: `Finish these before publishing: ${missing.join(", ")}.`,
+      };
+    }
+  }
 
   const { error } = await supabase
     .from(table)
@@ -215,6 +279,7 @@ export async function toggleAdActive() {
   if (error) return { error: error.message };
 
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/ad");
   return { success: true, is_active: newState };
 }
 
@@ -228,46 +293,16 @@ export async function startConversation(otherProfileId) {
   if (!user) return { error: "Not authenticated" };
   if (user.id === otherProfileId) return { error: "Cannot message yourself" };
 
-  // Check if a conversation already exists between these two users
-  const { data: myConversations } = await supabase
-    .from("conversation_participants")
-    .select("conversation_id")
-    .eq("profile_id", user.id);
+  // Finds the existing 1:1 conversation or creates one, atomically,
+  // with participant inserts locked down behind the RPC.
+  const { data: conversationId, error } = await supabase.rpc(
+    "start_conversation",
+    { other_profile_id: otherProfileId }
+  );
 
-  if (myConversations && myConversations.length > 0) {
-    const myConvIds = myConversations.map((c) => c.conversation_id);
+  if (error) return { error: error.message };
 
-    const { data: shared } = await supabase
-      .from("conversation_participants")
-      .select("conversation_id")
-      .eq("profile_id", otherProfileId)
-      .in("conversation_id", myConvIds);
-
-    if (shared && shared.length > 0) {
-      return { conversationId: shared[0].conversation_id };
-    }
-  }
-
-  // Create new conversation
-  const { data: conversation, error: convError } = await supabase
-    .from("conversations")
-    .insert({})
-    .select("id")
-    .single();
-
-  if (convError) return { error: convError.message };
-
-  // Add both participants
-  const { error: partError } = await supabase
-    .from("conversation_participants")
-    .insert([
-      { conversation_id: conversation.id, profile_id: user.id },
-      { conversation_id: conversation.id, profile_id: otherProfileId },
-    ]);
-
-  if (partError) return { error: partError.message };
-
-  return { conversationId: conversation.id };
+  return { conversationId };
 }
 
 export async function sendMessage(conversationId, content) {

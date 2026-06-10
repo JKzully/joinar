@@ -38,36 +38,6 @@ const Check = () => (
   </svg>
 );
 
-const OPEN_POSITIONS = [
-  {
-    team: "BC Mornar",
-    league: "ABA Liga 2",
-    role: "Power Forward",
-    detail: "Stretch 4 · 6'8\"+",
-    location: "Montenegro",
-    pay: "€1,800-2,400",
-    closes: "12h",
-  },
-  {
-    team: "Helsinki Seagulls",
-    league: "Korisliiga",
-    role: "Combo Guard",
-    detail: "Score-first",
-    location: "Finland",
-    pay: "€2,400-3,200",
-    closes: "Jun 14",
-  },
-  {
-    team: "Real Betis B",
-    league: "LEB Plata",
-    role: "Shooting Guard",
-    detail: "40%+ from 3",
-    location: "Spain",
-    pay: "€1,600-2,200",
-    closes: "Jun 18",
-  },
-];
-
 const PLAYER_FIELDS = [
   "Position, height and availability",
   "Film, stats and previous teams",
@@ -84,25 +54,32 @@ export const metadata = {
 export default async function Home() {
   const supabase = await createClient();
 
-  const [{ count: playerCount }, { count: teamCount }] = await Promise.all([
-    supabase
-      .from("player_ads")
-      .select("id", { count: "exact", head: true })
-      .eq("is_active", true),
-    supabase
-      .from("team_ads")
-      .select("id", { count: "exact", head: true })
-      .eq("is_active", true),
-  ]);
+  const [{ count: playerCount }, { count: teamCount }, { data: openNeeds }] =
+    await Promise.all([
+      supabase
+        .from("player_ads")
+        .select("id", { count: "exact", head: true })
+        .eq("is_active", true),
+      supabase
+        .from("team_ads")
+        .select("id", { count: "exact", head: true })
+        .eq("is_active", true),
+      supabase
+        .from("team_ads")
+        .select("id, team_name, league, positions_needed, what_we_offer, profile:profile_id(country)")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(3),
+    ]);
 
   const proofStats = [
     {
-      value: playerCount && playerCount > 0 ? `${playerCount}+` : "12 min",
-      label: playerCount && playerCount > 0 ? "live player profiles" : "to build a profile",
+      value: playerCount && playerCount > 0 ? `${playerCount}` : "12 min",
+      label: playerCount && playerCount > 0 ? "player profiles live" : "to build a profile",
     },
     {
-      value: teamCount && teamCount > 0 ? `${teamCount}+` : "28",
-      label: teamCount && teamCount > 0 ? "teams browsing" : "European markets",
+      value: teamCount && teamCount > 0 ? `${teamCount}` : "100%",
+      label: teamCount && teamCount > 0 ? "teams with open needs" : "free during beta",
     },
     { value: "0", label: "agents required" },
   ];
@@ -150,7 +127,7 @@ export default async function Home() {
                 </p>
               </div>
               <span className="rounded-full bg-sage/15 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.1em] text-sage-deep">
-                Live
+                Example
               </span>
             </div>
 
@@ -245,30 +222,52 @@ export default async function Home() {
           </div>
 
           <div className="space-y-3">
-            {OPEN_POSITIONS.map((spot) => (
-              <div
-                key={`${spot.team}-${spot.role}`}
-                className="grid gap-4 rounded-2xl border border-line bg-paper-2 p-5 sm:grid-cols-[1.2fr_1fr_auto] sm:items-center"
-              >
-                <div>
-                  <h3 className="text-[16px] font-bold text-ink">{spot.role}</h3>
-                  <p className="mt-1 text-[13px] text-ink-2">
-                    {spot.team} · {spot.league}
-                  </p>
-                </div>
-                <div className="text-[13px] text-mute">
-                  {spot.detail} · {spot.location}
-                  <br />
-                  <span className="num font-bold text-ink">{spot.pay}</span> · closes {spot.closes}
-                </div>
-                <Link
-                  href="/signup?role=player"
-                  className="text-[13px] font-bold text-ink underline-offset-4 hover:underline"
+            {openNeeds && openNeeds.length > 0 ? (
+              openNeeds.map((spot) => (
+                <div
+                  key={spot.id}
+                  className="grid gap-4 rounded-2xl border border-line bg-paper-2 p-5 sm:grid-cols-[1.2fr_1fr_auto] sm:items-center"
                 >
-                  Apply
+                  <div>
+                    <h3 className="text-[16px] font-bold text-ink">
+                      {(spot.positions_needed || []).join(" / ") || "Open tryout"}
+                    </h3>
+                    <p className="mt-1 text-[13px] text-ink-2">
+                      {spot.team_name}
+                      {spot.league ? ` · ${spot.league}` : ""}
+                    </p>
+                  </div>
+                  <div className="text-[13px] text-mute">
+                    {spot.profile?.country || "Europe"}
+                    {spot.what_we_offer ? (
+                      <>
+                        <br />
+                        <span className="line-clamp-2">{spot.what_we_offer}</span>
+                      </>
+                    ) : null}
+                  </div>
+                  <Link
+                    href="/signup?role=player"
+                    className="text-[13px] font-bold text-ink underline-offset-4 hover:underline"
+                  >
+                    Apply
+                  </Link>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-2xl border border-dashed border-line bg-paper-2 p-8 text-center">
+                <h3 className="text-[16px] font-bold text-ink">
+                  Open roster needs appear here
+                </h3>
+                <p className="mx-auto mt-2 max-w-[380px] text-[13px] leading-[1.55] text-ink-2">
+                  Teams post the positions they need to fill. Be one of the
+                  first clubs on Picked and your need shows up right here.
+                </p>
+                <Link href="/signup?role=team" className="btn btn-sage mt-5">
+                  Post the first need <Arrow />
                 </Link>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </section>

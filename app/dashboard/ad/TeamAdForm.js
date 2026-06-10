@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { updateTeamAd, toggleAdActive } from "../actions";
 
 const POSITIONS = [
@@ -22,13 +23,14 @@ const LEAGUE_TIERS = [
 const inputClass =
   "w-full rounded-xl border border-line-2 bg-paper px-4 py-3 text-[14px] text-ink placeholder:text-mute outline-none transition-colors focus:border-ink focus:ring-1 focus:ring-ink/10";
 
-export default function TeamAdForm({ teamAd }) {
+export default function TeamAdForm({ teamAd, profile }) {
+  const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
   const [selectedPositions, setSelectedPositions] = useState(
     teamAd?.positions_needed || []
   );
-  const [isActive, setIsActive] = useState(teamAd?.is_active ?? true);
+  const [isActive, setIsActive] = useState(teamAd?.is_active ?? false);
   const [toggling, setToggling] = useState(false);
 
   async function handleSubmit(e) {
@@ -45,6 +47,7 @@ export default function TeamAdForm({ teamAd }) {
       setMessage({ type: "error", text: result.error });
     } else {
       setMessage({ type: "success", text: "Ad saved successfully" });
+      router.refresh();
     }
   }
 
@@ -57,6 +60,11 @@ export default function TeamAdForm({ teamAd }) {
       setMessage({ type: "error", text: result.error });
     } else {
       setIsActive(result.is_active);
+      setMessage({
+        type: "success",
+        text: result.is_active ? "Team ad published" : "Team ad moved to draft",
+      });
+      router.refresh();
     }
   }
 
@@ -68,30 +76,13 @@ export default function TeamAdForm({ teamAd }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {/* Active/Inactive Toggle */}
-      {teamAd && (
-        <div className="flex items-center justify-between rounded-2xl border border-line bg-paper-2 p-5">
-          <div>
-            <h2 className="text-[14px] font-bold text-ink">Ad Status</h2>
-            <p className="mt-0.5 text-[12px] text-mute">
-              {isActive ? "Your ad is visible to players" : "Your ad is hidden from search"}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={handleToggle}
-            disabled={toggling}
-            className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
-              isActive
-                ? "bg-sage/15 text-sage-deep"
-                : "bg-paper text-mute"
-            }`}
-          >
-            <span className={`h-2 w-2 rounded-full ${isActive ? "bg-sage-deep" : "bg-mute"}`} />
-            {toggling ? "..." : isActive ? "Live" : "Hidden"}
-          </button>
-        </div>
-      )}
+      <PublishReadiness
+        ad={teamAd}
+        profile={profile}
+        isActive={isActive}
+        toggling={toggling}
+        onToggle={handleToggle}
+      />
 
       {/* Team Info */}
       <Section title="Team Info" description="Basic information about your team">
@@ -206,6 +197,84 @@ function Section({ title, description, children }) {
       </div>
       {children}
     </div>
+  );
+}
+
+function PublishReadiness({ ad, profile, isActive, toggling, onToggle }) {
+  const items = [
+    { label: "Country", done: Boolean(profile?.country) },
+    { label: "Team name", done: Boolean(ad?.team_name) },
+    { label: "League", done: Boolean(ad?.league) },
+    { label: "Positions needed", done: (ad?.positions_needed || []).length > 0 },
+    { label: "Team description", done: Boolean(ad?.description) },
+    { label: "What you offer", done: Boolean(ad?.what_we_offer) },
+  ];
+  const completeCount = items.filter((item) => item.done).length;
+  const isReady = completeCount === items.length;
+  const primaryText = isActive
+    ? "Unpublish team ad"
+    : isReady
+      ? "Publish team ad"
+      : "Complete missing details";
+
+  return (
+    <section className="rounded-2xl border border-line bg-paper-2 p-5 sm:p-6">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <div className="max-w-[560px]">
+          <div className={`label-meta ${isActive ? "text-sage-deep" : "text-terra-deep"}`}>
+            {isActive ? "Published" : "Draft"}
+          </div>
+          <h2 className="mt-3 text-[24px] font-bold leading-[1.05] tracking-[-0.02em] text-ink">
+            {isActive
+              ? "Players can see this team ad."
+              : isReady
+                ? "Ready to go live."
+                : "Finish the essentials before going live."}
+          </h2>
+          <p className="mt-2 text-[13px] leading-[1.55] text-ink-2">
+            {isActive
+              ? "You can unpublish anytime if you want to edit privately."
+              : "Draft team ads stay hidden from player search until the listing is clear enough to judge fit."}
+          </p>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-3">
+          <div className="rounded-full border border-line bg-paper px-4 py-2 text-[12px] font-bold text-ink">
+            {completeCount}/{items.length} ready
+          </div>
+          <button
+            type="button"
+            onClick={onToggle}
+            disabled={toggling || (!isActive && !isReady)}
+            className={`btn ${
+              isActive || isReady ? "btn-terra" : "btn-ghost"
+            } disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0`}
+          >
+            {toggling ? "Updating..." : primaryText}
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-2 border-t border-line pt-5 sm:grid-cols-2">
+        {items.map((item) => (
+          <div
+            key={item.label}
+            className="flex items-center justify-between gap-3 rounded-xl border border-line bg-paper px-3 py-2.5"
+          >
+            <span className="text-[13px] font-semibold text-ink-2">{item.label}</span>
+            <span
+              className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] ${
+                item.done
+                  ? "bg-sage/15 text-sage-deep"
+                  : "bg-terra/10 text-terra-deep"
+              }`}
+            >
+              {item.done ? "Done" : "Missing"}
+            </span>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 

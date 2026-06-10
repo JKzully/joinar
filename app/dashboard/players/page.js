@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import PlayerFilters from "./PlayerFilters";
 import MessageButton from "../MessageButton";
@@ -156,6 +157,9 @@ function PlayerCard({ player, index, boosted, isSeed }) {
   const age = calculateAge(player.date_of_birth);
   const tone = TONES[index % TONES.length];
   const jersey = String(((index + 1) * 7) % 99).padStart(2, "0");
+  const preferredCountries = player.preferred_countries || [];
+  const languages = player.languages || [];
+  const hasFilm = !!player.highlights_url;
 
   const badge = isSeed ? "Sample" : boosted ? "Boosted" : "Available";
   const badgeColor = isSeed ? "#7E776D" : boosted ? "#E0926F" : "#7BC76A";
@@ -164,13 +168,24 @@ function PlayerCard({ player, index, boosted, isSeed }) {
     <div className="group overflow-hidden rounded-2xl border border-line bg-paper-2">
       {/* Portrait */}
       <Link href={`/dashboard/players/${player.profile_id}`} className="relative block" style={{ aspectRatio: "1.05/1" }}>
-        <div className="absolute inset-0" style={{ background: GRADS[tone] }}>
-          <div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-serif italic"
-            style={{ fontSize: 130, color: "rgba(255,255,255,0.05)", fontWeight: 400, lineHeight: 1 }}
-          >
-            {initials}
-          </div>
+        <div className="absolute inset-0 bg-ink" style={{ background: profile?.avatar_url ? undefined : GRADS[tone] }}>
+          {profile?.avatar_url ? (
+            <Image
+              src={profile.avatar_url}
+              alt={`${name} profile photo`}
+              fill
+              sizes="(min-width: 1280px) 33vw, (min-width: 640px) 50vw, 100vw"
+              unoptimized
+              className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            />
+          ) : (
+            <div
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-serif italic"
+              style={{ fontSize: 130, color: "rgba(255,255,255,0.05)", fontWeight: 400, lineHeight: 1 }}
+            >
+              {initials}
+            </div>
+          )}
           <div className="absolute inset-0" style={{ background: "linear-gradient(180deg,transparent 50%,rgba(0,0,0,0.55) 100%)" }} />
         </div>
 
@@ -178,6 +193,11 @@ function PlayerCard({ player, index, boosted, isSeed }) {
           <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(252,248,236,0.95)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-ink">
             <span className="h-1.5 w-1.5 rounded-full" style={{ background: badgeColor }} /> {badge}
           </span>
+          {hasFilm && (
+            <span className="rounded-full bg-[rgba(252,248,236,0.95)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-ink">
+              Film
+            </span>
+          )}
         </div>
 
         <div className="num absolute right-4 top-3 font-extrabold leading-none tracking-[-0.03em] text-[rgba(252,248,236,0.85)]" style={{ fontSize: 30 }}>
@@ -200,6 +220,18 @@ function PlayerCard({ player, index, boosted, isSeed }) {
         <StatCell label="PPG" value={player.ppg ? Number(player.ppg).toFixed(1) : "—"} border />
         <StatCell label="3PT" value={player.three_pt_pct ? `${Number(player.three_pt_pct).toFixed(0)}%` : "—"} border />
       </div>
+
+      {(preferredCountries.length > 0 || languages.length > 0) && (
+        <div className="border-t border-line bg-paper-2 px-4 py-3">
+          <div className="truncate text-[11px] font-semibold text-mute">
+            {preferredCountries.length > 0 && (
+              <span className="text-ink">Wants {preferredCountries.slice(0, 2).join(", ")}</span>
+            )}
+            {preferredCountries.length > 0 && languages.length > 0 && <span> · </span>}
+            {languages.length > 0 && <span>{languages.slice(0, 3).join(", ")}</span>}
+          </div>
+        </div>
+      )}
 
       {/* Footer with actions */}
       <div className="flex items-center justify-between border-t border-line bg-paper px-4 py-3">
