@@ -82,30 +82,30 @@ html {
   color: var(--color-ink-2);
 }
 
-/* ─── Display typography — thin editorial (Court direction) ─── */
+/* ─── Display typography — bold athletic editorial ─── */
 .display-xl {
-  font-weight: 200;
-  font-size: clamp(54px, 7vw, 104px);
-  line-height: 0.94;
-  letter-spacing: -0.045em;
+  font-weight: 800;
+  font-size: clamp(48px, 6.2vw, 92px);
+  line-height: 0.96;
+  letter-spacing: -0.035em;
 }
 .display-lg {
-  font-weight: 200;
-  font-size: clamp(46px, 5.8vw, 84px);
-  line-height: 0.96;
-  letter-spacing: -0.045em;
+  font-weight: 800;
+  font-size: clamp(42px, 5.2vw, 76px);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
 }
 .display-md {
-  font-weight: 200;
-  font-size: clamp(38px, 4.2vw, 60px);
+  font-weight: 800;
+  font-size: clamp(34px, 3.8vw, 54px);
   line-height: 1;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.03em;
 }
 .display-sm {
-  font-weight: 200;
-  font-size: clamp(32px, 3.4vw, 48px);
+  font-weight: 800;
+  font-size: clamp(28px, 3vw, 42px);
   line-height: 1.02;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.025em;
 }
 
 /* ─── Editorial label (magazine-style) ─── */
@@ -143,6 +143,49 @@ html {
 .btn-ghost:hover { background: var(--color-paper); }
 .btn-lg { padding: 15px 24px; font-size: 14px; }
 .btn-xl { padding: 18px 30px; font-size: 15px; }
+
+/* ─── Load-in reveal (staggered) ─── */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+.rise { animation: rise-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.rise-1 { animation-delay: 0.06s; }
+.rise-2 { animation-delay: 0.14s; }
+.rise-3 { animation-delay: 0.22s; }
+.rise-4 { animation-delay: 0.3s; }
+.rise-5 { animation-delay: 0.42s; }
+
+/* ─── Button arrow nudge ─── */
+.btn svg { transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1); }
+.btn:hover svg { transform: translateX(3px); }
+
+/* ─── Card hover lift ─── */
+.lift {
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s;
+}
+.lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(19, 17, 14, 0.08);
+}
+
+/* ─── Editorial ticker strip ─── */
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.ticker {
+  display: flex;
+  width: max-content;
+  animation: ticker-scroll 36s linear infinite;
+}
+.ticker:hover { animation-play-state: paused; }
+
+/* ─── FAQ disclosure ─── */
+.faq summary { cursor: pointer; list-style: none; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq .faq-icon { transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1); }
+.faq details[open] .faq-icon { transform: rotate(45deg); }
 
 /* ─── Pulse dot (status indicator) ─── */
 @keyframes pulse-ring {

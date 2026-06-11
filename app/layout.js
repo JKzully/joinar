@@ -27,18 +27,16 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://getpicked.co"),
-  title: "Picked — The basketball roster network",
+  title: "Picked — Get picked by teams hiring this window",
   description:
-    "Build a coach-ready profile, get seen by teams across 28 countries, take the call — without agents, politics, or the wait.",
+    "One coach-ready basketball profile. Film, stats, availability — and direct messages from teams hiring across Europe. No agents required.",
   openGraph: {
-    title: "Picked — The basketball roster network",
+    title: "Picked — Get picked by teams hiring this window",
     description:
-      "Build a coach-ready profile, get seen by teams across 28 countries, take the call.",
-    images: [{ url: "/og-image.png", width: 1080, height: 1080 }],
+      "One coach-ready basketball profile. Film, stats, availability — and direct messages from teams hiring across Europe.",
   },
   twitter: {
     card: "summary_large_image",
-    images: ["/og-image.png"],
   },
 };
 
