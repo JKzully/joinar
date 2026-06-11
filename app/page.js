@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import HomeNav from "./components/HomeNav";
 
@@ -93,7 +94,7 @@ export default async function Home() {
           <div>
             <p className="label-meta text-terra-deep">Basketball recruiting for Europe</p>
             <h1 className="display-xl mt-5 max-w-[880px]">
-              Get picked by teams hiring this window.
+              Get <span className="serif">picked</span> by teams hiring this window.
             </h1>
             <p className="mt-8 max-w-[620px] text-[18px] leading-[1.5] text-ink-2">
               Build one coach-ready profile with your film, stats, measurements
@@ -115,22 +116,32 @@ export default async function Home() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-line bg-paper-2 p-5 shadow-[0_12px_40px_rgba(19,17,14,0.06)]">
-            <div className="flex items-start justify-between gap-4 border-b border-line pb-5">
-              <div>
-                <p className="label-meta text-mute">Coach scan</p>
-                <h2 className="mt-2 text-[28px] font-semibold leading-none tracking-[-0.02em]">
-                  Marco Rossi
-                </h2>
-                <p className="mt-2 text-[13px] font-bold uppercase tracking-[0.1em] text-terra-deep">
-                  PG / SG · Italy · Available now
-                </p>
-              </div>
-              <span className="rounded-full bg-sage/15 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.1em] text-sage-deep">
+          <div className="overflow-hidden rounded-2xl border border-line bg-paper-2 shadow-[0_12px_40px_rgba(19,17,14,0.06)]">
+            <div className="relative h-44 bg-ink">
+              <Image
+                src="/seed/players/p01.jpg"
+                alt="Player shooting at an outdoor hoop"
+                fill
+                sizes="(min-width: 1024px) 560px, 100vw"
+                className="object-cover object-[50%_62%]"
+                priority
+              />
+              <span className="absolute right-4 top-4 rounded-full bg-paper-2/95 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.1em] text-ink">
                 Example
               </span>
             </div>
 
+            <div className="border-b border-line p-5">
+              <p className="label-meta text-mute">Coach scan</p>
+              <h2 className="mt-2 text-[28px] font-semibold leading-none tracking-[-0.02em]">
+                Marco Rossi
+              </h2>
+              <p className="mt-2 text-[13px] font-bold uppercase tracking-[0.1em] text-terra-deep">
+                PG / SG · Italy · Available now
+              </p>
+            </div>
+
+            <div className="px-5 pb-5">
             <div className="grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-line bg-line mt-5">
               {[
                 ["18.4", "PPG"],
@@ -160,6 +171,7 @@ export default async function Home() {
             <Link href="/signup?role=player" className="btn btn-ink mt-6 w-full justify-center">
               Build this profile <Arrow />
             </Link>
+            </div>
           </div>
         </div>
 
@@ -196,8 +208,10 @@ export default async function Home() {
               ["03", "Talk directly", "If there is interest, you can message without waiting on a middleman."],
             ].map(([no, title, body]) => (
               <div key={no} className="bg-paper-2 p-6">
-                <div className="num text-[13px] font-bold text-terra-deep">{no}</div>
-                <h3 className="mt-8 text-[18px] font-bold text-ink">{title}</h3>
+                <div className="num text-[64px] font-extralight leading-none tracking-[-0.04em] text-terra/30">
+                  {no}
+                </div>
+                <h3 className="mt-6 text-[18px] font-bold text-ink">{title}</h3>
                 <p className="mt-3 text-[14px] leading-[1.55] text-ink-2">{body}</p>
               </div>
             ))}
@@ -210,7 +224,7 @@ export default async function Home() {
           <div>
             <p className="label-meta text-sage-deep">For teams</p>
             <h2 className="display-md mt-4 max-w-[660px]">
-              Find players who are actually available.
+              Find players who are <span className="serif">actually available</span>.
             </h2>
             <p className="mt-5 max-w-[520px] text-[15px] leading-[1.6] text-ink-2">
               Post a roster need, browse coach-ready profiles and message the
@@ -283,7 +297,10 @@ export default async function Home() {
               Add the information coaches scan first. Update it any time.
             </p>
           </div>
-          <Link href="/signup?role=player" className="btn btn-terra btn-xl justify-center">
+          <Link
+            href="/signup?role=player"
+            className="btn btn-terra btn-xl justify-center sm:self-start lg:self-auto"
+          >
             Start free <Arrow />
           </Link>
         </div>
