@@ -94,18 +94,18 @@ export default function LoginPage() {
           </h1>
 
           <p className="mt-8 max-w-[420px] text-[16px] leading-[1.55] text-sand/65">
-            Sign in to see who&apos;s viewed your profile, respond to coaches, and keep your roster spot.
+            Return to your dossier, market conversations and roster search.
           </p>
         </div>
 
         <div className="relative z-10 flex flex-wrap gap-9 border-t border-sand/10 pt-8">
           <div>
-            <div className="num text-[24px] font-semibold tracking-[-0.02em]">312</div>
-            <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-sand/50">Active profiles</div>
+            <div className="text-[15px] font-semibold">Draft privately</div>
+            <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-sand/50">Declare when ready</div>
           </div>
           <div>
-            <div className="num text-[24px] font-semibold tracking-[-0.02em]">47</div>
-            <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-sand/50">Open spots · now</div>
+            <div className="text-[15px] font-semibold">Interest moves directly</div>
+            <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-sand/50">Player to club</div>
           </div>
         </div>
       </div>
@@ -148,16 +148,23 @@ export default function LoginPage() {
               />
             </label>
 
-            <label className="block">
+            <div className="block">
               <div className="mb-1.5 flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-mute">
+                <label
+                  htmlFor="login-password"
+                  className="text-[11px] font-bold uppercase tracking-[0.1em] text-mute"
+                >
                   Password
-                </span>
-                <Link href="/forgot-password" className="text-[11px] font-bold text-ink underline-offset-4 hover:underline">
+                </label>
+                <Link
+                  href="/forgot-password"
+                  className="text-[11px] font-bold text-ink underline-offset-4 hover:underline"
+                >
                   Forgot?
                 </Link>
               </div>
               <input
+                id="login-password"
                 type="password"
                 required
                 value={password}
@@ -165,10 +172,10 @@ export default function LoginPage() {
                 placeholder="Your password"
                 className="block w-full rounded-xl border border-line-2 bg-paper-2 px-4 py-3.5 text-[15px] text-ink placeholder:text-mute focus:border-ink focus:outline-none"
               />
-            </label>
+            </div>
 
             {error && (
-              <div className="rounded-xl border border-terra/30 bg-terra/10 px-4 py-3 text-[13px] text-terra-deep">
+              <div role="alert" className="rounded-xl border border-terra/30 bg-terra/10 px-4 py-3 text-[13px] text-terra-deep">
                 {error}
               </div>
             )}

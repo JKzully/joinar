@@ -3,14 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updatePlayerAd, toggleAdActive } from "../actions";
+import {
+  BASKETBALL_POSITIONS,
+  normalizePositions,
+} from "@/lib/basketball/positions.mjs";
 
-const POSITIONS = [
-  { value: "PG", label: "PG" },
-  { value: "SG", label: "SG" },
-  { value: "SF", label: "SF" },
-  { value: "PF", label: "PF" },
-  { value: "C", label: "C" },
-];
+const POSITIONS = BASKETBALL_POSITIONS;
 
 const EXPERIENCE_LEVELS = [
   { value: "", label: "Select level" },
@@ -36,7 +34,7 @@ export default function PlayerAdForm({ playerAd, profile }) {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
   const [selectedPositions, setSelectedPositions] = useState(
-    playerAd?.positions || []
+    normalizePositions(playerAd?.positions || [])
   );
   const [isActive, setIsActive] = useState(playerAd?.is_active ?? false);
   const [toggling, setToggling] = useState(false);
@@ -102,13 +100,14 @@ export default function PlayerAdForm({ playerAd, profile }) {
                 key={pos.value}
                 type="button"
                 onClick={() => togglePosition(pos.value)}
+                aria-pressed={selected}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                   selected
                     ? "border border-ink bg-ink text-paper-2"
                     : "border border-line-2 bg-paper text-ink hover:border-ink/40"
                 }`}
               >
-                {pos.label}
+                {pos.abbr}
               </button>
             );
           })}
@@ -131,8 +130,9 @@ export default function PlayerAdForm({ playerAd, profile }) {
       <Section title="Experience" description="Your basketball experience">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-1.5 block text-[13px] font-bold text-ink-2">Experience Level</label>
+            <label htmlFor="player-experience-level" className="mb-1.5 block text-[13px] font-bold text-ink-2">Experience Level</label>
             <select
+              id="player-experience-level"
               name="experience_level"
               defaultValue={playerAd?.experience_level || ""}
               className={inputClass}
@@ -144,9 +144,11 @@ export default function PlayerAdForm({ playerAd, profile }) {
           </div>
           <Field label="Years of experience" name="experience_years" type="number" defaultValue={playerAd?.experience_years} placeholder="5" />
           <div className="sm:col-span-2">
-            <label className="mb-1.5 block text-[13px] font-bold text-ink-2">Previous Teams</label>
+            <label htmlFor="player-previous-teams" className="mb-1.5 block text-[13px] font-bold text-ink-2">Previous Teams</label>
             <textarea
+              id="player-previous-teams"
               name="previous_teams"
+              maxLength={1200}
               rows={3}
               defaultValue={playerAd?.previous_teams}
               placeholder="List your previous teams, leagues, and seasons..."
@@ -193,9 +195,11 @@ export default function PlayerAdForm({ playerAd, profile }) {
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-[13px] font-bold text-ink-2">What are you looking for?</label>
+            <label htmlFor="player-looking-for" className="mb-1.5 block text-[13px] font-bold text-ink-2">What are you looking for?</label>
             <textarea
+              id="player-looking-for"
               name="looking_for"
+              maxLength={1200}
               rows={3}
               defaultValue={playerAd?.looking_for}
               placeholder="Describe the type of team, league level, country, or opportunity you're seeking..."
@@ -208,6 +212,7 @@ export default function PlayerAdForm({ playerAd, profile }) {
       {/* Message + Submit */}
       {message && (
         <div
+          role={message.type === "error" ? "alert" : "status"}
           className={`rounded-xl border px-4 py-3 text-[14px] ${
             message.type === "error"
               ? "border-red-500/30 bg-red-500/10 text-red-400"
@@ -324,10 +329,12 @@ function PublishReadiness({ ad, profile, isActive, toggling, onToggle }) {
 }
 
 function Field({ label, className, ...props }) {
+  const id = props.id || props.name;
   return (
     <div className={className}>
-      <label className="mb-1.5 block text-[13px] font-bold text-ink-2">{label}</label>
+      <label htmlFor={id} className="mb-1.5 block text-[13px] font-bold text-ink-2">{label}</label>
       <input
+        id={id}
         {...props}
         className={inputClass}
       />
@@ -337,9 +344,10 @@ function Field({ label, className, ...props }) {
 
 function StatField({ label, name, defaultValue }) {
   const tooltip = STAT_TOOLTIPS[label];
+  const id = `player-stat-${name}`;
   return (
     <div>
-      <label className="mb-1.5 flex items-center gap-1 text-[13px] font-bold text-ink-2">
+      <label htmlFor={id} className="mb-1.5 flex items-center gap-1 text-[13px] font-bold text-ink-2">
         {label}
         {tooltip && (
           <span title={tooltip} className="inline-flex h-4 w-4 cursor-help items-center justify-center rounded-full bg-paper text-[10px] text-mute">
@@ -348,6 +356,7 @@ function StatField({ label, name, defaultValue }) {
         )}
       </label>
       <input
+        id={id}
         name={name}
         type="number"
         step="0.1"

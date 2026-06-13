@@ -104,7 +104,7 @@ export default function DashboardTopNav({ profile, unreadCount = 0 }) {
               >
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ink text-[11px] font-bold text-sand">
                   {profile.avatar_url ? (
-                    <Image src={profile.avatar_url} alt="" width={28} height={28} unoptimized className="h-full w-full object-cover" />
+                    <Image src={profile.avatar_url} alt="" width={28} height={28} className="h-full w-full object-cover" />
                   ) : (
                     initials
                   )}
@@ -189,7 +189,7 @@ export default function DashboardTopNav({ profile, unreadCount = 0 }) {
               <div className="flex items-center gap-3">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-ink text-[12px] font-bold text-sand">
                   {profile.avatar_url ? (
-                    <Image src={profile.avatar_url} alt="" width={36} height={36} unoptimized className="h-full w-full object-cover" />
+                    <Image src={profile.avatar_url} alt="" width={36} height={36} className="h-full w-full object-cover" />
                   ) : (
                     initials
                   )}

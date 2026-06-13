@@ -96,9 +96,9 @@ function TeamCard({ team, boosted, isSeed }) {
       <div className="flex-1 p-6">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] text-[14px] font-bold text-paper-2" style={{ background: "linear-gradient(135deg,#2a241e,#4a3d31)" }}>
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] text-[14px] font-bold text-paper-2" style={{ background: "linear-gradient(135deg,#05070A,#0A84FF)" }}>
               {profile?.avatar_url ? (
-                <Image src={profile.avatar_url} alt="" width={44} height={44} unoptimized className="h-full w-full rounded-[10px] object-cover" />
+                <Image src={profile.avatar_url} alt="" width={44} height={44} className="h-full w-full rounded-[10px] object-cover" />
               ) : initial}
             </div>
             <div>
@@ -109,8 +109,8 @@ function TeamCard({ team, boosted, isSeed }) {
             </div>
           </div>
           {boosted && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(224,146,111,0.18)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#8E462B]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#E0926F]" /> Boosted
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-terra/12 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-terra-deep">
+              <span className="h-1.5 w-1.5 rounded-full bg-terra" /> Boosted
             </span>
           )}
         </div>

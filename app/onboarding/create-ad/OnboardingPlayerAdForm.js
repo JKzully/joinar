@@ -3,14 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updatePlayerAd } from "@/app/dashboard/actions";
+import {
+  BASKETBALL_POSITIONS,
+  normalizePositions,
+} from "@/lib/basketball/positions.mjs";
 
-const POSITIONS = [
-  { value: "PG", label: "PG" },
-  { value: "SG", label: "SG" },
-  { value: "SF", label: "SF" },
-  { value: "PF", label: "PF" },
-  { value: "C", label: "C" },
-];
+const POSITIONS = BASKETBALL_POSITIONS;
 
 const EXPERIENCE_LEVELS = [
   { value: "", label: "Select level" },
@@ -33,7 +31,7 @@ export default function OnboardingPlayerAdForm({ playerAd }) {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
   const [selectedPositions, setSelectedPositions] = useState(
-    playerAd?.positions || []
+    normalizePositions(playerAd?.positions || [])
   );
 
   async function handleSubmit(e) {
@@ -77,7 +75,7 @@ export default function OnboardingPlayerAdForm({ playerAd }) {
                     : "bg-surface-light text-text-secondary hover:bg-surface-light/80"
                 }`}
               >
-                {pos.label}
+                {pos.abbr}
               </button>
             );
           })}

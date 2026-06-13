@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { normalizePositions } from "@/lib/basketball/positions.mjs";
 import {
   sendNewMessageEmail,
   sendTryoutInvitationEmail,
@@ -62,7 +63,6 @@ export async function updateAccount(formData) {
 
 export async function uploadAvatar(formData) {
   const supabase = await createClient();
-  const admin = createAdminClient();
 
   const {
     data: { user },
@@ -89,16 +89,30 @@ export async function uploadAvatar(formData) {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
-  const { error: uploadError } = await admin.storage
+  let { error: uploadError } = await supabase.storage
     .from("Avatars")
     .upload(filePath, buffer, {
       upsert: true,
       contentType: file.type,
     });
 
+  // Keep existing deployments working until the owner-only storage policies
+  // in the security migration have been applied.
+  if (
+    uploadError &&
+    ["403", "42501"].includes(String(uploadError.statusCode || uploadError.status))
+  ) {
+    const admin = createAdminClient();
+    const fallback = await admin.storage.from("Avatars").upload(filePath, buffer, {
+      upsert: true,
+      contentType: file.type,
+    });
+    uploadError = fallback.error;
+  }
+
   if (uploadError) return { error: uploadError.message };
 
-  const { data: urlData } = admin.storage
+  const { data: urlData } = supabase.storage
     .from("Avatars")
     .getPublicUrl(filePath);
 
@@ -122,14 +136,14 @@ export async function updatePlayerAd(formData) {
 
   if (!user) return { error: "Not authenticated" };
 
-  const positions = formData.getAll("positions");
+  const positions = normalizePositions(formData.getAll("positions"));
 
   const preferredCountries = parseCommaList(formData.get("preferred_countries"));
   const languages = parseCommaList(formData.get("languages"));
 
   const adData = {
     profile_id: user.id,
-    positions: positions.length > 0 ? positions : [],
+    positions,
     height_cm: parseInt(formData.get("height_cm")) || null,
     weight_kg: parseInt(formData.get("weight_kg")) || null,
     date_of_birth: formData.get("date_of_birth") || null,
@@ -208,12 +222,12 @@ export async function updateTeamAd(formData) {
 
   if (!user) return { error: "Not authenticated" };
 
-  const positionsNeeded = formData.getAll("positions_needed");
+  const positionsNeeded = normalizePositions(formData.getAll("positions_needed"));
 
   const adData = {
     profile_id: user.id,
     team_name: formData.get("team_name") || null,
-    positions_needed: positionsNeeded.length > 0 ? positionsNeeded : [],
+    positions_needed: positionsNeeded,
     league: formData.get("league") || null,
     league_tier: parseInt(formData.get("league_tier")) || null,
     division: formData.get("division") || null,
@@ -316,6 +330,9 @@ export async function sendMessage(conversationId, content) {
 
   const trimmed = content.trim();
   if (!trimmed) return { error: "Message cannot be empty" };
+  if (trimmed.length > 4000) {
+    return { error: "Messages must be 4,000 characters or fewer" };
+  }
 
   const { data: message, error } = await supabase
     .from("messages")
@@ -410,6 +427,12 @@ export async function createTryoutInvitation(formData) {
   const tryoutDate = formData.get("tryout_date") || null;
   const location = formData.get("location") || null;
   const message = formData.get("message") || null;
+  if (String(location || "").length > 240) {
+    return { error: "Location must be 240 characters or fewer" };
+  }
+  if (String(message || "").length > 2000) {
+    return { error: "Message must be 2,000 characters or fewer" };
+  }
 
   // Verify caller is a team
   const { data: profile } = await supabase
@@ -487,23 +510,35 @@ export async function respondToTryoutInvitation(invitationId, status) {
     return { error: "Invalid status" };
   }
 
-  // Verify this invitation belongs to the player
-  const { data: invitation } = await supabase
-    .from("tryout_invitations")
-    .select("id, status, player_id")
-    .eq("id", invitationId)
-    .single();
+  const { error: rpcError } = await supabase.rpc("respond_to_tryout_invitation", {
+    invitation_id: invitationId,
+    response: status,
+  });
 
-  if (!invitation) return { error: "Invitation not found" };
-  if (invitation.player_id !== user.id) return { error: "Not authorized" };
-  if (invitation.status !== "pending") return { error: "Invitation already responded to" };
+  if (rpcError?.code === "PGRST202") {
+    const { data: invitation } = await supabase
+      .from("tryout_invitations")
+      .select("id, status, player_id")
+      .eq("id", invitationId)
+      .single();
 
-  const { error } = await supabase
-    .from("tryout_invitations")
-    .update({ status })
-    .eq("id", invitationId);
+    if (!invitation) return { error: "Invitation not found" };
+    if (invitation.player_id !== user.id) return { error: "Not authorized" };
+    if (invitation.status !== "pending") {
+      return { error: "Invitation already responded to" };
+    }
 
-  if (error) return { error: error.message };
+    const { error: updateError } = await supabase
+      .from("tryout_invitations")
+      .update({ status })
+      .eq("id", invitationId)
+      .eq("player_id", user.id)
+      .eq("status", "pending");
+
+    if (updateError) return { error: updateError.message };
+  } else if (rpcError) {
+    return { error: rpcError.message };
+  }
 
   revalidatePath("/dashboard/tryouts");
   return { success: true };

@@ -86,7 +86,7 @@ export default async function PublicPlayerPage({ params }) {
             Log in
           </Link>
           <Link href="/signup?role=team" className="btn btn-ink">
-            Find players
+            Open roster search
           </Link>
         </div>
       </header>
@@ -100,10 +100,10 @@ export default async function PublicPlayerPage({ params }) {
         publicActions={
           <>
             <Link href="/signup?role=team" className="btn btn-terra">
-              Contact players
+              Declare club interest
             </Link>
             <Link href="/signup?role=player" className="btn btn-ghost">
-              Create your profile
+              Build your dossier
             </Link>
           </>
         }

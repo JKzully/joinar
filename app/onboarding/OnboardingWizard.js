@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { uploadAvatar } from "@/app/dashboard/actions";
 import { savePlayerStep, saveTeamStep, completeOnboarding } from "./actions";
+import { BASKETBALL_POSITIONS } from "@/lib/basketball/positions.mjs";
 
 const Arrow = ({ size = 14, dir = "right" }) => (
   <svg width={size} height={size} viewBox="0 0 14 14" fill="none" className="inline-block align-middle">
@@ -17,13 +18,11 @@ const Arrow = ({ size = 14, dir = "right" }) => (
 );
 
 // ─── Position options (player_position enum) ─────────────────
-const POSITIONS = [
-  { v: "point_guard",     abbr: "PG", n: "Point Guard" },
-  { v: "shooting_guard",  abbr: "SG", n: "Shooting Guard" },
-  { v: "small_forward",   abbr: "SF", n: "Small Forward" },
-  { v: "power_forward",   abbr: "PF", n: "Power Forward" },
-  { v: "center",          abbr: "C",  n: "Center" },
-];
+const POSITIONS = BASKETBALL_POSITIONS.map((position) => ({
+  v: position.value,
+  abbr: position.abbr,
+  n: position.label,
+}));
 
 const EXP_LEVELS = [
   { v: "amateur", n: "Amateur", d: "Club, school, or recreational" },
@@ -412,7 +411,6 @@ function Step01Basics({
                   alt=""
                   width={96}
                   height={96}
-                  unoptimized
                   className="h-full w-full object-cover"
                 />
               ) : (

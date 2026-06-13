@@ -62,9 +62,9 @@ export default async function TeamProfilePage({ params }) {
 
       {/* Header */}
       <div className="flex flex-wrap items-start gap-5">
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl text-[22px] font-bold text-paper-2" style={{ background: "linear-gradient(135deg,#2a241e,#4a3d31)" }}>
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl text-[22px] font-bold text-paper-2" style={{ background: "linear-gradient(135deg,#05070A,#0A84FF)" }}>
           {profile?.avatar_url ? (
-            <Image src={profile.avatar_url} alt="" width={64} height={64} unoptimized className="h-full w-full rounded-2xl object-cover" />
+            <Image src={profile.avatar_url} alt="" width={64} height={64} className="h-full w-full rounded-2xl object-cover" />
           ) : initial}
         </div>
         <div className="flex-1">
@@ -73,8 +73,8 @@ export default async function TeamProfilePage({ params }) {
               {team.team_name || "Unnamed Team"}
             </h1>
             {!!boost && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(224,146,111,0.18)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#8E462B]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#E0926F]" /> Boosted
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-terra/12 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-terra-deep">
+                <span className="h-1.5 w-1.5 rounded-full bg-terra" /> Boosted
               </span>
             )}
             {isSeed && (

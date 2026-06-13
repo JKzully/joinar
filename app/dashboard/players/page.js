@@ -11,10 +11,10 @@ export const metadata = {
 
 const TONES = ["warm", "rust", "sage", "cool"];
 const GRADS = {
-  warm: "linear-gradient(180deg,#221c17,#3a2f25 60%,#4a3d31)",
-  rust: "linear-gradient(180deg,#2a1a16,#4a2a22 60%,#5a3530)",
-  sage: "linear-gradient(180deg,#1f2820,#2d3a2a 60%,#3a4a37)",
-  cool: "linear-gradient(180deg,#1f262a,#2c373c 60%,#3a4a4f)",
+  warm: "linear-gradient(180deg,#0A84FF,#063B84 62%,#05070A)",
+  rust: "linear-gradient(180deg,#FF4D1D,#961F06 62%,#05070A)",
+  sage: "linear-gradient(180deg,#00C853,#087A37 62%,#05070A)",
+  cool: "linear-gradient(180deg,#111827,#0B1220 62%,#05070A)",
 };
 
 function calculateAge(dateOfBirth) {
@@ -162,7 +162,7 @@ function PlayerCard({ player, index, boosted, isSeed }) {
   const hasFilm = !!player.highlights_url;
 
   const badge = isSeed ? "Sample" : boosted ? "Boosted" : "Available";
-  const badgeColor = isSeed ? "#7E776D" : boosted ? "#E0926F" : "#7BC76A";
+  const badgeColor = isSeed ? "#66707D" : boosted ? "#FF4D1D" : "#00C853";
 
   return (
     <div className="group overflow-hidden rounded-2xl border border-line bg-paper-2">
@@ -175,7 +175,6 @@ function PlayerCard({ player, index, boosted, isSeed }) {
               alt={`${name} profile photo`}
               fill
               sizes="(min-width: 1280px) 33vw, (min-width: 640px) 50vw, 100vw"
-              unoptimized
               className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
             />
           ) : (
@@ -190,17 +189,17 @@ function PlayerCard({ player, index, boosted, isSeed }) {
         </div>
 
         <div className="absolute left-3 top-3 flex gap-1.5">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(252,248,236,0.95)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-ink">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-ink">
             <span className="h-1.5 w-1.5 rounded-full" style={{ background: badgeColor }} /> {badge}
           </span>
           {hasFilm && (
-            <span className="rounded-full bg-[rgba(252,248,236,0.95)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-ink">
+            <span className="rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-ink">
               Film
             </span>
           )}
         </div>
 
-        <div className="num absolute right-4 top-3 font-extrabold leading-none tracking-[-0.03em] text-[rgba(252,248,236,0.85)]" style={{ fontSize: 30 }}>
+        <div className="num absolute right-4 top-3 font-extrabold leading-none text-white/90" style={{ fontSize: 30 }}>
           <span className="font-medium opacity-50" style={{ fontSize: "0.7em", verticalAlign: 7 }}>#</span>
           {jersey}
         </div>

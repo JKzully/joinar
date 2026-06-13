@@ -21,58 +21,50 @@ const Arrow = ({ size = 14 }) => (
   </svg>
 );
 
-const Check = () => (
+const MARKET_CHIPS = [
+  ["es", "Spain"],
+  ["de", "Germany"],
+  ["fr", "France"],
+  ["it", "Italy"],
+  ["is", "Iceland"],
+  ["rs", "Serbia"],
+  ["hr", "Croatia"],
+  ["gr", "Greece"],
+  ["pl", "Poland"],
+  ["nl", "Netherlands"],
+  ["se", "Sweden"],
+  ["dk", "Denmark"],
+];
+
+const Flag = ({ code, country }) => (
   <svg
-    width="14"
-    height="14"
-    viewBox="0 0 14 14"
-    fill="none"
-    aria-hidden="true"
+    viewBox="0 0 30 20"
+    role="img"
+    aria-label={`${country} flag`}
+    className="h-[14px] w-[21px] shrink-0 overflow-hidden rounded-[2px] border border-black/10"
   >
-    <path
-      d="M2.4 7.3l2.8 2.8 6.4-6.7"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+    <use href={`/flags.svg#${code}`} />
   </svg>
 );
 
-const PLAYER_FIELDS = [
-  "Position, height and availability",
-  "Film, stats and previous teams",
-  "Countries, salary range and goals",
-  "Direct messages from interested teams",
+const DOSSIER_FIELDS = [
+  ["Position / size", "Role, height, age and current level", "Lets a club place the player against a real roster gap."],
+  ["Market status", "Available, draft or signed", "Prevents clubs wasting time on players who are not actually movable."],
+  ["Proof", "Film, stats, last club and season context", "Gives managers a first evaluation before a call is scheduled."],
+  ["Fit", "Countries, languages, salary range and timing", "Shows whether the opportunity can become a contract conversation."],
 ];
 
-const FAQS = [
-  [
-    "Is Picked really free?",
-    "Yes. Creating a profile, being found and messaging teams is free during beta. No card, no agent cut, no placement fee.",
-  ],
-  [
-    "What level is this for?",
-    "Amateur, semi-pro and pro players targeting European leagues — and the teams hiring at those levels. You set your level on your profile so coaches filter accurately.",
-  ],
-  [
-    "Do I need an agent to use Picked?",
-    "No. Teams message you directly and you negotiate however you want. If you have an agent, you can still use Picked to be visible.",
-  ],
-  [
-    "What should I put on my profile?",
-    "The things coaches scan first: position, height, age, level, film link, stats, languages and which countries you are open to. Profiles with film get scanned first.",
-  ],
-  [
-    "How do teams contact me?",
-    "Through direct messages on Picked. You get an email notification, and you reply from your dashboard. Tryout invitations show date, location and a personal note.",
-  ],
+const MARKET_FLOW = [
+  ["01", "Declare availability", "Players enter the market when their dossier is ready."],
+  ["02", "Open roster search", "Clubs filter by position, country, level, passport and timing."],
+  ["03", "Review prospects", "Managers scan film, stats, fit and contract expectations."],
+  ["04", "Exchange interest", "Conversations start only when both sides have a real roster reason."],
 ];
 
 export const metadata = {
-  title: "Picked — Get seen by teams hiring now",
+  title: "Picked — The European basketball player market",
   description:
-    "Create a coach-ready basketball profile for Europe. Share film, stats, measurements and availability so teams can find you and contact you directly.",
+    "Enter the European basketball player market. Build a dossier, declare availability and let clubs open roster search across Europe.",
 };
 
 export default async function Home() {
@@ -98,163 +90,142 @@ export default async function Home() {
 
   const proofStats = [
     {
-      value: playerCount && playerCount > 0 ? `${playerCount}` : "12 min",
-      label: playerCount && playerCount > 0 ? "player profiles live" : "to build a profile",
+      value: playerCount && playerCount > 0 ? `${playerCount}` : "Dossier",
+      label: playerCount && playerCount > 0 ? "available players" : "built before market entry",
     },
     {
-      value: teamCount && teamCount > 0 ? `${teamCount}` : "100%",
-      label: teamCount && teamCount > 0 ? "teams with open needs" : "free during beta",
+      value: teamCount && teamCount > 0 ? `${teamCount}` : "Search",
+      label: teamCount && teamCount > 0 ? "active roster searches" : "opened by clubs",
     },
-    { value: "0", label: "agents required" },
+    { value: "Draft", label: "not live until ready" },
+    { value: "Interest", label: "exchanged directly" },
   ];
 
   return (
     <main className="min-h-screen bg-sand text-ink">
       <HomeNav />
 
-      <section className="px-6 pb-16 pt-16 sm:px-12 sm:pb-20 sm:pt-24 lg:px-16">
-        <div className="mx-auto grid max-w-[1340px] gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
-          <div>
-            <p className="label-meta rise rise-1 text-terra-deep">Basketball recruiting for Europe</p>
-            <h1 className="display-xl rise rise-2 mt-5 max-w-[880px] uppercase">
-              Get <span className="serif normal-case">picked</span> by teams hiring this window.
-            </h1>
-            <p className="rise rise-3 mt-8 max-w-[620px] text-[18px] leading-[1.5] text-ink-2">
-              Build one coach-ready profile with your film, stats, measurements
-              and availability. Teams can find you, scan fast and message
-              directly.
-            </p>
-
-            <div className="rise rise-4 mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Link href="/signup?role=player" className="btn btn-terra btn-xl justify-center">
-                Start your profile <Arrow />
-              </Link>
-              <Link href="/signup?role=team" className="btn btn-ghost btn-xl justify-center">
-                Post a roster need
-              </Link>
-            </div>
-
-            <p className="rise rise-5 mt-4 text-[13px] font-semibold text-mute">
-              Free to start. No card. Built for players and teams in Europe.
-            </p>
-          </div>
-
-          <div className="rise rise-4 overflow-hidden rounded-2xl border border-line bg-paper-2 shadow-[0_12px_40px_rgba(19,17,14,0.06)]">
-            <div className="relative h-44 bg-ink">
-              <Image
-                src="/seed/players/p01.jpg"
-                alt="Player shooting at an outdoor hoop"
-                fill
-                sizes="(min-width: 1024px) 560px, 100vw"
-                className="object-cover object-[50%_62%]"
-                priority
-              />
-              <span className="absolute right-4 top-4 rounded-full bg-paper-2/95 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.1em] text-ink">
-                Example
-              </span>
-            </div>
-
-            <div className="border-b border-line p-5">
-              <p className="label-meta text-mute">Coach scan</p>
-              <h2 className="mt-2 text-[28px] font-semibold leading-none tracking-[-0.02em]">
-                Marco Rossi
-              </h2>
-              <p className="mt-2 text-[13px] font-bold uppercase tracking-[0.1em] text-terra-deep">
-                PG / SG · Italy · Available now
+      <section className="px-5 pb-16 pt-8 sm:px-8 sm:pb-20 sm:pt-10 lg:px-10">
+        <div className="mx-auto max-w-[1340px] border-t border-line pt-10">
+          <div className="grid gap-10 lg:grid-cols-[1.04fr_0.96fr] lg:items-end">
+            <div>
+              <p className="label-meta rise rise-1 text-sage-deep">Player market / Europe</p>
+              <h1 className="display-xl rise rise-2 mt-7 max-w-[790px] uppercase">
+                Enter the European player market.
+              </h1>
+              <p className="rise rise-3 mt-7 max-w-[610px] text-[18px] font-medium leading-[1.55] text-ink-2">
+                Picked is where professional basketball players declare
+                availability and clubs open roster search. Build your dossier,
+                show market fit and exchange interest when the window moves.
               </p>
+
+              <div className="rise rise-4 mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <Link href="/signup?role=player" className="btn btn-terra btn-xl justify-center">
+                  Enter the market <Arrow />
+                </Link>
+                <Link href="/signup?role=team" className="btn btn-ink btn-xl justify-center">
+                  Open roster search <Arrow />
+                </Link>
+              </div>
+
+              <div className="rise rise-5 mt-8 flex max-w-[620px] flex-wrap gap-x-5 gap-y-2 border-t border-line pt-5">
+                {["Dossier", "Availability", "Film", "Stats", "Passport", "Contract window"].map((item) => (
+                  <span key={item} className="text-[12px] font-black uppercase tracking-[0.14em] text-mute">
+                    {item}
+                  </span>
+                ))}
+              </div>
             </div>
 
-            <div className="px-5 pb-5">
-            <div className="grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-line bg-line mt-5">
-              {[
-                ["18.4", "PPG"],
-                ["6.1", "APG"],
-                ["41%", "3PT"],
-              ].map(([value, label]) => (
-                <div key={label} className="bg-paper px-4 py-4 text-center">
-                  <div className="num text-[24px] font-extrabold leading-none">{value}</div>
-                  <div className="mt-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-mute">
-                    {label}
+            <div className="rise rise-4">
+              <div className="overflow-hidden rounded-[18px] border border-line bg-paper-2">
+                <div className="relative aspect-[4/3] bg-paper">
+                  <Image
+                    src="/hero-basketball-action.jpg"
+                    alt="Basketball player attacking the rim during a game"
+                    fill
+                    sizes="(min-width: 1024px) 620px, 100vw"
+                    className="object-cover object-[52%_42%]"
+                    priority
+                  />
+                </div>
+                <div className="grid border-t border-line sm:grid-cols-[minmax(0,1.15fr)_minmax(0,2fr)]">
+                  <div className="p-4 sm:p-5">
+                    <p className="label-meta text-terra-deep">Illustrative dossier</p>
+                    <h2 className="mt-2 text-[22px] font-black leading-none text-ink">
+                      Sample prospect
+                    </h2>
+                  </div>
+                  <div className="grid grid-cols-[0.75fr_1.2fr_1fr] border-t border-line sm:border-l sm:border-t-0">
+                    {[
+                      ["PG", "Role"],
+                      ["Germany", "Market"],
+                      ["Available", "Status"],
+                    ].map(([value, label]) => (
+                      <div
+                        key={label}
+                        className="min-w-0 border-r border-line px-3 py-4 last:border-r-0"
+                      >
+                        <div className="flex min-w-0 items-center gap-1.5 text-[15px] font-black leading-none text-ink lg:text-[16px]">
+                          {label === "Market" ? <Flag code="de" country="Germany" /> : null}
+                          <span className="min-w-0">{value}</span>
+                        </div>
+                        <div className="mt-1 text-[10px] font-black uppercase tracking-[0.14em] text-mute">
+                          {label}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </div>
-
-            <div className="mt-5 space-y-3">
-              {PLAYER_FIELDS.map((field) => (
-                <div key={field} className="flex items-center gap-3 text-[14px] text-ink-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-sage/15 text-sage-deep">
-                    <Check />
-                  </span>
-                  {field}
-                </div>
-              ))}
-            </div>
-
-            <Link href="/signup?role=player" className="btn btn-ink mt-6 w-full justify-center">
-              Build this profile <Arrow />
-            </Link>
+              </div>
             </div>
           </div>
         </div>
 
-        <div
-          aria-hidden="true"
-          className="mx-auto mt-14 max-w-[1340px] overflow-hidden border-y border-line py-3"
-        >
-          <div className="ticker">
-            {[0, 1].map((copy) => (
-              <div key={copy} className="flex shrink-0 items-center">
-                {[
-                  "Point guards", "Shooting guards", "Small forwards",
-                  "Power forwards", "Centers", "Spain", "Germany", "France",
-                  "Italy", "Nordics", "Balkans", "Film first", "No agents",
-                ].map((word) => (
-                  <span
-                    key={word}
-                    className="flex items-center whitespace-nowrap text-[12px] font-bold uppercase tracking-[0.16em] text-mute"
-                  >
-                    {word}
-                    <span className="mx-5 inline-block h-1 w-1 rounded-full bg-terra/60" />
-                  </span>
-                ))}
-              </div>
+        <div className="mx-auto mt-12 max-w-[1340px] border-y border-line py-5">
+          <div className="flex flex-wrap gap-2">
+            {[...MARKET_CHIPS, [null, "More markets"]].map(([code, country]) => (
+              <span
+                key={country}
+                className="inline-flex items-center gap-2 rounded-full border border-line bg-paper-2 px-3.5 py-2 text-[13px] font-bold text-ink"
+              >
+                {code ? <Flag code={code} country={country} /> : <span aria-hidden="true">+</span>}
+                {country}
+              </span>
             ))}
           </div>
         </div>
 
-        <div className="mx-auto grid max-w-[1340px] grid-cols-1 border-b border-line sm:grid-cols-3">
-          {proofStats.map((stat, index) => (
-            <div
-              key={stat.label}
-              className={`py-5 sm:px-6 ${index > 0 ? "border-t border-line sm:border-l sm:border-t-0" : ""}`}
-            >
-              <div className="num text-[28px] font-extrabold leading-none text-ink">
-                {stat.value}
+        <div className="mx-auto max-w-[1340px]">
+          <div className="grid border-b border-line sm:grid-cols-2 lg:grid-cols-4">
+            {proofStats.map((stat, index) => (
+              <div
+                key={stat.label}
+                className={`py-6 sm:px-6 ${index > 0 ? "border-t border-line sm:border-l sm:border-t-0" : ""} ${index === 2 ? "sm:border-t lg:border-t-0" : ""}`}
+              >
+                <div className="num text-[30px] font-black leading-none text-ink">
+                  {stat.value}
+                </div>
+                <div className="mt-2 text-[11px] font-black uppercase tracking-[0.14em] text-mute">
+                  {stat.label}
+                </div>
               </div>
-              <div className="mt-2 text-[12px] font-bold uppercase tracking-[0.12em] text-ink-2">
-                {stat.label}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
-      <section id="how" className="border-t border-line bg-paper px-6 py-16 sm:px-12 sm:py-20 lg:px-16">
+      <section id="market" className="border-t border-line bg-paper px-6 py-16 sm:px-12 sm:py-20 lg:px-16">
         <div className="mx-auto grid max-w-[1340px] gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
           <div>
-            <p className="label-meta text-terra-deep">How it works</p>
+            <p className="label-meta text-terra-deep">Market flow</p>
             <h2 className="display-md mt-4 max-w-[620px]">
-              One profile. Three fast steps.
+              Liquidity for roster windows.
             </h2>
           </div>
 
-          <div className="grid gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-3">
-            {[
-              ["01", "Add the essentials", "Film, stats, measurements, role and countries you are open to."],
-              ["02", "Get found by teams", "Coaches filter by position, market, level and availability."],
-              ["03", "Talk directly", "If there is interest, you can message without waiting on a middleman."],
-            ].map(([no, title, body]) => (
+          <div className="grid gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-2">
+            {MARKET_FLOW.map(([no, title, body]) => (
               <div key={no} className="bg-paper-2 p-6">
                 <div className="num text-[64px] font-extralight leading-none tracking-[-0.04em] text-terra/30">
                   {no}
@@ -270,36 +241,19 @@ export default async function Home() {
       <section className="border-t border-line px-6 py-16 sm:px-12 sm:py-20 lg:px-16">
         <div className="mx-auto max-w-[1340px]">
           <h2 className="display-md max-w-[900px]">
-            The old route costs money and waits on other people.{" "}
-            <span className="serif">Yours doesn&apos;t have to.</span>
+            A player market is only useful if the dossier is scan-ready.
           </h2>
 
           <div className="mt-12">
-            {[
-              [
-                "Agents",
-                "An agent takes a cut and works their own list first.",
-                "Your profile works for you every day, for free.",
-              ],
-              [
-                "Paid combines",
-                "Flights, fees and one weekend to impress whoever showed up.",
-                "Your film and stats are in front of teams all season.",
-              ],
-              [
-                "Cold DMs",
-                "Instagram messages get lost between memes and spam.",
-                "Teams come here specifically to fill a roster spot.",
-              ],
-            ].map(([label, oldWay, newWay]) => (
+            {DOSSIER_FIELDS.map(([label, field, why]) => (
               <div
                 key={label}
                 className="grid gap-3 border-t border-line py-7 last:border-b md:grid-cols-[200px_1fr_1fr] md:gap-10"
               >
                 <div className="label-meta pt-1 text-terra-deep">{label}</div>
-                <p className="text-[15px] leading-[1.6] text-mute">{oldWay}</p>
+                <p className="text-[15px] font-semibold leading-[1.6] text-ink">{field}</p>
                 <p className="text-[15px] font-semibold leading-[1.6] text-ink">
-                  {newWay}
+                  {why}
                 </p>
               </div>
             ))}
@@ -307,19 +261,20 @@ export default async function Home() {
         </div>
       </section>
 
-      <section id="teams" className="border-t border-line bg-paper px-6 py-16 sm:px-12 sm:py-20 lg:px-16">
+      <section id="roster-search" className="border-t border-line bg-paper px-6 py-16 sm:px-12 sm:py-20 lg:px-16">
         <div className="mx-auto grid max-w-[1340px] gap-12 lg:grid-cols-[1fr_1fr] lg:items-center">
           <div>
-            <p className="label-meta text-sage-deep">For teams</p>
+            <p className="label-meta text-sage-deep">Roster search</p>
             <h2 className="display-md mt-4 max-w-[660px]">
-              Find players who are <span className="serif">actually available</span>.
+              Review prospects who are actually available.
             </h2>
             <p className="mt-5 max-w-[520px] text-[15px] leading-[1.6] text-ink-2">
-              Post a roster need, browse coach-ready profiles and message the
-              players who match your market, level and timeline.
+              Clubs search the market by position, passport, country fit,
+              level, film and timing. Interest belongs in a structured market,
+              not a scattered inbox.
             </p>
             <Link href="/signup?role=team" className="btn btn-sage btn-lg mt-8">
-              Create team account <Arrow />
+              Open roster search <Arrow />
             </Link>
           </div>
 
@@ -352,21 +307,21 @@ export default async function Home() {
                     href="/signup?role=player"
                     className="text-[13px] font-bold text-ink underline-offset-4 hover:underline"
                   >
-                    Apply
+                    Declare interest
                   </Link>
                 </div>
               ))
             ) : (
               <div className="rounded-2xl border border-dashed border-line bg-paper-2 p-8 text-center">
                 <h3 className="text-[16px] font-bold text-ink">
-                  Open roster needs appear here
+                  No active roster searches yet
                 </h3>
                 <p className="mx-auto mt-2 max-w-[380px] text-[13px] leading-[1.55] text-ink-2">
-                  Teams post the positions they need to fill. Be one of the
-                  first clubs on Picked and your need shows up right here.
+                  Clubs publish the positions they need to fill. Available
+                  players can then review the search and declare interest.
                 </p>
                 <Link href="/signup?role=team" className="btn btn-sage mt-5">
-                  Post the first need <Arrow />
+                  Open the first search <Arrow />
                 </Link>
               </div>
             )}
@@ -375,62 +330,45 @@ export default async function Home() {
       </section>
 
       <section className="border-t border-line px-6 py-16 sm:px-12 sm:py-20 lg:px-16">
-        <div className="mx-auto grid max-w-[1340px] gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+        <div className="mx-auto grid max-w-[1340px] gap-10 lg:grid-cols-[0.7fr_1.3fr]">
           <div>
-            <p className="label-meta text-terra-deep">Questions</p>
-            <h2 className="display-md mt-4 max-w-[420px]">
-              Before you <span className="serif">commit.</span>
+            <p className="label-meta text-terra-deep">Market rules</p>
+            <h2 className="display-md mt-4 max-w-[480px]">
+              Availability has to mean something.
             </h2>
           </div>
 
-          <div className="faq">
-            {FAQS.map(([question, answer]) => (
-              <details key={question} className="group border-t border-line last:border-b">
-                <summary className="flex items-center justify-between gap-6 py-5 text-[16px] font-bold text-ink">
-                  {question}
-                  <span className="faq-icon flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line-2 text-[15px] font-semibold leading-none">
-                    +
-                  </span>
-                </summary>
-                <p className="max-w-[640px] pb-6 text-[14px] leading-[1.65] text-ink-2">
-                  {answer}
-                </p>
-              </details>
+          <div>
+            {[
+              ["Draft first", "A dossier is private until the player chooses to enter the market."],
+              ["Professional signal", "Clubs see the information they need for a first scan, not fan content."],
+              ["Market context", "Countries, languages and timing matter as much as highlights."],
+            ].map(([title, body]) => (
+              <div key={title} className="grid gap-3 border-t border-line py-6 last:border-b md:grid-cols-[220px_1fr]">
+                <h3 className="text-[16px] font-black text-ink">{title}</h3>
+                <p className="text-[15px] leading-[1.65] text-ink-2">{body}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            mainEntity: FAQS.map(([question, answer]) => ({
-              "@type": "Question",
-              name: question,
-              acceptedAnswer: { "@type": "Answer", text: answer },
-            })),
-          }),
-        }}
-      />
-
       <section className="border-t border-line bg-ink px-6 py-16 text-sand sm:px-12 sm:py-20 lg:px-16">
         <div className="mx-auto grid max-w-[1340px] gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
           <div>
-            <p className="label-meta text-sand/55">Start before the roster closes</p>
+            <p className="label-meta text-sand/55">Transfer window</p>
             <h2 className="display-md mt-4 max-w-[780px]">
-              Your profile can be <span className="serif">live today.</span>
+              Declare availability before the market moves.
             </h2>
             <p className="mt-5 max-w-[520px] text-[15px] leading-[1.6] text-sand/75">
-              Add the information coaches scan first. Update it any time.
+              Build the dossier first. Enter the market only when your profile
+              is strong enough for club review.
             </p>
             <Link
               href="/signup?role=player"
               className="btn btn-terra btn-xl mt-9"
             >
-              Start free <Arrow />
+              Build your dossier <Arrow />
             </Link>
           </div>
           <div className="relative hidden aspect-[4/3] overflow-hidden rounded-2xl lg:block">
@@ -454,19 +392,18 @@ export default async function Home() {
                 <span>Picked</span>
               </Link>
               <p className="mt-3 max-w-[300px] text-[13px] leading-[1.6] text-mute">
-                One coach-ready profile. Direct messages.
-                Built for players and teams in Europe.
+                A professional basketball player market for European roster windows.
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-10 sm:grid-cols-3 sm:gap-16">
               {[
-                ["Product", [
-                  ["How it works", "/#how"],
-                  ["For teams", "/#teams"],
+                ["Market", [
+                  ["Market flow", "/#market"],
+                  ["Roster search", "/#roster-search"],
                 ]],
                 ["Account", [
-                  ["Start free", "/signup"],
+                  ["Enter market", "/signup"],
                   ["Log in", "/login"],
                 ]],
                 ["Legal", [
@@ -494,7 +431,7 @@ export default async function Home() {
 
           <div className="flex flex-col gap-2 border-t border-line pt-6 text-[12px] text-mute sm:flex-row sm:items-center sm:justify-between">
             <span>© 2026 Picked · getpicked.co</span>
-            <span>Get picked. Not passed over.</span>
+            <span>Players enter. Clubs search. Interest moves.</span>
           </div>
         </div>
       </footer>

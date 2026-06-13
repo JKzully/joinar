@@ -2,29 +2,29 @@
 
 @theme inline {
   /* ─── Surfaces ─── */
-  --color-sand: #E8E5DC;
-  --color-sand-2: #DDD9CE;
-  --color-paper: #F0EEE6;
-  --color-paper-2: #F8F6F0;
+  --color-sand: #F3F6FA;
+  --color-sand-2: #E6ECF3;
+  --color-paper: #EDF2F7;
+  --color-paper-2: #FFFFFF;
 
   /* ─── Ink (text) ─── */
-  --color-ink: #13110E;
-  --color-ink-2: #3A332B;
-  --color-mute: #635D55;
+  --color-ink: #05070A;
+  --color-ink-2: #232932;
+  --color-mute: #66707D;
 
   /* ─── Lines ─── */
-  --color-line: rgba(19, 17, 14, 0.10);
-  --color-line-2: rgba(19, 17, 14, 0.22);
+  --color-line: rgba(5, 7, 10, 0.10);
+  --color-line-2: rgba(5, 7, 10, 0.24);
 
   /* ─── Accents ─── */
-  --color-terra: #B85A3F;
-  --color-terra-deep: #8F4029;
-  --color-sage: #4D6A48;
-  --color-sage-deep: #33502E;
+  --color-terra: #FF4D1D;
+  --color-terra-deep: #D7370A;
+  --color-sage: #0A84FF;
+  --color-sage-deep: #0057D9;
 
   /* ─── Status ─── */
-  --color-status-live: #7BC76A;
-  --color-status-warm: #E0926F;
+  --color-status-live: #00C853;
+  --color-status-warm: #FFB000;
 
   /* Legacy aliases while older dashboard screens are normalized */
   --color-background: var(--color-sand);
@@ -41,7 +41,7 @@
 
   /* ─── Fonts ─── */
   --font-sans: var(--font-manrope), -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  --font-serif: var(--font-instrument), Georgia, "Times New Roman", serif;
+  --font-serif: var(--font-manrope), -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 }
 
@@ -55,16 +55,21 @@ body {
   font-feature-settings: "ss01", "cv11";
 }
 
+::selection {
+  background: var(--color-sage);
+  color: white;
+}
+
 html {
   scroll-behavior: smooth;
 }
 
-/* ─── Editorial italic serif — for accent words only ─── */
+/* ─── Sport accent word — bold, not boutique ─── */
 .serif {
-  font-family: var(--font-instrument), Georgia, "Times New Roman", serif;
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.01em;
+  font-family: var(--font-manrope), -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0;
 }
 
 /* ─── Tabular numbers ─── */
@@ -85,27 +90,34 @@ html {
 /* ─── Display typography — bold athletic editorial ─── */
 .display-xl {
   font-weight: 800;
-  font-size: clamp(48px, 6.2vw, 92px);
-  line-height: 0.96;
-  letter-spacing: -0.035em;
+  font-size: 92px;
+  line-height: 0.88;
+  letter-spacing: 0;
 }
 .display-lg {
   font-weight: 800;
-  font-size: clamp(42px, 5.2vw, 76px);
+  font-size: 72px;
   line-height: 0.98;
-  letter-spacing: -0.035em;
+  letter-spacing: 0;
 }
 .display-md {
   font-weight: 800;
-  font-size: clamp(34px, 3.8vw, 54px);
+  font-size: 52px;
   line-height: 1;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 .display-sm {
   font-weight: 800;
-  font-size: clamp(28px, 3vw, 42px);
+  font-size: 42px;
   line-height: 1.02;
-  letter-spacing: -0.025em;
+  letter-spacing: 0;
+}
+
+@media (max-width: 767px) {
+  .display-xl { font-size: 58px; }
+  .display-lg { font-size: 48px; }
+  .display-md { font-size: 40px; }
+  .display-sm { font-size: 32px; }
 }
 
 /* ─── Editorial label (magazine-style) ─── */
@@ -127,20 +139,20 @@ html {
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
-  transition: transform 0.15s cubic-bezier(0.2, 0.7, 0.3, 1), background-color 0.15s, color 0.15s;
+  transition: transform 0.15s cubic-bezier(0.2, 0.7, 0.3, 1), background-color 0.15s, color 0.15s, border-color 0.15s;
   border: 0;
   font-family: inherit;
 }
 .btn:hover { transform: translateY(-1px); }
 .btn:active { transform: scale(0.97); }
 .btn-ink { background: var(--color-ink); color: var(--color-paper-2); }
-.btn-ink:hover { background: #1f1b16; }
+.btn-ink:hover { background: #111827; }
 .btn-terra { background: var(--color-terra); color: #fff; }
 .btn-terra:hover { background: var(--color-terra-deep); }
 .btn-sage { background: var(--color-sage); color: #fff; }
 .btn-sage:hover { background: var(--color-sage-deep); }
 .btn-ghost { background: transparent; color: var(--color-ink); border: 1px solid var(--color-line-2); }
-.btn-ghost:hover { background: var(--color-paper); }
+.btn-ghost:hover { background: var(--color-paper-2); border-color: var(--color-ink); }
 .btn-lg { padding: 15px 24px; font-size: 14px; }
 .btn-xl { padding: 18px 30px; font-size: 15px; }
 
@@ -166,20 +178,8 @@ html {
 }
 .lift:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 36px rgba(19, 17, 14, 0.08);
+  box-shadow: 0 18px 46px rgba(5, 7, 10, 0.10);
 }
-
-/* ─── Editorial ticker strip ─── */
-@keyframes ticker-scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-.ticker {
-  display: flex;
-  width: max-content;
-  animation: ticker-scroll 36s linear infinite;
-}
-.ticker:hover { animation-play-state: paused; }
 
 /* ─── FAQ disclosure ─── */
 .faq summary { cursor: pointer; list-style: none; }

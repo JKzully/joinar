@@ -2,14 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
-
-const POSITIONS = [
-  { value: "point_guard", label: "Point Guard", abbr: "PG" },
-  { value: "shooting_guard", label: "Shooting Guard", abbr: "SG" },
-  { value: "small_forward", label: "Small Forward", abbr: "SF" },
-  { value: "power_forward", label: "Power Forward", abbr: "PF" },
-  { value: "center", label: "Center", abbr: "C" },
-];
+import { BASKETBALL_POSITIONS as POSITIONS } from "@/lib/basketball/positions.mjs";
 
 export default function PlayerFilters({ countries }) {
   const router = useRouter();
@@ -51,12 +44,13 @@ export default function PlayerFilters({ countries }) {
       </div>
 
       {/* Position */}
-      <div className="mb-5">
-        <div className="label-meta mb-3 text-mute">Position</div>
+      <fieldset className="mb-5">
+        <legend className="label-meta mb-3 text-mute">Position</legend>
         <div className="flex flex-wrap gap-1.5">
           <button
             type="button"
             onClick={() => updateFilter("position", "")}
+            aria-pressed={!activePosition}
             className={`min-h-11 rounded-full border px-4 py-2.5 text-[11px] font-semibold transition-colors ${
               !activePosition
                 ? "border-ink bg-ink text-paper-2"
@@ -70,6 +64,7 @@ export default function PlayerFilters({ countries }) {
               type="button"
               key={p.value}
               onClick={() => updateFilter("position", activePosition === p.value ? "" : p.value)}
+              aria-pressed={activePosition === p.value}
               className={`min-h-11 rounded-full border px-4 py-2.5 text-[11px] font-semibold transition-colors ${
                 activePosition === p.value
                   ? "border-ink bg-ink text-paper-2"
@@ -80,12 +75,13 @@ export default function PlayerFilters({ countries }) {
             </button>
           ))}
         </div>
-      </div>
+      </fieldset>
 
       {/* Country */}
       <div className="mb-5">
-        <div className="label-meta mb-3 text-mute">Country</div>
+        <label htmlFor="player-filter-country" className="label-meta mb-3 block text-mute">Country</label>
         <select
+          id="player-filter-country"
           value={activeCountry}
           onChange={(e) => updateFilter("country", e.target.value)}
           className="w-full rounded-xl border border-line-2 bg-paper px-3.5 py-2.5 text-[13px] text-ink focus:border-ink focus:outline-none"
@@ -100,8 +96,9 @@ export default function PlayerFilters({ countries }) {
       {/* Min Height + Experience */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <div className="label-meta mb-3 text-mute">Height</div>
+          <label htmlFor="player-filter-height" className="label-meta mb-3 block text-mute">Height</label>
           <select
+            id="player-filter-height"
             value={activeHeight}
             onChange={(e) => updateFilter("min_height", e.target.value)}
             className="w-full rounded-xl border border-line-2 bg-paper px-3.5 py-2.5 text-[13px] text-ink focus:border-ink focus:outline-none"
@@ -114,8 +111,9 @@ export default function PlayerFilters({ countries }) {
           </select>
         </div>
         <div>
-          <div className="label-meta mb-3 text-mute">Experience</div>
+          <label htmlFor="player-filter-experience" className="label-meta mb-3 block text-mute">Experience</label>
           <select
+            id="player-filter-experience"
             value={activeExp}
             onChange={(e) => updateFilter("min_exp", e.target.value)}
             className="w-full rounded-xl border border-line-2 bg-paper px-3.5 py-2.5 text-[13px] text-ink focus:border-ink focus:outline-none"

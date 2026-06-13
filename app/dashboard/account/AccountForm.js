@@ -59,7 +59,7 @@ export default function AccountForm({ profile }) {
         <div className="flex items-center gap-5">
           <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-line bg-paper text-2xl font-bold text-terra">
             {avatarUrl ? (
-              <Image src={avatarUrl} alt="Avatar" width={80} height={80} unoptimized className="h-full w-full object-cover" />
+              <Image src={avatarUrl} alt="Avatar" width={80} height={80} className="h-full w-full object-cover" />
             ) : (
               (profile.full_name || "?").charAt(0).toUpperCase()
             )}
@@ -80,7 +80,7 @@ export default function AccountForm({ profile }) {
               onChange={handleAvatarChange}
               className="hidden"
             />
-            <p className="mt-1.5 text-[12px] text-mute">JPG, PNG or WebP. Max 2MB.</p>
+            <p className="mt-1.5 text-[12px] text-mute">JPG, PNG or WebP. Max 5MB.</p>
           </div>
         </div>
       </Section>
@@ -144,10 +144,12 @@ function Section({ title, description, children }) {
 }
 
 function Field({ label, className, ...props }) {
+  const id = props.id || props.name;
   return (
     <div className={className}>
-      <label className="mb-1.5 block text-[13px] font-bold text-ink-2">{label}</label>
+      <label htmlFor={id} className="mb-1.5 block text-[13px] font-bold text-ink-2">{label}</label>
       <input
+        id={id}
         {...props}
         className={inputClass}
       />

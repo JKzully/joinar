@@ -1,6 +1,7 @@
 -- ============================================================
 -- Picked Database Schema
--- Run this in the Supabase SQL Editor to set up all tables.
+-- Reference snapshot only. Provision and update environments by
+-- applying every file in supabase/migrations in timestamp order.
 -- ============================================================
 
 -- ============================================================

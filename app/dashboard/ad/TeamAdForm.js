@@ -3,14 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateTeamAd, toggleAdActive } from "../actions";
+import {
+  BASKETBALL_POSITIONS,
+  normalizePositions,
+} from "@/lib/basketball/positions.mjs";
 
-const POSITIONS = [
-  { value: "PG", label: "PG" },
-  { value: "SG", label: "SG" },
-  { value: "SF", label: "SF" },
-  { value: "PF", label: "PF" },
-  { value: "C", label: "C" },
-];
+const POSITIONS = BASKETBALL_POSITIONS;
 
 const LEAGUE_TIERS = [
   { value: "", label: "Select tier" },
@@ -28,7 +26,7 @@ export default function TeamAdForm({ teamAd, profile }) {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
   const [selectedPositions, setSelectedPositions] = useState(
-    teamAd?.positions_needed || []
+    normalizePositions(teamAd?.positions_needed || [])
   );
   const [isActive, setIsActive] = useState(teamAd?.is_active ?? false);
   const [toggling, setToggling] = useState(false);
@@ -90,8 +88,9 @@ export default function TeamAdForm({ teamAd, profile }) {
           <Field label="Team Name" name="team_name" defaultValue={teamAd?.team_name} placeholder="BC Milano" className="sm:col-span-2" />
           <Field label="League" name="league" defaultValue={teamAd?.league} placeholder="Serie A2" />
           <div>
-            <label className="mb-1.5 block text-[13px] font-bold text-ink-2">League Tier</label>
+            <label htmlFor="team-league-tier" className="mb-1.5 block text-[13px] font-bold text-ink-2">League Tier</label>
             <select
+              id="team-league-tier"
               name="league_tier"
               defaultValue={teamAd?.league_tier || ""}
               className={inputClass}
@@ -116,13 +115,14 @@ export default function TeamAdForm({ teamAd, profile }) {
                 key={pos.value}
                 type="button"
                 onClick={() => togglePosition(pos.value)}
+                aria-pressed={selected}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                   selected
                     ? "border border-ink bg-ink text-paper-2"
                     : "border border-line-2 bg-paper text-ink hover:border-ink/40"
                 }`}
               >
-                {pos.label}
+                {pos.abbr}
               </button>
             );
           })}
@@ -136,9 +136,11 @@ export default function TeamAdForm({ teamAd, profile }) {
       <Section title="About" description="Tell players about your team and what you offer">
         <div className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-[13px] font-bold text-ink-2">Description</label>
+            <label htmlFor="team-description" className="mb-1.5 block text-[13px] font-bold text-ink-2">Description</label>
             <textarea
+              id="team-description"
               name="description"
+              maxLength={2000}
               rows={4}
               defaultValue={teamAd?.description}
               placeholder="Tell players about your team's history, playing style, and culture..."
@@ -146,9 +148,11 @@ export default function TeamAdForm({ teamAd, profile }) {
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-[13px] font-bold text-ink-2">What We Offer</label>
+            <label htmlFor="team-offer" className="mb-1.5 block text-[13px] font-bold text-ink-2">What We Offer</label>
             <textarea
+              id="team-offer"
               name="what_we_offer"
+              maxLength={2000}
               rows={3}
               defaultValue={teamAd?.what_we_offer}
               placeholder="Salary, housing, coaching staff, facilities, development opportunities..."
@@ -165,6 +169,7 @@ export default function TeamAdForm({ teamAd, profile }) {
       {/* Message + Submit */}
       {message && (
         <div
+          role={message.type === "error" ? "alert" : "status"}
           className={`rounded-xl border px-4 py-3 text-[14px] ${
             message.type === "error"
               ? "border-red-500/30 bg-red-500/10 text-red-400"
@@ -279,10 +284,12 @@ function PublishReadiness({ ad, profile, isActive, toggling, onToggle }) {
 }
 
 function Field({ label, className, ...props }) {
+  const id = props.id || props.name;
   return (
     <div className={className}>
-      <label className="mb-1.5 block text-[13px] font-bold text-ink-2">{label}</label>
+      <label htmlFor={id} className="mb-1.5 block text-[13px] font-bold text-ink-2">{label}</label>
       <input
+        id={id}
         {...props}
         className={inputClass}
       />

@@ -3,14 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateTeamAd } from "@/app/dashboard/actions";
+import {
+  BASKETBALL_POSITIONS,
+  normalizePositions,
+} from "@/lib/basketball/positions.mjs";
 
-const POSITIONS = [
-  { value: "PG", label: "PG" },
-  { value: "SG", label: "SG" },
-  { value: "SF", label: "SF" },
-  { value: "PF", label: "PF" },
-  { value: "C", label: "C" },
-];
+const POSITIONS = BASKETBALL_POSITIONS;
 
 const LEAGUE_TIERS = [
   { value: "", label: "Select tier" },
@@ -25,7 +23,7 @@ export default function OnboardingTeamAdForm({ teamAd }) {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
   const [selectedPositions, setSelectedPositions] = useState(
-    teamAd?.positions_needed || []
+    normalizePositions(teamAd?.positions_needed || [])
   );
 
   async function handleSubmit(e) {
@@ -91,7 +89,7 @@ export default function OnboardingTeamAdForm({ teamAd }) {
                     : "bg-surface-light text-text-secondary hover:bg-surface-light/80"
                 }`}
               >
-                {pos.label}
+                {pos.abbr}
               </button>
             );
           })}

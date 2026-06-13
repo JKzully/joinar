@@ -114,13 +114,12 @@ export default function PlayerProfileView({
                 alt={`${name} profile photo`}
                 fill
                 sizes="(min-width: 1024px) 390px, 100vw"
-                unoptimized
                 className="object-cover"
                 priority
               />
             ) : (
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,#1f1a15,#41352b)]">
-                <div className="absolute inset-0 flex items-center justify-center font-serif text-[150px] italic text-sand/10">
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,#0A84FF,#05070A)]">
+                <div className="absolute inset-0 flex items-center justify-center text-[150px] font-black text-white/10">
                   {initials}
                 </div>
               </div>

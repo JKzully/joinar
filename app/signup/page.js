@@ -2,9 +2,8 @@
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { createLocalTestAccount } from "./actions";
 
 const Arrow = ({ size = 14 }) => (
   <svg
@@ -44,7 +43,6 @@ function isEmailRateLimit(error) {
 }
 
 function SignUpForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const preselectedRole = searchParams.get("role");
 
@@ -61,15 +59,15 @@ function SignUpForm() {
   const roleCopy = isTeam
     ? {
         title: "Create your team account.",
-        intro: "Post a roster need and start browsing players who are available now.",
-        cta: "Create team account",
+        intro: "Open roster search and review available player dossiers.",
+        cta: "Open roster search",
         nameLabel: "Your name",
         namePlaceholder: "Sofia Marin",
       }
     : {
-        title: "Start your player profile.",
-        intro: "Create the account first. Your profile can be live in the next few minutes.",
-        cta: "Start my profile",
+        title: "Build your player dossier.",
+        intro: "Create the account first. You decide when to declare availability.",
+        cta: "Build my dossier",
         nameLabel: "Full name",
         namePlaceholder: "Marko Kovac",
       };
@@ -99,31 +97,8 @@ function SignUpForm() {
 
       if (signUpError) {
         if (isEmailRateLimit(signUpError)) {
-          const localResult = await createLocalTestAccount({
-            email,
-            password,
-            role,
-            fullName: fullName.trim(),
-          });
-
-          if (localResult?.success) {
-            const { error: loginError } = await supabase.auth.signInWithPassword({
-              email,
-              password,
-            });
-
-            if (!loginError) {
-              router.push("/onboarding");
-              return;
-            }
-
-            setError(loginError.message);
-            return;
-          }
-
           setError(
-            localResult?.error ||
-              "Supabase email limit is active. Use a fresh test email or wait for the limit to reset."
+            "Email delivery is temporarily rate limited. Wait a few minutes, then try again."
           );
           return;
         }
@@ -161,13 +136,13 @@ function SignUpForm() {
           active={role === "player"}
           onClick={() => setRole("player")}
           title="Player"
-          desc="Get found"
+          desc="Build dossier"
         />
         <RoleOption
           active={role === "team"}
           onClick={() => setRole("team")}
           title="Team"
-          desc="Find players"
+          desc="Roster search"
         />
       </div>
 
@@ -223,7 +198,7 @@ function SignUpForm() {
       </label>
 
       {error && (
-        <div className="mt-5 rounded-xl border border-terra/30 bg-terra/10 px-4 py-3 text-[13px] text-terra-deep">
+        <div role="alert" className="mt-5 rounded-xl border border-terra/30 bg-terra/10 px-4 py-3 text-[13px] text-terra-deep">
           {error}
         </div>
       )}
@@ -256,6 +231,7 @@ function RoleOption({ active, onClick, title, desc }) {
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={`rounded-xl px-4 py-3.5 text-left transition-all ${
         active
           ? "bg-paper-2 shadow-[0_1px_0_rgba(19,17,14,0.05),0_4px_12px_rgba(19,17,14,0.04)]"
@@ -311,8 +287,8 @@ function ConfirmationView({ email }) {
         <div className="label-meta text-mute">Next</div>
         <ol className="mt-3 space-y-2 text-[13px] leading-[1.55] text-ink-2">
           <li><span className="num font-bold text-ink">01.</span> Confirm your email</li>
-          <li><span className="num font-bold text-ink">02.</span> Add the details coaches scan first</li>
-          <li><span className="num font-bold text-ink">03.</span> Go live</li>
+          <li><span className="num font-bold text-ink">02.</span> Build your player dossier</li>
+          <li><span className="num font-bold text-ink">03.</span> Declare availability when ready</li>
         </ol>
       </div>
       <Link href="/login" className="btn btn-ink mt-7 w-full justify-center">
@@ -337,17 +313,17 @@ export default function SignUpPage() {
 
       <div className="mx-auto grid max-w-[1040px] gap-8 py-10 lg:grid-cols-[0.85fr_1fr] lg:items-center lg:py-16">
         <section className="hidden lg:block">
-          <p className="label-meta text-terra-deep">Free to start</p>
+          <p className="label-meta text-terra-deep">Market entry</p>
           <h2 className="display-lg mt-5 max-w-[520px]">
-            Live first. Improve later.
+            Build first. Enter when ready.
           </h2>
           <p className="mt-6 max-w-[420px] text-[16px] leading-[1.6] text-ink-2">
-            Create the account, add the essentials, and get into the team
-            search. Stats, film and details can be updated any time.
+            Add the dossier details clubs review first: role, size, film,
+            stats, market fit and availability.
           </p>
           <div className="mt-8 grid max-w-[420px] gap-3 text-[14px] text-ink-2">
-            <ProofItem text="No card required" />
-            <ProofItem text="Direct player and team messaging" />
+            <ProofItem text="Draft private until you publish" />
+            <ProofItem text="Direct club and player interest" />
             <ProofItem text="Built for European roster windows" />
           </div>
         </section>

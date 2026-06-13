@@ -161,7 +161,7 @@ export default function DashboardSidebar({ profile }) {
         >
           <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-light text-sm font-semibold text-orange-400">
             {profile.avatar_url ? (
-              <Image src={profile.avatar_url} alt="" width={32} height={32} unoptimized className="h-full w-full object-cover" />
+              <Image src={profile.avatar_url} alt="" width={32} height={32} className="h-full w-full object-cover" />
             ) : (
               (profile.full_name || "?").charAt(0).toUpperCase()
             )}

@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Picked — Get picked by teams hiring this window";
+export const alt = "Picked — The European basketball player market";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -15,7 +15,7 @@ export default function OpengraphImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          backgroundColor: "#E8E5DC",
+          backgroundColor: "#F3F6FA",
           padding: "64px 72px",
           fontFamily: "sans-serif",
         }}
@@ -26,14 +26,14 @@ export default function OpengraphImage() {
               width: 14,
               height: 14,
               borderRadius: 999,
-              backgroundColor: "#B85A3F",
+              backgroundColor: "#FF4D1D",
             }}
           />
           <div
             style={{
               fontSize: 34,
               fontWeight: 800,
-              color: "#13110E",
+              color: "#05070A",
               letterSpacing: 1,
             }}
           >
@@ -46,25 +46,25 @@ export default function OpengraphImage() {
             style={{
               fontSize: 92,
               fontWeight: 700,
-              color: "#13110E",
+              color: "#05070A",
               lineHeight: 1.02,
-              letterSpacing: -4,
+              letterSpacing: 0,
               maxWidth: 980,
             }}
           >
-            Get picked by teams hiring this window.
+            The European basketball player market.
           </div>
           <div
             style={{
               marginTop: 28,
               fontSize: 28,
-              color: "#3A332B",
+              color: "#232932",
               maxWidth: 820,
               lineHeight: 1.4,
             }}
           >
-            One coach-ready basketball profile. Film, stats, availability —
-            and direct messages from teams in Europe.
+            Players enter. Clubs search. Interest moves through a professional
+            roster market.
           </div>
         </div>
 
@@ -73,7 +73,7 @@ export default function OpengraphImage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            borderTop: "2px solid rgba(19,17,14,0.12)",
+            borderTop: "2px solid rgba(5,7,10,0.12)",
             paddingTop: 28,
           }}
         >
@@ -81,14 +81,14 @@ export default function OpengraphImage() {
             style={{
               fontSize: 22,
               fontWeight: 700,
-              color: "#8F4029",
+              color: "#D7370A",
               letterSpacing: 4,
               textTransform: "uppercase",
             }}
           >
-            Basketball recruiting for Europe
+            Dossiers / Availability / Roster search
           </div>
-          <div style={{ fontSize: 22, fontWeight: 700, color: "#13110E" }}>
+          <div style={{ fontSize: 22, fontWeight: 700, color: "#05070A" }}>
             getpicked.co
           </div>
         </div>

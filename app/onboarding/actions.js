@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { normalizePositions } from "@/lib/basketball/positions.mjs";
 
 // ─── Save current step data for player ────────────────────────
 export async function savePlayerStep(stepData) {
@@ -35,7 +36,9 @@ export async function savePlayerStep(stepData) {
   let hasAdData = false;
   for (const f of adFields) {
     if (stepData[f] !== undefined) {
-      adPatch[f] = stepData[f];
+      adPatch[f] = f === "positions"
+        ? normalizePositions(stepData[f])
+        : stepData[f];
       hasAdData = true;
     }
   }
@@ -75,7 +78,9 @@ export async function saveTeamStep(stepData) {
   let hasAdData = false;
   for (const f of adFields) {
     if (stepData[f] !== undefined) {
-      adPatch[f] = stepData[f];
+      adPatch[f] = f === "positions_needed"
+        ? normalizePositions(stepData[f])
+        : stepData[f];
       hasAdData = true;
     }
   }

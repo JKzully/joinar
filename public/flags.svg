@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="es" viewBox="0 0 30 20">
+    <path fill="#AA151B" d="M0 0h30v20H0z"/>
+    <path fill="#F1BF00" d="M0 5h30v10H0z"/>
+  </symbol>
+  <symbol id="de" viewBox="0 0 30 20">
+    <path fill="#000" d="M0 0h30v7H0z"/>
+    <path fill="#D00" d="M0 7h30v6H0z"/>
+    <path fill="#FFCE00" d="M0 13h30v7H0z"/>
+  </symbol>
+  <symbol id="fr" viewBox="0 0 30 20">
+    <path fill="#0055A4" d="M0 0h10v20H0z"/>
+    <path fill="#FFF" d="M10 0h10v20H10z"/>
+    <path fill="#EF4135" d="M20 0h10v20H20z"/>
+  </symbol>
+  <symbol id="it" viewBox="0 0 30 20">
+    <path fill="#009246" d="M0 0h10v20H0z"/>
+    <path fill="#FFF" d="M10 0h10v20H10z"/>
+    <path fill="#CE2B37" d="M20 0h10v20H20z"/>
+  </symbol>
+  <symbol id="is" viewBox="0 0 30 20">
+    <path fill="#02529C" d="M0 0h30v20H0z"/>
+    <path fill="#FFF" d="M8 0h5v20H8zM0 8h30v5H0z"/>
+    <path fill="#DC1E35" d="M9.5 0h2v20h-2zM0 9.5h30v2H0z"/>
+  </symbol>
+  <symbol id="rs" viewBox="0 0 30 20">
+    <path fill="#C6363C" d="M0 0h30v7H0z"/>
+    <path fill="#0C4076" d="M0 7h30v6H0z"/>
+    <path fill="#FFF" d="M0 13h30v7H0z"/>
+  </symbol>
+  <symbol id="hr" viewBox="0 0 30 20">
+    <path fill="#FF0000" d="M0 0h30v7H0z"/>
+    <path fill="#FFF" d="M0 7h30v6H0z"/>
+    <path fill="#171796" d="M0 13h30v7H0z"/>
+    <path fill="#D00" d="M12 7h2v2h-2zM16 7h2v2h-2zM14 9h2v2h-2zM12 11h2v2h-2zM16 11h2v2h-2z"/>
+  </symbol>
+  <symbol id="gr" viewBox="0 0 30 20">
+    <path fill="#0D5EAF" d="M0 0h30v20H0z"/>
+    <path stroke="#FFF" stroke-width="2.2" d="M0 3.3h30M0 7.7h30M0 12.1h30M0 16.5h30"/>
+    <path fill="#0D5EAF" d="M0 0h11v11H0z"/>
+    <path fill="#FFF" d="M4.3 0h2.4v11H4.3zM0 4.3h11v2.4H0z"/>
+  </symbol>
+  <symbol id="pl" viewBox="0 0 30 20">
+    <path fill="#FFF" d="M0 0h30v10H0z"/>
+    <path fill="#DC143C" d="M0 10h30v10H0z"/>
+  </symbol>
+  <symbol id="nl" viewBox="0 0 30 20">
+    <path fill="#AE1C28" d="M0 0h30v7H0z"/>
+    <path fill="#FFF" d="M0 7h30v6H0z"/>
+    <path fill="#21468B" d="M0 13h30v7H0z"/>
+  </symbol>
+  <symbol id="se" viewBox="0 0 30 20">
+    <path fill="#006AA7" d="M0 0h30v20H0z"/>
+    <path fill="#FECC00" d="M9 0h4v20H9zM0 8h30v4H0z"/>
+  </symbol>
+  <symbol id="dk" viewBox="0 0 30 20">
+    <path fill="#C60C30" d="M0 0h30v20H0z"/>
+    <path fill="#FFF" d="M9 0h3v20H9zM0 8.5h30v3H0z"/>
+  </symbol>
+</svg>

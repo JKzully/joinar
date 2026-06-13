@@ -23,11 +23,11 @@ export default function SuccessContent({ profile, ad }) {
         </svg>
       </div>
 
-      <h1 className="text-3xl font-bold text-text-primary">You&apos;re Live!</h1>
+      <h1 className="text-3xl font-bold text-text-primary">Draft saved.</h1>
       <p className="mx-auto mt-3 max-w-md text-text-secondary">
         {role === "player"
-          ? "Your player ad is now visible. Teams can find you and reach out."
-          : "Your team ad is now visible. Players can find you and reach out."}
+          ? "Your player profile is private while you finish the coach scan. Publish it when the essentials are ready."
+          : "Your team ad is private while you finish the listing. Publish it when the essentials are ready."}
       </p>
 
       {/* Preview Card */}
@@ -35,7 +35,7 @@ export default function SuccessContent({ profile, ad }) {
         <div className="flex items-center gap-4">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-orange-500/15 text-lg font-semibold text-orange-400">
             {profile?.avatar_url ? (
-              <Image src={profile.avatar_url} alt="" width={48} height={48} unoptimized className="h-full w-full object-cover" />
+              <Image src={profile.avatar_url} alt="" width={48} height={48} className="h-full w-full object-cover" />
             ) : (
               (profile?.full_name || "?").charAt(0).toUpperCase()
             )}
@@ -95,7 +95,7 @@ export default function SuccessContent({ profile, ad }) {
       </div>
 
       <p className="mx-auto mt-8 max-w-sm text-xs text-text-muted">
-        Pro tip: The more complete your profile, the more likely you are to get noticed. You can always update your ad from the dashboard.
+        Pro tip: profiles are easiest to trust when film, fit, markets and a short description are all in place.
       </p>
 
       <style jsx>{`

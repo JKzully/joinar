@@ -2,14 +2,11 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
+import { BASKETBALL_POSITIONS } from "@/lib/basketball/positions.mjs";
 
 const POSITIONS = [
   { value: "", label: "Any Position" },
-  { value: "point_guard", label: "Point Guard" },
-  { value: "shooting_guard", label: "Shooting Guard" },
-  { value: "small_forward", label: "Small Forward" },
-  { value: "power_forward", label: "Power Forward" },
-  { value: "center", label: "Center" },
+  ...BASKETBALL_POSITIONS,
 ];
 
 export default function TeamFilters({ countries }) {
@@ -36,8 +33,9 @@ export default function TeamFilters({ countries }) {
   return (
     <div className="flex flex-wrap items-end gap-3 rounded-2xl border border-line bg-paper-2 p-5">
       <div className="min-w-[160px] flex-1">
-        <label className="label-meta mb-2 block text-mute">Country</label>
+        <label htmlFor="team-filter-country" className="label-meta mb-2 block text-mute">Country</label>
         <select
+          id="team-filter-country"
           value={searchParams.get("country") || ""}
           onChange={(e) => updateFilter("country", e.target.value)}
           className="w-full rounded-xl border border-line-2 bg-paper px-3.5 py-2.5 text-[13px] text-ink focus:border-ink focus:outline-none"
@@ -47,8 +45,9 @@ export default function TeamFilters({ countries }) {
         </select>
       </div>
       <div className="min-w-[160px] flex-1">
-        <label className="label-meta mb-2 block text-mute">Tier</label>
+        <label htmlFor="team-filter-tier" className="label-meta mb-2 block text-mute">Tier</label>
         <select
+          id="team-filter-tier"
           value={searchParams.get("tier") || ""}
           onChange={(e) => updateFilter("tier", e.target.value)}
           className="w-full rounded-xl border border-line-2 bg-paper px-3.5 py-2.5 text-[13px] text-ink focus:border-ink focus:outline-none"
@@ -61,8 +60,9 @@ export default function TeamFilters({ countries }) {
         </select>
       </div>
       <div className="min-w-[160px] flex-1">
-        <label className="label-meta mb-2 block text-mute">Hiring for</label>
+        <label htmlFor="team-filter-position" className="label-meta mb-2 block text-mute">Hiring for</label>
         <select
+          id="team-filter-position"
           value={searchParams.get("position") || ""}
           onChange={(e) => updateFilter("position", e.target.value)}
           className="w-full rounded-xl border border-line-2 bg-paper px-3.5 py-2.5 text-[13px] text-ink focus:border-ink focus:outline-none"

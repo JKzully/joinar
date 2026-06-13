@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createTryoutInvitation } from "../actions";
 
 const inputClass =
@@ -10,6 +10,48 @@ export default function InviteToTryoutButton({ playerId }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState(null);
+  const dialogRef = useRef(null);
+  const triggerRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const previousFocus = document.activeElement;
+    const triggerElement = triggerRef.current;
+    dialogRef.current?.focus();
+
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        setOpen(false);
+        return;
+      }
+
+      if (event.key !== "Tab" || !dialogRef.current) return;
+      const focusable = dialogRef.current.querySelectorAll(
+        'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), a[href]'
+      );
+      if (focusable.length === 0) {
+        event.preventDefault();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      (previousFocus || triggerElement)?.focus?.();
+    };
+  }, [open]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -34,6 +76,7 @@ export default function InviteToTryoutButton({ playerId }) {
   return (
     <>
       <button
+        ref={triggerRef}
         onClick={() => {
           setOpen(true);
           setFeedback(null);
@@ -50,8 +93,15 @@ export default function InviteToTryoutButton({ playerId }) {
             if (e.target === e.currentTarget) setOpen(false);
           }}
         >
-          <div className="w-full max-w-md rounded-2xl border border-line bg-paper-2 p-6 shadow-xl">
-            <h2 className="text-[20px] font-bold text-ink">
+          <div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="tryout-dialog-title"
+            tabIndex={-1}
+            className="w-full max-w-md rounded-2xl border border-line bg-paper-2 p-6 shadow-xl outline-none"
+          >
+            <h2 id="tryout-dialog-title" className="text-[20px] font-bold text-ink">
               Invite to Tryout
             </h2>
             <p className="mt-1 text-[14px] leading-[1.55] text-ink-2">
@@ -60,34 +110,39 @@ export default function InviteToTryoutButton({ playerId }) {
 
             <form onSubmit={handleSubmit} className="mt-5 space-y-4">
               <div>
-                <label className="block text-[13px] font-bold text-ink-2">
+                <label htmlFor="tryout-date" className="block text-[13px] font-bold text-ink-2">
                   Tryout Date
                 </label>
                 <input
                   type="date"
+                  id="tryout-date"
                   name="tryout_date"
                   className={inputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-[13px] font-bold text-ink-2">
+                <label htmlFor="tryout-location" className="block text-[13px] font-bold text-ink-2">
                   Location
                 </label>
                 <input
                   type="text"
+                  id="tryout-location"
                   name="location"
+                  maxLength={240}
                   placeholder="e.g. Main Arena, City"
                   className={inputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-[13px] font-bold text-ink-2">
+                <label htmlFor="tryout-message" className="block text-[13px] font-bold text-ink-2">
                   Personal Message
                 </label>
                 <textarea
                   name="message"
+                  id="tryout-message"
+                  maxLength={2000}
                   rows={3}
                   placeholder="Why you'd like this player to try out..."
                   className={`${inputClass} resize-none`}
@@ -96,6 +151,7 @@ export default function InviteToTryoutButton({ playerId }) {
 
               {feedback && (
                 <p
+                  role={feedback.type === "error" ? "alert" : "status"}
                   className={`text-sm font-medium ${
                     feedback.type === "error"
                       ? "text-red-400"
