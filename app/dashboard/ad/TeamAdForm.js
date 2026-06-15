@@ -44,7 +44,7 @@ export default function TeamAdForm({ teamAd, profile }) {
     if (result.error) {
       setMessage({ type: "error", text: result.error });
     } else {
-      setMessage({ type: "success", text: "Ad saved successfully" });
+      setMessage({ type: "success", text: "Roster search saved" });
       router.refresh();
     }
   }
@@ -186,7 +186,7 @@ export default function TeamAdForm({ teamAd, profile }) {
           disabled={saving}
           className="btn btn-terra disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
         >
-          {saving ? "Saving..." : "Save Ad"}
+          {saving ? "Saving..." : "Save roster search"}
         </button>
       </div>
     </form>

@@ -86,7 +86,7 @@ export default function OpengraphImage() {
               textTransform: "uppercase",
             }}
           >
-            Dossiers / Availability / Roster search
+            Player profiles / Availability / Roster search
           </div>
           <div style={{ fontSize: 22, fontWeight: 700, color: "#05070A" }}>
             getpicked.co

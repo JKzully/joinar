@@ -307,6 +307,59 @@ export async function startConversation(otherProfileId) {
   if (!user) return { error: "Not authenticated" };
   if (user.id === otherProfileId) return { error: "Cannot message yourself" };
 
+  const [{ data: currentProfile }, { data: otherProfile }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single(),
+    supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", otherProfileId)
+      .single(),
+  ]);
+
+  if (!currentProfile || !otherProfile) {
+    return { error: "Profile not found" };
+  }
+
+  if (currentProfile.role === otherProfile.role) {
+    return { error: "Interest can only be exchanged between players and teams" };
+  }
+
+  const currentTable =
+    currentProfile.role === "team" ? "team_ads" : "player_ads";
+  const otherTable = otherProfile.role === "team" ? "team_ads" : "player_ads";
+
+  const [{ data: currentAd }, { data: otherAd }] = await Promise.all([
+    supabase
+      .from(currentTable)
+      .select("id")
+      .eq("profile_id", user.id)
+      .eq("is_active", true)
+      .maybeSingle(),
+    supabase
+      .from(otherTable)
+      .select("id")
+      .eq("profile_id", otherProfileId)
+      .eq("is_active", true)
+      .maybeSingle(),
+  ]);
+
+  if (!currentAd) {
+    return {
+      error:
+        currentProfile.role === "team"
+          ? "Publish your roster search before contacting players"
+          : "Declare availability before contacting teams",
+    };
+  }
+
+  if (!otherAd) {
+    return { error: "This profile is not currently active in the market" };
+  }
+
   // Finds the existing 1:1 conversation or creates one, atomically,
   // with participant inserts locked down behind the RPC.
   const { data: conversationId, error } = await supabase.rpc(

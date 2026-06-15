@@ -27,12 +27,7 @@ export default async function TeamProfilePage({ params }) {
     .eq("is_active", true)
     .maybeSingle();
 
-  const { data: profileRow } = await supabase
-    .from("profiles")
-    .select("is_seed")
-    .eq("id", id)
-    .single();
-  const isSeed = !!profileRow?.is_seed;
+  const isSeed = !!team.is_seed;
 
   const { data: { user: currentUser } } = await supabase.auth.getUser();
   const { data: currentProfile } = await supabase
@@ -146,7 +141,7 @@ export default async function TeamProfilePage({ params }) {
             profileId={team.profile_id}
             isSeed={isSeed}
             className="btn btn-terra"
-            label="Apply — send message"
+            label="Declare interest"
           />
         )}
         <Link href="/dashboard/teams" className="btn btn-ghost">

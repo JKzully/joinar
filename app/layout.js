@@ -20,7 +20,7 @@ export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://getpicked.co"),
   title: "Picked — The European basketball player market",
   description:
-    "A professional basketball player market for Europe. Players build dossiers and declare availability. Clubs open roster search and review prospects.",
+    "A professional basketball player market for Europe. Players build profiles and declare availability. Clubs open roster search and review prospects.",
   openGraph: {
     title: "Picked — The European basketball player market",
     description:

@@ -9,6 +9,7 @@ export default function MessageButton({ profileId, className, label, ariaLabel, 
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showSeedModal, setShowSeedModal] = useState(false);
+  const [error, setError] = useState("");
 
   async function handleClick(e) {
     e.preventDefault();
@@ -19,11 +20,13 @@ export default function MessageButton({ profileId, className, label, ariaLabel, 
       return;
     }
 
+    setError("");
     setLoading(true);
     const result = await startConversation(profileId);
     if (result.conversationId) {
       router.push(`/dashboard/messages/${result.conversationId}`);
     } else {
+      setError(result.error || "Could not open the conversation");
       setLoading(false);
     }
   }
@@ -41,6 +44,11 @@ export default function MessageButton({ profileId, className, label, ariaLabel, 
       >
         {loading ? "Opening…" : label || "Message"}
       </button>
+      {error && (
+        <p role="alert" className="mt-2 max-w-[260px] text-[12px] font-semibold text-terra-deep">
+          {error}
+        </p>
+      )}
 
       {showSeedModal && (
         <div
@@ -58,7 +66,7 @@ export default function MessageButton({ profileId, className, label, ariaLabel, 
             </div>
             <h3 className="text-[18px] font-bold text-ink">Sample Profile</h3>
             <p className="mt-2 text-[14px] leading-[1.55] text-ink-2">
-              This is a sample profile to show what Picked looks like. Real players and teams are joining every day.
+              This sample shows how a market profile is structured. It cannot receive interest or invitations.
             </p>
             <div className="mt-6 flex gap-3">
               <Link

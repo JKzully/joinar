@@ -67,7 +67,7 @@ export default function InviteToTryoutButton({ playerId }) {
       setFeedback({ type: "error", text: res.error });
       setLoading(false);
     } else {
-      setFeedback({ type: "success", text: "Tryout invitation sent! They'll receive an email notification. Fingers crossed — you might have just found your next key player." });
+      setFeedback({ type: "success", text: "Tryout invitation sent. The player will receive an email notification." });
       setLoading(false);
       setTimeout(() => setOpen(false), 1500);
     }
@@ -105,7 +105,7 @@ export default function InviteToTryoutButton({ playerId }) {
               Invite to Tryout
             </h2>
             <p className="mt-1 text-[14px] leading-[1.55] text-ink-2">
-              This is it — you&apos;re giving someone a real shot. Fill in the details and let them know you&apos;re serious.
+              Send the date, location and evaluation context the player needs to respond.
             </p>
 
             <form onSubmit={handleSubmit} className="mt-5 space-y-4">

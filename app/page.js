@@ -47,7 +47,7 @@ const Flag = ({ code, country }) => (
   </svg>
 );
 
-const DOSSIER_FIELDS = [
+const PROFILE_FIELDS = [
   ["Position / size", "Role, height, age and current level", "Lets a club place the player against a real roster gap."],
   ["Market status", "Available, draft or signed", "Prevents clubs wasting time on players who are not actually movable."],
   ["Proof", "Film, stats, last club and season context", "Gives managers a first evaluation before a call is scheduled."],
@@ -55,7 +55,7 @@ const DOSSIER_FIELDS = [
 ];
 
 const MARKET_FLOW = [
-  ["01", "Declare availability", "Players enter the market when their dossier is ready."],
+  ["01", "Declare availability", "Players enter the market when their profile is ready."],
   ["02", "Open roster search", "Clubs filter by position, country, level, passport and timing."],
   ["03", "Review prospects", "Managers scan film, stats, fit and contract expectations."],
   ["04", "Exchange interest", "Conversations start only when both sides have a real roster reason."],
@@ -64,7 +64,7 @@ const MARKET_FLOW = [
 export const metadata = {
   title: "Picked — The European basketball player market",
   description:
-    "Enter the European basketball player market. Build a dossier, declare availability and let clubs open roster search across Europe.",
+    "Enter the European basketball player market. Build your player profile, declare availability and let clubs open roster search across Europe.",
 };
 
 export default async function Home() {
@@ -90,7 +90,7 @@ export default async function Home() {
 
   const proofStats = [
     {
-      value: playerCount && playerCount > 0 ? `${playerCount}` : "Dossier",
+      value: playerCount && playerCount > 0 ? `${playerCount}` : "Profile",
       label: playerCount && playerCount > 0 ? "available players" : "built before market entry",
     },
     {
@@ -115,7 +115,7 @@ export default async function Home() {
               </h1>
               <p className="rise rise-3 mt-7 max-w-[610px] text-[18px] font-medium leading-[1.55] text-ink-2">
                 Picked is where professional basketball players declare
-                availability and clubs open roster search. Build your dossier,
+                availability and clubs open roster search. Build your profile,
                 show market fit and exchange interest when the window moves.
               </p>
 
@@ -129,7 +129,7 @@ export default async function Home() {
               </div>
 
               <div className="rise rise-5 mt-8 flex max-w-[620px] flex-wrap gap-x-5 gap-y-2 border-t border-line pt-5">
-                {["Dossier", "Availability", "Film", "Stats", "Passport", "Contract window"].map((item) => (
+                {["Profile", "Availability", "Film", "Stats", "Passport", "Contract window"].map((item) => (
                   <span key={item} className="text-[12px] font-black uppercase tracking-[0.14em] text-mute">
                     {item}
                   </span>
@@ -151,7 +151,7 @@ export default async function Home() {
                 </div>
                 <div className="grid border-t border-line sm:grid-cols-[minmax(0,1.15fr)_minmax(0,2fr)]">
                   <div className="p-4 sm:p-5">
-                    <p className="label-meta text-terra-deep">Illustrative dossier</p>
+                    <p className="label-meta text-terra-deep">Player profile</p>
                     <h2 className="mt-2 text-[22px] font-black leading-none text-ink">
                       Sample prospect
                     </h2>
@@ -241,11 +241,11 @@ export default async function Home() {
       <section className="border-t border-line px-6 py-16 sm:px-12 sm:py-20 lg:px-16">
         <div className="mx-auto max-w-[1340px]">
           <h2 className="display-md max-w-[900px]">
-            A player market is only useful if the dossier is scan-ready.
+            A player market is only useful if every profile is scan-ready.
           </h2>
 
           <div className="mt-12">
-            {DOSSIER_FIELDS.map(([label, field, why]) => (
+            {PROFILE_FIELDS.map(([label, field, why]) => (
               <div
                 key={label}
                 className="grid gap-3 border-t border-line py-7 last:border-b md:grid-cols-[200px_1fr_1fr] md:gap-10"
@@ -340,7 +340,7 @@ export default async function Home() {
 
           <div>
             {[
-              ["Draft first", "A dossier is private until the player chooses to enter the market."],
+              ["Draft first", "A player profile is private until the player chooses to enter the market."],
               ["Professional signal", "Clubs see the information they need for a first scan, not fan content."],
               ["Market context", "Countries, languages and timing matter as much as highlights."],
             ].map(([title, body]) => (
@@ -361,14 +361,14 @@ export default async function Home() {
               Declare availability before the market moves.
             </h2>
             <p className="mt-5 max-w-[520px] text-[15px] leading-[1.6] text-sand/75">
-              Build the dossier first. Enter the market only when your profile
+              Build your profile first. Enter the market only when it
               is strong enough for club review.
             </p>
             <Link
               href="/signup?role=player"
               className="btn btn-terra btn-xl mt-9"
             >
-              Build your dossier <Arrow />
+              Build your profile <Arrow />
             </Link>
           </div>
           <div className="relative hidden aspect-[4/3] overflow-hidden rounded-2xl lg:block">

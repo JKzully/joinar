@@ -37,16 +37,15 @@ export default async function BrowsePlayersPage({ searchParams }) {
   const minHeight = parseInt(params?.min_height) || 0;
 
   const supabase = await createClient();
-
-  // Fetch distinct countries for the filter dropdown
-  const { data: countryRows } = await supabase
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: currentProfile } = await supabase
     .from("profiles")
-    .select("country")
-    .eq("role", "player")
-    .not("country", "is", null)
-    .order("country");
-
-  const countries = [...new Set(countryRows?.map((r) => r.country).filter(Boolean))];
+    .select("role")
+    .eq("id", user.id)
+    .single();
+  const canContactPlayers = currentProfile?.role === "team";
 
   // Build query
   let query = supabase
@@ -66,6 +65,9 @@ export default async function BrowsePlayersPage({ searchParams }) {
   }
 
   const { data: players } = await query;
+  const countries = [
+    ...new Set(players?.map((player) => player.profile?.country).filter(Boolean)),
+  ].sort();
 
   // Client-side country filter (country is on joined profile)
   const filtered = countryFilter
@@ -101,7 +103,7 @@ export default async function BrowsePlayersPage({ searchParams }) {
             Find your next <span className="serif text-sage-deep">signing.</span>
           </h1>
           <p className="mt-2 text-[14px] text-mute">
-            <span className="num font-bold text-ink">{sorted.length}</span> player{sorted.length !== 1 ? "s" : ""} · {countries.length} countries
+            <span className="num font-bold text-ink">{sorted.length}</span> player{sorted.length !== 1 ? "s" : ""} · {countries.length} {countries.length === 1 ? "country" : "countries"}
           </p>
         </div>
         <Link href="/dashboard/ad" className="btn btn-ink">
@@ -129,6 +131,7 @@ export default async function BrowsePlayersPage({ searchParams }) {
                   index={i}
                   boosted={boostedIds.has(player.profile_id)}
                   isSeed={!!player.is_seed}
+                  canContact={canContactPlayers}
                 />
               ))}
             </div>
@@ -136,7 +139,7 @@ export default async function BrowsePlayersPage({ searchParams }) {
             <div className="rounded-2xl border border-dashed border-line py-20 text-center">
               <p className="text-[14px] font-semibold text-ink">No players match those filters</p>
               <p className="mt-2 text-[13px] text-mute">
-                New players sign up every day. Try adjusting your search or check back soon.
+                Adjust the filters or return when more players declare availability.
               </p>
             </div>
           )}
@@ -146,7 +149,7 @@ export default async function BrowsePlayersPage({ searchParams }) {
   );
 }
 
-function PlayerCard({ player, index, boosted, isSeed }) {
+function PlayerCard({ player, index, boosted, isSeed, canContact }) {
   const profile = player.profile;
   const name = profile?.full_name || "Unnamed";
   const initials = name.split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase();
@@ -238,17 +241,19 @@ function PlayerCard({ player, index, boosted, isSeed }) {
           {player.experience_years ? `${player.experience_years}y exp` : "No exp listed"}
         </span>
         <div className="flex gap-2">
-          <MessageButton
-            profileId={player.profile_id}
-            isSeed={isSeed}
-            ariaLabel={`Message ${name}`}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-line bg-paper-2 text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper-2"
-            label={
-              <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
-                <path d="M1.5 3h11v7H6l-3 2v-2H1.5V3z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
-              </svg>
-            }
-          />
+          {canContact && (
+            <MessageButton
+              profileId={player.profile_id}
+              isSeed={isSeed}
+              ariaLabel={`Express interest in ${name}`}
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-line bg-paper-2 text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper-2"
+              label={
+                <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                  <path d="M1.5 3h11v7H6l-3 2v-2H1.5V3z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+                </svg>
+              }
+            />
+          )}
           <Link
             href={`/dashboard/players/${player.profile_id}`}
             className="flex h-11 w-11 items-center justify-center rounded-full border border-line bg-paper-2 text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper-2"

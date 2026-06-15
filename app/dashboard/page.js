@@ -30,10 +30,10 @@ async function PlayerDashboard({ supabase, profile }) {
     .eq("profile_id", profile.id)
     .maybeSingle();
 
-  const { count: messageCount } = await supabase
-    .from("messages")
+  const { count: conversationCount } = await supabase
+    .from("conversation_participants")
     .select("*", { count: "exact", head: true })
-    .eq("conversation_id", profile.id);
+    .eq("profile_id", profile.id);
 
   const { data: invitations } = await supabase
     .from("tryout_invitations")
@@ -240,7 +240,7 @@ async function PlayerDashboard({ supabase, profile }) {
           <SmallAction
             href="/dashboard/messages"
             label="Messages"
-            value={messageCount || 0}
+            value={conversationCount || 0}
             note="Conversations"
           />
           <SmallAction
@@ -297,6 +297,7 @@ async function TeamDashboard({ supabase, profile }) {
     .maybeSingle();
 
   const hasAd = !!teamAd;
+  const isPublished = !!teamAd?.is_active;
   const openPositions = teamAd?.positions_needed || [];
 
   return (
@@ -307,7 +308,9 @@ async function TeamDashboard({ supabase, profile }) {
           Welcome back, {teamAd?.team_name || profile.full_name || "Team"}
         </h1>
         <p className="mt-2 max-w-[560px] text-[14px] leading-[1.55] text-ink-2">
-          Manage your team and find the right talent
+          {isPublished
+            ? "Your roster search is live. Review available players and move qualified interest into a conversation."
+            : "Your roster search is saved as a draft. Publish it when the role and offer are ready for players to review."}
         </p>
       </div>
 
@@ -332,6 +335,29 @@ async function TeamDashboard({ supabase, profile }) {
             </Link>
           </div>
         </div>
+      )}
+
+      {hasAd && (
+        <section className="rounded-2xl border border-line bg-paper-2 p-5 sm:flex sm:items-center sm:justify-between sm:gap-6">
+          <div>
+            <div className={`label-meta ${isPublished ? "text-sage-deep" : "text-terra-deep"}`}>
+              {isPublished ? "Roster search live" : "Draft roster search"}
+            </div>
+            <h2 className="mt-2 text-[22px] font-bold tracking-[-0.015em] text-ink">
+              {isPublished
+                ? "Players can review this opportunity."
+                : "Players cannot see this opportunity yet."}
+            </h2>
+            <p className="mt-1 text-[13px] leading-[1.55] text-ink-2">
+              {isPublished
+                ? "Keep the open positions, offer and decision timeline current."
+                : "Finish the listing, then publish when the roster need is real."}
+            </p>
+          </div>
+          <Link href="/dashboard/ad" className="btn btn-terra mt-4 shrink-0 sm:mt-0">
+            {isPublished ? "Review roster search" : "Publish when ready"} &rarr;
+          </Link>
+        </section>
       )}
 
       {/* Stats cards */}

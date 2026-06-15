@@ -60,19 +60,12 @@ export default async function PublicPlayerPage({ params }) {
 
   if (error || !player) notFound();
 
-  const [{ data: boost }, { data: profileRow }] = await Promise.all([
-    supabase
-      .from("boosts")
-      .select("id")
-      .eq("profile_id", id)
-      .eq("is_active", true)
-      .maybeSingle(),
-    supabase
-      .from("profiles")
-      .select("is_seed")
-      .eq("id", id)
-      .single(),
-  ]);
+  const { data: boost } = await supabase
+    .from("boosts")
+    .select("id")
+    .eq("profile_id", id)
+    .eq("is_active", true)
+    .maybeSingle();
 
   return (
     <main className="min-h-screen bg-sand px-6 py-6 text-ink sm:px-10 sm:py-8 lg:px-14">
@@ -94,7 +87,7 @@ export default async function PublicPlayerPage({ params }) {
       <PlayerProfileView
         player={player}
         isBoosted={!!boost}
-        isSeed={!!profileRow?.is_seed}
+        isSeed={!!player.is_seed}
         backHref="/"
         backLabel="Back to Picked"
         publicActions={
@@ -103,7 +96,7 @@ export default async function PublicPlayerPage({ params }) {
               Declare club interest
             </Link>
             <Link href="/signup?role=player" className="btn btn-ghost">
-              Build your dossier
+              Build your profile
             </Link>
           </>
         }

@@ -3,7 +3,7 @@ import PlayerAdForm from "./PlayerAdForm";
 import TeamAdForm from "./TeamAdForm";
 
 export const metadata = {
-  title: "My Ad - Picked",
+  title: "Market profile - Picked",
 };
 
 export default async function AdPage() {
@@ -29,9 +29,9 @@ export default async function AdPage() {
     return (
       <div className="mx-auto max-w-3xl space-y-6">
         <div>
-          <h1 className="display-sm">My Player Ad</h1>
+          <h1 className="display-sm">Player profile</h1>
           <p className="mt-2 text-[14px] leading-[1.55] text-ink-2">
-            This is what teams see when they browse players
+            This is what teams review in the player market
           </p>
         </div>
         <PlayerAdForm playerAd={playerAd} profile={profile} />
@@ -49,9 +49,9 @@ export default async function AdPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="display-sm">My Team Ad</h1>
+        <h1 className="display-sm">Roster search</h1>
         <p className="mt-2 text-[14px] leading-[1.55] text-ink-2">
-          This is what players see when they browse teams
+          This is the opportunity available players can review
         </p>
       </div>
       <TeamAdForm teamAd={teamAd} profile={profile} />

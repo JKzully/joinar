@@ -19,18 +19,13 @@ export default async function PlayerProfilePage({ params }) {
 
   if (error || !player) redirect("/dashboard/players");
 
-  const [{ data: boost }, { data: profileRow }, { data: authResult }] = await Promise.all([
+  const [{ data: boost }, { data: authResult }] = await Promise.all([
     supabase
       .from("boosts")
       .select("id")
       .eq("profile_id", id)
       .eq("is_active", true)
       .maybeSingle(),
-    supabase
-      .from("profiles")
-      .select("is_seed")
-      .eq("id", id)
-      .single(),
     supabase.auth.getUser(),
   ]);
 
@@ -42,7 +37,7 @@ export default async function PlayerProfilePage({ params }) {
     .single();
 
   const isTeam = currentProfile?.role === "team";
-  const isSeed = !!profileRow?.is_seed;
+  const isSeed = !!player.is_seed;
 
   return (
     <PlayerProfileView
@@ -53,12 +48,14 @@ export default async function PlayerProfilePage({ params }) {
       backLabel="Back to players"
       actions={
         <>
-          <MessageButton
-            profileId={player.profile_id}
-            isSeed={isSeed}
-            className="btn btn-terra"
-            label="Send message"
-          />
+          {isTeam && (
+            <MessageButton
+              profileId={player.profile_id}
+              isSeed={isSeed}
+              className="btn btn-terra"
+              label="Express interest"
+            />
+          )}
           {isTeam && !isSeed && <InviteToTryoutButton playerId={player.profile_id} />}
           {player.is_active && (
             <Link href={`/players/${player.profile_id}`} className="btn btn-ghost">

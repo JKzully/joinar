@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { sendMessage, markMessagesRead } from "../../actions";
 
@@ -10,6 +11,7 @@ export default function ChatThread({
   initialMessages,
   otherProfile,
 }) {
+  const router = useRouter();
   const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -20,6 +22,20 @@ export default function ChatThread({
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    let active = true;
+
+    async function syncReadState() {
+      await markMessagesRead(conversationId);
+      if (active) router.refresh();
+    }
+
+    syncReadState();
+    return () => {
+      active = false;
+    };
+  }, [conversationId, router]);
 
   // Real-time subscription
   useEffect(() => {
@@ -95,9 +111,16 @@ export default function ChatThread({
       <div className="flex-1 space-y-1 overflow-y-auto py-4">
         {messages.length === 0 && (
           <div className="flex h-full items-center justify-center">
-            <p className="text-[14px] text-mute">
-              No messages yet. Say hello!
-            </p>
+            <div className="max-w-[420px] text-center">
+              <p className="text-[14px] font-semibold text-ink">
+                Open the market conversation.
+              </p>
+              <p className="mt-1 text-[13px] leading-[1.5] text-mute">
+                {otherProfile?.role === "player"
+                  ? "Share the roster need, contract timing and proposed next step."
+                  : "Confirm your availability and ask for the role, terms and timeline."}
+              </p>
+            </div>
           </div>
         )}
 
@@ -176,7 +199,11 @@ export default function ChatThread({
               handleSend(e);
             }
           }}
-          placeholder="Type a message..."
+          placeholder={
+            otherProfile?.role === "player"
+              ? "Share roster context and the next step..."
+              : "Confirm availability or ask about the role..."
+          }
           rows={1}
           className="max-h-32 min-h-[44px] flex-1 resize-none rounded-xl border border-line-2 bg-paper px-4 py-3 text-[14px] text-ink placeholder:text-mute outline-none transition-colors focus:border-ink focus:ring-1 focus:ring-ink/10"
         />

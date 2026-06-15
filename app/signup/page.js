@@ -59,15 +59,15 @@ function SignUpForm() {
   const roleCopy = isTeam
     ? {
         title: "Create your team account.",
-        intro: "Open roster search and review available player dossiers.",
+        intro: "Open roster search and review available player profiles.",
         cta: "Open roster search",
         nameLabel: "Your name",
         namePlaceholder: "Sofia Marin",
       }
     : {
-        title: "Build your player dossier.",
+        title: "Build your player profile.",
         intro: "Create the account first. You decide when to declare availability.",
-        cta: "Build my dossier",
+        cta: "Build my profile",
         nameLabel: "Full name",
         namePlaceholder: "Marko Kovac",
       };
@@ -136,7 +136,7 @@ function SignUpForm() {
           active={role === "player"}
           onClick={() => setRole("player")}
           title="Player"
-          desc="Build dossier"
+          desc="Build profile"
         />
         <RoleOption
           active={role === "team"}
@@ -287,7 +287,7 @@ function ConfirmationView({ email }) {
         <div className="label-meta text-mute">Next</div>
         <ol className="mt-3 space-y-2 text-[13px] leading-[1.55] text-ink-2">
           <li><span className="num font-bold text-ink">01.</span> Confirm your email</li>
-          <li><span className="num font-bold text-ink">02.</span> Build your player dossier</li>
+          <li><span className="num font-bold text-ink">02.</span> Build your player profile</li>
           <li><span className="num font-bold text-ink">03.</span> Declare availability when ready</li>
         </ol>
       </div>
@@ -318,7 +318,7 @@ export default function SignUpPage() {
             Build first. Enter when ready.
           </h2>
           <p className="mt-6 max-w-[420px] text-[16px] leading-[1.6] text-ink-2">
-            Add the dossier details clubs review first: role, size, film,
+            Add the profile details clubs review first: role, size, film,
             stats, market fit and availability.
           </p>
           <div className="mt-8 grid max-w-[420px] gap-3 text-[14px] text-ink-2">

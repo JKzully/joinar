@@ -16,14 +16,15 @@ export default async function BrowseTeamsPage({ searchParams }) {
   const positionFilter = params?.position || "";
 
   const supabase = await createClient();
-
-  const { data: countryRows } = await supabase
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: currentProfile } = await supabase
     .from("profiles")
-    .select("country")
-    .eq("role", "team")
-    .not("country", "is", null)
-    .order("country");
-  const countries = [...new Set(countryRows?.map((r) => r.country).filter(Boolean))];
+    .select("role")
+    .eq("id", user.id)
+    .single();
+  const canContactTeams = currentProfile?.role === "player";
 
   let query = supabase
     .from("team_ads")
@@ -34,6 +35,9 @@ export default async function BrowseTeamsPage({ searchParams }) {
   if (positionFilter) query = query.contains("positions_needed", [positionFilter]);
 
   const { data: teams } = await query;
+  const countries = [
+    ...new Set(teams?.map((team) => team.profile?.country).filter(Boolean)),
+  ].sort();
   const filtered = countryFilter
     ? teams?.filter((t) => t.profile?.country === countryFilter)
     : teams;
@@ -59,7 +63,7 @@ export default async function BrowseTeamsPage({ searchParams }) {
           Open roster <span className="serif text-terra">spots.</span>
         </h1>
         <p className="mt-2 text-[14px] text-mute">
-          <span className="num font-bold text-ink">{sorted.length}</span> team{sorted.length !== 1 ? "s" : ""} hiring · {countries.length} countries
+          <span className="num font-bold text-ink">{sorted.length}</span> team{sorted.length !== 1 ? "s" : ""} hiring · {countries.length} {countries.length === 1 ? "country" : "countries"}
         </p>
       </div>
 
@@ -70,7 +74,13 @@ export default async function BrowseTeamsPage({ searchParams }) {
       {sorted.length > 0 ? (
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {sorted.map((team) => (
-            <TeamCard key={team.id} team={team} boosted={boostedIds.has(team.profile_id)} isSeed={!!team.is_seed} />
+            <TeamCard
+              key={team.id}
+              team={team}
+              boosted={boostedIds.has(team.profile_id)}
+              isSeed={!!team.is_seed}
+              canContact={canContactTeams}
+            />
           ))}
         </div>
       ) : (
@@ -83,7 +93,7 @@ export default async function BrowseTeamsPage({ searchParams }) {
   );
 }
 
-function TeamCard({ team, boosted, isSeed }) {
+function TeamCard({ team, boosted, isSeed, canContact }) {
   const profile = team.profile;
   const positions = team.positions_needed || [];
   const posLabels = positions.map((p) =>
@@ -144,12 +154,18 @@ function TeamCard({ team, boosted, isSeed }) {
       </div>
 
       <div className="flex items-center justify-between border-t border-line bg-paper px-5 py-3">
-        <MessageButton
-          profileId={team.profile_id}
-          isSeed={isSeed}
-          className="text-[12px] font-semibold text-ink underline-offset-4 hover:underline"
-          label="Message"
-        />
+        {canContact ? (
+          <MessageButton
+            profileId={team.profile_id}
+            isSeed={isSeed}
+            className="text-[12px] font-semibold text-ink underline-offset-4 hover:underline"
+            label="Declare interest"
+          />
+        ) : (
+          <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-mute">
+            Roster search
+          </span>
+        )}
         <Link href={`/dashboard/teams/${team.profile_id}`} className="btn btn-ink" style={{ padding: "8px 14px", fontSize: 12 }}>
           View team →
         </Link>

@@ -94,7 +94,7 @@ export default function LoginPage() {
           </h1>
 
           <p className="mt-8 max-w-[420px] text-[16px] leading-[1.55] text-sand/65">
-            Return to your dossier, market conversations and roster search.
+            Return to your player profile, market conversations and roster search.
           </p>
         </div>
 
