@@ -113,6 +113,32 @@ html {
   letter-spacing: 0;
 }
 
+.hero-title {
+  font-size: clamp(3.5rem, 5vw, 4.75rem);
+  font-weight: 800;
+  line-height: 0.94;
+  letter-spacing: 0;
+}
+
+.section-title {
+  font-size: clamp(2.5rem, 4.6vw, 4.75rem);
+  font-weight: 800;
+  line-height: 0.98;
+  letter-spacing: 0;
+}
+
+.market-board {
+  box-shadow: 0 28px 80px rgba(5, 7, 10, 0.08);
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 @media (max-width: 767px) {
   .display-xl { font-size: 58px; }
   .display-lg { font-size: 48px; }
